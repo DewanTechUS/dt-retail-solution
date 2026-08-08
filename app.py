@@ -48,6 +48,10 @@ DEFAULT_STATE = {
     "manage_sku": None,
     # Quick-add terminal state
     "quick_value": "0",
+    # Separate Streamlit widget buffer. Never bind the visible input
+    # directly to quick_value; quick_value is the POS/business value.
+    "quick_input_widget": "0",
+    "quick_input_sync_pending": False,
     "quick_qty": 1,
     "quick_tax": "NONE",
     "quick_mode": "PRICE",           # PRICE | CUSTOM_TAX
@@ -65,6 +69,15 @@ for key, value in DEFAULT_STATE.items():
 if "theme_initialized_v4" not in st.session_state:
     st.session_state.dark_mode = True
     st.session_state.theme_initialized_v4 = True
+
+# Streamlit widget keys can only be changed safely before their widget
+# is instantiated. Button actions set this flag; the next rerun applies
+# the value here, before the Quick Entry input is rendered.
+if st.session_state.get("quick_input_sync_pending"):
+    st.session_state.quick_input_widget = str(
+        st.session_state.get("quick_value", "0") or "0"
+    )
+    st.session_state.quick_input_sync_pending = False
 
 
 # ============================================================
@@ -178,21 +191,29 @@ def quick_display_value():
     return raw
 
 
+def request_quick_input_sync():
+    """Synchronize the visible Quick Entry field on the next rerun."""
+    st.session_state.quick_input_sync_pending = True
+
+
 def quick_keypad_press(value):
     current = str(st.session_state.get("quick_value", "0"))
 
     if value == "C":
         st.session_state.quick_value = "0"
+        request_quick_input_sync()
         return
 
     if value == "⌫":
         trimmed = current[:-1]
         st.session_state.quick_value = trimmed if trimmed not in ("", "-") else "0"
+        request_quick_input_sync()
         return
 
     if value == ".":
         if "." not in current:
             st.session_state.quick_value = current + "."
+            request_quick_input_sync()
         return
 
     if not value.isdigit():
@@ -207,10 +228,12 @@ def quick_keypad_press(value):
     else:
         st.session_state.quick_value = current + value
 
+    request_quick_input_sync()
+
 
 def normalize_quick_keyboard_input():
-    """Keep physical-keyboard entry numeric and POS-friendly."""
-    raw = str(st.session_state.get("quick_value", "") or "")
+    """Copy physical-keyboard input into the POS value safely."""
+    raw = str(st.session_state.get("quick_input_widget", "") or "")
     raw = raw.replace("$", "").replace("%", "").replace(",", "").strip()
 
     cleaned = []
@@ -237,6 +260,10 @@ def normalize_quick_keyboard_input():
 
     st.session_state.quick_value = value
 
+    # If we stripped invalid characters or trimmed decimals, update the
+    # visible field safely at the beginning of the rerun.
+    if value != raw:
+        request_quick_input_sync()
 
 def quick_qty_adjust(delta):
     st.session_state.quick_qty = max(1, int(st.session_state.quick_qty) + int(delta))
@@ -333,6 +360,7 @@ def add_quick_item(tax_type=None, custom_rate=0.0):
     )
 
     st.session_state.quick_value = "0"
+    request_quick_input_sync()
     st.session_state.quick_qty = 1
     st.session_state.quick_tax = "NONE"
     st.session_state.quick_mode = "PRICE"
@@ -354,6 +382,7 @@ def start_custom_tax_entry():
     st.session_state.quick_tax = "CUSTOM"
     st.session_state.quick_mode = "CUSTOM_TAX"
     st.session_state.quick_value = "0"
+    request_quick_input_sync()
     st.session_state.quick_message = "Enter the custom tax %, then press ADD ITEM."
     return True
 
@@ -387,6 +416,7 @@ def finish_custom_tax_item():
         }
     )
     st.session_state.quick_value = "0"
+    request_quick_input_sync()
     st.session_state.quick_qty = 1
     st.session_state.quick_tax = "NONE"
     st.session_state.quick_mode = "PRICE"
@@ -399,6 +429,7 @@ def finish_custom_tax_item():
 def cancel_custom_tax():
     price = float(st.session_state.quick_pending_price or 0.0)
     st.session_state.quick_value = str(price).rstrip("0").rstrip(".") if price else "0"
+    request_quick_input_sync()
     st.session_state.quick_qty = int(st.session_state.quick_pending_qty or 1)
     st.session_state.quick_mode = "PRICE"
     st.session_state.quick_pending_price = 0.0
@@ -698,7 +729,9 @@ if st.session_state.page == "POS":
 
             mode_label = "CUSTOM TAX %" if st.session_state.quick_mode == "CUSTOM_TAX" else "PRICE"
 
-            # Real input field: supports both the physical keyboard and the on-screen keypad.
+            # Keyboard + touchscreen share the same large POS entry display.
+            # The visible Streamlit widget uses quick_input_widget, while
+            # quick_value remains independent POS/business state.
             with st.container(key="quick_entry_display"):
                 st.markdown(
                     f'<div class="quick-display-label">{mode_label}</div>',
@@ -706,7 +739,7 @@ if st.session_state.page == "POS":
                 )
                 st.text_input(
                     "Quick Entry",
-                    key="quick_value",
+                    key="quick_input_widget",
                     label_visibility="collapsed",
                     placeholder="0.00%" if st.session_state.quick_mode == "CUSTOM_TAX" else "0.00",
                     on_change=normalize_quick_keyboard_input,
@@ -924,9 +957,16 @@ if st.session_state.page == "POS":
                 st.session_state.cart = []
                 st.rerun()
 
+            # Keep the cart panel compact.
+            # Only the cart item list scrolls; totals and payment stay visible.
             if st.session_state.cart:
-                for index, item in enumerate(st.session_state.cart):
-                    render_cart_item(index, item, settings)
+                with st.container(
+                    height=330,
+                    border=False,
+                    key="cart_items_scroll",
+                ):
+                    for index, item in enumerate(st.session_state.cart):
+                        render_cart_item(index, item, settings)
             else:
                 st.markdown(
                     '<div class="empty-cart"><span class="empty-cart-icon">🛒</span><b>Your cart is empty</b><small>Scan inventory or use Quick Add.</small></div>',

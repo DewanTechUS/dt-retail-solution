@@ -801,8 +801,66 @@ button:disabled * {
 }
 
 /* =========================================================
-   PHYSICAL KEYBOARD QUICK ENTRY
-   The large POS price display is now a real Streamlit input.
+   CART SCROLL AREA
+   Keeps the cart item list fixed-height while totals/payment
+   remain visible below it.
+   ========================================================= */
+
+.st-key-cart_items_scroll {
+  height: 330px !important;
+  max-height: 330px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 2px 7px 2px 0 !important;
+  margin: 6px 0 10px !important;
+  scrollbar-gutter: stable;
+}
+
+/* Streamlit may place the scrolling behavior on an inner wrapper. */
+.st-key-cart_items_scroll > div,
+.st-key-cart_items_scroll [data-testid="stVerticalBlockBorderWrapper"],
+.st-key-cart_items_scroll [data-testid="stVerticalBlock"] {
+  max-width: 100% !important;
+}
+
+/* Clean POS-style scrollbar */
+.st-key-cart_items_scroll::-webkit-scrollbar,
+.st-key-cart_items_scroll *::-webkit-scrollbar {
+  width: 9px;
+}
+
+.st-key-cart_items_scroll::-webkit-scrollbar-track,
+.st-key-cart_items_scroll *::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--panel-2) 92%, transparent);
+  border-radius: 999px;
+}
+
+.st-key-cart_items_scroll::-webkit-scrollbar-thumb,
+.st-key-cart_items_scroll *::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--blue-hi), var(--navy));
+  border-radius: 999px;
+  border: 2px solid var(--panel-2);
+}
+
+.st-key-cart_items_scroll::-webkit-scrollbar-thumb:hover,
+.st-key-cart_items_scroll *::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--blue-hi) 88%, white), var(--blue));
+}
+
+/* Prevent the item rows themselves from stretching the outer cart panel. */
+.st-key-cart_items_scroll [class*="st-key-cart_row_"] {
+  flex: 0 0 auto;
+}
+
+/* The checkout summary stays visually separated from the scroll list. */
+.st-key-cart_items_scroll + div {
+  margin-top: 2px;
+}
+
+
+/* =========================================================
+   KEYBOARD-ENABLED QUICK ENTRY
+   Uses a separate widget key so Streamlit state can reset safely.
    ========================================================= */
 
 .st-key-quick_entry_display {
@@ -862,8 +920,9 @@ button:disabled * {
 }
 
 .st-key-quick_entry_display [data-testid="stTextInput"] input:focus {
-  border: 0 !important;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blue-hi) 38%, transparent) !important;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--blue-hi) 42%, transparent),
+    inset 0 0 24px color-mix(in srgb, var(--blue-hi) 7%, transparent) !important;
 }
 
 .st-key-quick_entry_display [data-testid="stTextInput"] input::placeholder {
