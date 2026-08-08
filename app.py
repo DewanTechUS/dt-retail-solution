@@ -284,7 +284,10 @@ if st.session_state.page == "POS":
                             st.rerun()
                         if c3.button("+ Add", key=f"quick_add_{row['sku']}", use_container_width=True, disabled=int(row["quantity"]) <= 0):
                             ok, msg = add_product_to_cart(row, 1)
-                            st.toast(msg) if ok else st.error(msg)
+                            if ok:
+                                st.toast(msg)
+                            else:
+                                st.error(msg)
                             if ok:
                                 st.session_state.selected_sku = row["sku"]
                                 st.rerun()
@@ -610,7 +613,10 @@ elif st.session_state.page == "Add Item":
                 st.error("SKU, product name, and category are required.")
             else:
                 ok, msg = add_inventory_item(sku, barcode, product, category, quantity, price, item_fee, tax_type, custom_tax_rate, preview)
-                st.success("Product added successfully.") if ok else st.error(msg)
+                if ok:
+                    st.success("Product added successfully.")
+                else:
+                    st.error(msg)
 
 
 # ============================================================
@@ -678,7 +684,10 @@ elif st.session_state.page == "Manage Item":
 elif st.session_state.page == "Sales History":
     st.markdown('<h1 class="page-title">Sales History</h1>', unsafe_allow_html=True)
     sales = list_sales()
-    st.dataframe(sales, use_container_width=True, hide_index=True) if sales else st.info("No sales have been recorded yet.")
+    if sales:
+        st.dataframe(sales, use_container_width=True, hide_index=True)
+    else:
+        st.info("No sales have been recorded yet.")
 
 
 # ============================================================
