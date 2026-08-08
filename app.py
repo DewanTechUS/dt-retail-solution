@@ -35,15 +35,84 @@ st.set_page_config(
 )
 
 
-def load_css(filename="styles.css"):
+def theme_overrides(theme):
+    if theme == "DARK":
+        return r"""
+        :root {
+            --bg: #0f141c;
+            --panel: #171e28;
+            --panel-soft: #1d2632;
+            --text: #f4f7fb;
+            --muted: #aeb8c6;
+            --line: #354152;
+            --input-bg: #111821;
+            --input-border: #465469;
+            --placeholder: #8390a2;
+            --soft-surface: #202a37;
+            --table-head: #202a37;
+            --hover: #263241;
+            --disabled-bg: #2b3442;
+            --disabled-text: #9ba7b6;
+            --soft-green: #173528;
+            --green-text: #6fe0a6;
+            --shadow: 0 6px 22px rgba(0,0,0,.28);
+        }
+
+        .stApp, .stApp > div, [data-testid="stAppViewContainer"] { background: var(--bg) !important; color: var(--text) !important; }
+        .st-key-top_header, .st-key-pos_left_panel, .st-key-pos_right_panel,
+        .st-key-selected_product_card, .st-key-settings_strip, .st-key-form_card,
+        [class*="st-key-inventory_row_"], [data-testid="stMetric"], [data-testid="stExpander"] {
+            background: var(--panel) !important; color: var(--text) !important; border-color: var(--line) !important;
+        }
+        .dt-clock, .search-hint-card, .empty-cart, .cart-table-head {
+            background: var(--panel-soft) !important; color: var(--text) !important; border-color: var(--line) !important;
+        }
+        .selected-product-image, .upload-preview, .manage-preview, .cart-thumb, .inventory-thumb {
+            background: var(--panel-soft) !important; border-color: var(--line) !important;
+        }
+        [data-testid="stTextInput"] input, [data-testid="stNumberInput"] input,
+        [data-baseweb="select"] > div, [data-baseweb="input"] > div, textarea {
+            background: var(--input-bg) !important; color: var(--text) !important; border-color: var(--input-border) !important;
+        }
+        [data-testid="stTextInput"] input::placeholder, textarea::placeholder { color: var(--placeholder) !important; opacity: 1 !important; }
+        [data-testid="stNumberInput"] button, [data-baseweb="select"] svg { color: var(--text) !important; }
+        [data-baseweb="popover"], [data-baseweb="menu"], [role="listbox"], [role="option"] {
+            background: var(--panel) !important; color: var(--text) !important;
+        }
+        [role="option"]:hover { background: var(--hover) !important; }
+        [data-testid="stDataFrame"] { background: var(--panel) !important; color: var(--text) !important; border-color: var(--line) !important; }
+        .product-detail span, .setting-cell span, .cart-product small, .stCaption, [data-testid="stCaptionContainer"] { color: var(--muted) !important; }
+        .st-key-change_due_box { background: var(--soft-green) !important; }
+        .change-due { color: var(--green-text) !important; }
+        hr, .totals-list hr { border-color: var(--line) !important; }
+        """
+    return r"""
+    :root {
+        --bg: #f4f6f8;
+        --panel: #ffffff;
+        --panel-soft: #fafbfc;
+        --text: #121a2a;
+        --muted: #657080;
+        --line: #dfe3e8;
+        --input-bg: #ffffff;
+        --input-border: #cfd6de;
+        --placeholder: #7c8795;
+        --soft-surface: #f7f8fa;
+        --table-head: #f5f5f5;
+        --hover: #f3f5f7;
+        --disabled-bg: #e4e8ed;
+        --disabled-text: #697483;
+        --soft-green: #edf8f1;
+        --green-text: #176f43;
+        --shadow: 0 4px 18px rgba(19,30,48,.07);
+    }
+    """
+
+
+def load_css(theme, filename="styles.css"):
     css_path = Path(__file__).with_name(filename)
-    st.markdown(
-        f"<style>{css_path.read_text(encoding='utf-8')}</style>",
-        unsafe_allow_html=True,
-    )
-
-
-load_css()
+    css = css_path.read_text(encoding="utf-8")
+    st.markdown(f"<style>{css}\n{theme_overrides(theme)}</style>", unsafe_allow_html=True)
 
 
 # ============================================================
@@ -60,11 +129,16 @@ DEFAULT_STATE = {
     "apply_card_fee": True,
     "last_receipt": None,
     "show_receipt": False,
+    "theme": "LIGHT",
+    "reset_pos_qty_pending": False,
 }
 
 for key, value in DEFAULT_STATE.items():
     if key not in st.session_state:
         st.session_state[key] = value
+
+
+load_css(st.session_state.theme)
 
 
 def goto(page_name):
@@ -104,6 +178,18 @@ with st.container(key="top_header"):
                 if st.button(page, key=f"nav_{page}", use_container_width=True):
                     goto(page)
                     st.rerun()
+
+            st.divider()
+            st.markdown("##### Appearance")
+            theme_left, theme_right = st.columns(2)
+            if theme_left.button("☀ Light", key="theme_light", use_container_width=True,
+                                 type="primary" if st.session_state.theme == "LIGHT" else "secondary"):
+                st.session_state.theme = "LIGHT"
+                st.rerun()
+            if theme_right.button("☾ Dark", key="theme_dark", use_container_width=True,
+                                  type="primary" if st.session_state.theme == "DARK" else "secondary"):
+                st.session_state.theme = "DARK"
+                st.rerun()
 
     with title_col:
         st.markdown('<div class="dt-brand">DT Retail POS</div>', unsafe_allow_html=True)
@@ -188,6 +274,14 @@ if st.session_state.page == "POS":
 
                     with qty_col:
                         st.markdown('<div class="quantity-label">Quantity</div>', unsafe_allow_html=True)
+
+                        # Streamlit does not allow changing a widget-backed session key
+                        # after that widget is instantiated in the same run. Reset it
+                        # here, before creating the Quantity widget.
+                        if st.session_state.get("reset_pos_qty_pending", False):
+                            st.session_state.pos_qty = "1"
+                            st.session_state.reset_pos_qty_pending = False
+
                         st.text_input(
                             "Quantity",
                             key="pos_qty",
@@ -222,7 +316,7 @@ if st.session_state.page == "POS":
                                         st.error("Cart quantity exceeds available stock.")
                                     else:
                                         existing["quantity"] = new_qty
-                                        st.session_state.pos_qty = "1"
+                                        st.session_state.reset_pos_qty_pending = True
                                         st.rerun()
                                 else:
                                     st.session_state.cart.append(
@@ -239,7 +333,7 @@ if st.session_state.page == "POS":
                                             "manual": False,
                                         }
                                     )
-                                    st.session_state.pos_qty = "1"
+                                    st.session_state.reset_pos_qty_pending = True
                                     st.rerun()
             elif search_text.strip():
                 st.warning("No matching inventory item found.")
@@ -460,9 +554,8 @@ if st.session_state.page == "POS":
                         unsafe_allow_html=True,
                     )
             else:
-                st.session_state.apply_card_fee = st.checkbox(
+                st.checkbox(
                     f"Apply Card Fee ({card_fee:.2f}%)",
-                    value=st.session_state.apply_card_fee,
                     key="apply_card_fee",
                 )
                 totals = calculate_cart_totals(
