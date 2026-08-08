@@ -51,7 +51,7 @@ DEFAULT_STATE = {
     "quick_value": "0",
     # Separate Streamlit widget buffer. Never bind the visible input
     # directly to quick_value; quick_value is the POS/business value.
-    "quick_input_widget": "0",
+    "quick_input_widget": "",
     "quick_input_sync_pending": False,
     "quick_qty": 1,
     "quick_tax": "NONE",
@@ -77,9 +77,8 @@ if "theme_initialized_v4" not in st.session_state:
 # is instantiated. Button actions set this flag; the next rerun applies
 # the value here, before the Quick Entry input is rendered.
 if st.session_state.get("quick_input_sync_pending"):
-    st.session_state.quick_input_widget = str(
-        st.session_state.get("quick_value", "0") or "0"
-    )
+    _quick_sync_value = str(st.session_state.get("quick_value", "0") or "0")
+    st.session_state.quick_input_widget = "" if _quick_sync_value in ("0", "0.0", "0.00") else _quick_sync_value
     st.session_state.quick_input_sync_pending = False
 
 if st.session_state.get("reset_cash_pending"):
@@ -254,6 +253,12 @@ def normalize_quick_keyboard_input():
     """Copy physical-keyboard input into the POS value safely."""
     raw = str(st.session_state.get("quick_input_widget", "") or "")
     raw = raw.replace("$", "").replace("%", "").replace(",", "").strip()
+
+    # An empty field means zero. Keep it visually empty so the large
+    # 0.00 placeholder remains clean and easy to overwrite by keyboard.
+    if raw == "":
+        st.session_state.quick_value = "0"
+        return
 
     cleaned = []
     dot_seen = False
