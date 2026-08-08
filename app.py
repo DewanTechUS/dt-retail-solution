@@ -167,10 +167,11 @@ def add_product_to_cart(product, quantity=1):
 
 def render_header():
     with st.container(key="app_header"):
-        # Balanced 3-column header keeps the brand at the true page center.
+        # Equal outer columns keep the title at the exact page center.
         left_space, title_col, right_controls = st.columns(
             [1, 1, 1],
             vertical_alignment="center",
+            gap="small",
         )
 
         with title_col:
@@ -178,7 +179,7 @@ def render_header():
 
         with right_controls:
             time_col, theme_col = st.columns(
-                [2.25, 1.05],
+                [1.85, 1.15],
                 vertical_alignment="center",
                 gap="small",
             )
