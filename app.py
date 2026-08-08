@@ -54,6 +54,7 @@ DEFAULT_STATE = {
     "quick_pending_price": 0.0,
     "quick_pending_qty": 1,
     "quick_message": "Enter a price, then tap a tax to add instantly.",
+    "editing_cart_index": None,
 }
 
 for key, value in DEFAULT_STATE.items():
@@ -472,8 +473,8 @@ def render_cart_item(index, item, settings):
     badge_name, badge_rate, badge_class = tax_badge(item, settings)
 
     with st.container(key=f"cart_row_{index}"):
-        img_col, info_col, minus_col, qty_col, plus_col, total_col, edit_col, remove_col = st.columns(
-            [0.85, 3.15, 0.52, 0.52, 0.52, 1.15, 0.62, 0.62],
+        img_col, info_col, qty_group_col, total_col, edit_col, remove_col = st.columns(
+            [0.82, 3.0, 1.8, 1.15, 0.78, 0.78],
             vertical_alignment="center",
             gap="small",
         )
@@ -498,20 +499,30 @@ def render_cart_item(index, item, settings):
             unsafe_allow_html=True,
         )
 
-        if minus_col.button("−", key=f"cart_minus_{index}", use_container_width=True):
-            item["quantity"] -= 1
-            if item["quantity"] <= 0:
-                st.session_state.cart.pop(index)
-            st.rerun()
+        # Compact POS-style quantity stepper: [-] qty [+]
+        with qty_group_col:
+            with st.container(key=f"qty_stepper_{index}"):
+                q_minus, q_value, q_plus = st.columns([1, 0.72, 1], gap="small", vertical_alignment="center")
 
-        qty_col.markdown(f'<div class="cart-qty">{int(item["quantity"])}</div>', unsafe_allow_html=True)
+                if q_minus.button("−", key=f"cart_minus_{index}", use_container_width=True):
+                    item["quantity"] -= 1
+                    if item["quantity"] <= 0:
+                        st.session_state.cart.pop(index)
+                        if st.session_state.editing_cart_index == index:
+                            st.session_state.editing_cart_index = None
+                    st.rerun()
 
-        if plus_col.button("+", key=f"cart_plus_{index}", use_container_width=True):
-            if item.get("manual") or int(item["quantity"]) < int(item.get("stock") or 0):
-                item["quantity"] += 1
-                st.rerun()
-            else:
-                st.toast("No more stock available.")
+                q_value.markdown(
+                    f'<div class="cart-qty">{int(item["quantity"])}</div>',
+                    unsafe_allow_html=True,
+                )
+
+                if q_plus.button("+", key=f"cart_plus_{index}", use_container_width=True):
+                    if item.get("manual") or int(item["quantity"]) < int(item.get("stock") or 0):
+                        item["quantity"] += 1
+                        st.rerun()
+                    else:
+                        st.toast("No more stock available.")
 
         total_col.markdown(
             f"""
@@ -523,62 +534,110 @@ def render_cart_item(index, item, settings):
             unsafe_allow_html=True,
         )
 
-        with edit_col.popover("✎", use_container_width=True):
-            st.markdown(f"**Edit {esc(item['product'])}**")
-            edit_name = item["product"]
-            if item.get("manual"):
-                edit_name = st.text_input("Description", value=item["product"], key=f"edit_name_{index}")
-                edit_price = st.number_input(
-                    "Price",
-                    min_value=0.01,
-                    value=float(item["price"]),
-                    step=0.01,
-                    format="%.2f",
-                    key=f"edit_price_{index}",
-                )
-            else:
-                edit_price = float(item["price"])
-                st.caption(f"Price: {money(edit_price)} · managed in Inventory")
-
-            edit_tax_options = ["NONE", "LOW", "HIGH", "CUSTOM"]
-            current_tax = (item.get("tax_type") or "NONE").upper()
-            if current_tax not in edit_tax_options:
-                current_tax = "NONE"
-            edit_tax = st.selectbox(
-                "Tax",
-                edit_tax_options,
-                index=edit_tax_options.index(current_tax),
-                key=f"edit_tax_{index}",
-            )
-            edit_custom = float(item.get("custom_tax_rate") or 0.0)
-            if edit_tax == "CUSTOM":
-                edit_custom = st.number_input(
-                    "Custom Tax %",
-                    min_value=0.0,
-                    value=edit_custom,
-                    step=0.1,
-                    format="%.2f",
-                    key=f"edit_custom_tax_{index}",
-                )
-            edit_fee = st.number_input(
-                "Item Fee",
-                min_value=0.0,
-                value=float(item.get("item_fee") or 0.0),
-                step=0.01,
-                format="%.2f",
-                key=f"edit_fee_{index}",
-            )
-            if st.button("Save Cart Changes", key=f"save_cart_edit_{index}", type="primary", use_container_width=True):
-                item["product"] = edit_name.strip() or item["product"]
-                item["price"] = float(edit_price)
-                item["tax_type"] = edit_tax
-                item["custom_tax_rate"] = float(edit_custom if edit_tax == "CUSTOM" else 0.0)
-                item["item_fee"] = float(edit_fee)
-                st.rerun()
-
-        if remove_col.button("🗑", key=f"cart_remove_{index}", use_container_width=True):
-            st.session_state.cart.pop(index)
+        edit_open = st.session_state.editing_cart_index == index
+        if edit_col.button(
+            "Edit" if not edit_open else "Close",
+            key=f"cart_edit_toggle_{index}",
+            use_container_width=True,
+        ):
+            st.session_state.editing_cart_index = None if edit_open else index
             st.rerun()
+
+        if remove_col.button("Remove", key=f"cart_remove_{index}", use_container_width=True):
+            st.session_state.cart.pop(index)
+            st.session_state.editing_cart_index = None
+            st.rerun()
+
+        # Inline editor avoids Streamlit popover arrows and keeps the row predictable.
+        if st.session_state.editing_cart_index == index:
+            with st.container(key=f"cart_editor_{index}"):
+                st.markdown('<div class="cart-editor-title">Edit item</div>', unsafe_allow_html=True)
+
+                with st.form(key=f"cart_edit_form_{index}"):
+                    e1, e2, e3 = st.columns([1.55, 1, 1], gap="medium")
+
+                    with e1:
+                        edit_name = item["product"]
+                        if item.get("manual"):
+                            edit_name = st.text_input(
+                                "Description",
+                                value=item["product"],
+                                key=f"edit_name_{index}",
+                            )
+                            edit_price = st.number_input(
+                                "Price",
+                                min_value=0.01,
+                                value=float(item["price"]),
+                                step=0.01,
+                                format="%.2f",
+                                key=f"edit_price_{index}",
+                            )
+                        else:
+                            st.text_input(
+                                "Product",
+                                value=item["product"],
+                                disabled=True,
+                                key=f"edit_product_readonly_{index}",
+                            )
+                            edit_price = float(item["price"])
+                            st.caption(f"Inventory price: {money(edit_price)}")
+
+                    with e2:
+                        edit_tax_options = ["NONE", "LOW", "HIGH", "CUSTOM"]
+                        current_tax = (item.get("tax_type") or "NONE").upper()
+                        if current_tax not in edit_tax_options:
+                            current_tax = "NONE"
+                        edit_tax = st.selectbox(
+                            "Tax",
+                            edit_tax_options,
+                            index=edit_tax_options.index(current_tax),
+                            key=f"edit_tax_{index}",
+                        )
+
+                        edit_custom = float(item.get("custom_tax_rate") or 0.0)
+                        if edit_tax == "CUSTOM":
+                            edit_custom = st.number_input(
+                                "Custom Tax %",
+                                min_value=0.0,
+                                value=edit_custom,
+                                step=0.1,
+                                format="%.2f",
+                                key=f"edit_custom_tax_{index}",
+                            )
+
+                    with e3:
+                        edit_fee = st.number_input(
+                            "Item Fee",
+                            min_value=0.0,
+                            value=float(item.get("item_fee") or 0.0),
+                            step=0.01,
+                            format="%.2f",
+                            key=f"edit_fee_{index}",
+                        )
+
+                    save_col, cancel_col = st.columns(2, gap="small")
+                    save_changes = save_col.form_submit_button(
+                        "Save Changes",
+                        type="primary",
+                        use_container_width=True,
+                    )
+                    cancel_changes = cancel_col.form_submit_button(
+                        "Cancel",
+                        use_container_width=True,
+                    )
+
+                    if save_changes:
+                        item["product"] = edit_name.strip() or item["product"]
+                        item["price"] = float(edit_price)
+                        item["tax_type"] = edit_tax
+                        item["custom_tax_rate"] = float(edit_custom if edit_tax == "CUSTOM" else 0.0)
+                        item["item_fee"] = float(edit_fee)
+                        st.session_state.editing_cart_index = None
+                        st.rerun()
+
+                    if cancel_changes:
+                        st.session_state.editing_cart_index = None
+                        st.rerun()
 
 
 # ============================================================
