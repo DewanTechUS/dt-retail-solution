@@ -674,3 +674,33 @@ button:disabled, button:disabled * {
   justify-content: flex-end !important;
   gap: 8px !important;
 }
+
+/* =========================================================
+   HEADER MICRO-ALIGNMENT V2
+   Only centers time + Dark Mode inside the right-side group.
+   ========================================================= */
+
+.clock {
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.st-key-dark_mode {
+  justify-content: center !important;
+}
+
+.st-key-dark_mode > div {
+  width: auto !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.st-key-dark_mode label {
+  justify-content: center !important;
+  align-items: center !important;
+  line-height: 1 !important;
+}
+
+.st-key-dark_mode [data-baseweb="checkbox"] {
+  transform-origin: center center !important;
+}
