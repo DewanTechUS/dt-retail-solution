@@ -178,21 +178,13 @@ def render_header():
             st.markdown('<div class="brand">DT Retail POS</div>', unsafe_allow_html=True)
 
         with right_controls:
-            # Compact centered control group: spacer | time | toggle | spacer
-            pad_left, time_col, theme_col, pad_right = st.columns(
-                [0.28, 1.55, 1.15, 0.28],
-                vertical_alignment="center",
-                gap="small",
-            )
-
-            with time_col:
+            # Stack the theme control and time together so there is no uneven gap.
+            with st.container(key="header_controls_stack"):
+                st.toggle("Dark mode", key="dark_mode", help="Switch light / dark mode")
                 st.markdown(
                     f'<div class="clock">◷&nbsp;&nbsp;{datetime.now().strftime("%b %d, %Y&nbsp;&nbsp;%I:%M %p")}</div>',
                     unsafe_allow_html=True,
                 )
-
-            with theme_col:
-                st.toggle("Dark mode", key="dark_mode", help="Switch light / dark mode")
 
 
 def render_bottom_nav():
