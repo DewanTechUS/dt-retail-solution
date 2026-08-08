@@ -5,15 +5,16 @@ from databricks import sql
 from databricks.sdk.core import Config
 
 
-# -------------------------------------------------
-# Databricks connection settings
-# -------------------------------------------------
+# =================================================
+# DATABRICKS CONNECTION
+# =================================================
 
 config = Config()
 
 warehouse_id = os.getenv("DATABRICKS_WAREHOUSE_ID")
 inventory_table = os.getenv("INVENTORY_TABLE")
 sales_table = os.getenv("SALES_HISTORY_TABLE")
+settings_table = os.getenv("SETTINGS_TABLE")
 
 server_hostname = config.host.replace("https://", "")
 http_path = f"/sql/1.0/warehouses/{warehouse_id}"
@@ -27,9 +28,9 @@ def get_connection():
     )
 
 
-# -------------------------------------------------
-# Page setup
-# -------------------------------------------------
+# =================================================
+# PAGE SETUP
+# =================================================
 
 st.set_page_config(
     page_title="DT Retail Solution",
@@ -41,9 +42,9 @@ st.title("DT Retail Solution")
 st.caption("Retail Inventory & Sales Management powered by Databricks")
 
 
-# -------------------------------------------------
-# Get dashboard totals
-# -------------------------------------------------
+# =================================================
+# DASHBOARD TOTALS
+# =================================================
 
 connection = get_connection()
 
@@ -70,29 +71,39 @@ with connection.cursor() as cursor:
 connection.close()
 
 
-# -------------------------------------------------
-# Dashboard cards
-# -------------------------------------------------
-
 col1, col2, col3, col4 = st.columns(4)
 
 col1.metric("Products", inventory_summary[0])
 col2.metric("Units in Stock", inventory_summary[1])
-col3.metric("Inventory Value", f"${float(inventory_summary[2]):,.2f}")
-col4.metric("Sales Revenue", f"${float(total_revenue):,.2f}")
+col3.metric(
+    "Inventory Value",
+    f"${float(inventory_summary[2]):,.2f}"
+)
+col4.metric(
+    "Sales Revenue",
+    f"${float(total_revenue):,.2f}"
+)
 
 
-# -------------------------------------------------
-# Tabs
-# -------------------------------------------------
+# =================================================
+# TABS
+# =================================================
 
-inventory_tab, add_tab, sell_tab, manage_tab, history_tab = st.tabs(
+(
+    inventory_tab,
+    add_tab,
+    sell_tab,
+    manage_tab,
+    history_tab,
+    settings_tab
+) = st.tabs(
     [
         "Inventory",
         "Add Item",
         "Sell Item",
         "Manage Item",
-        "Sales History"
+        "Sales History",
+        "Settings"
     ]
 )
 
@@ -112,10 +123,14 @@ with inventory_tab:
         cursor.execute(f"""
             SELECT
                 sku,
+                barcode,
                 product,
                 category,
                 quantity,
                 price,
+                item_fee,
+                tax_type,
+                custom_tax_rate,
                 quantity * price AS total_value
             FROM {inventory_table}
             ORDER BY sku
@@ -147,33 +162,71 @@ with add_tab:
 
     with st.form("add_item_form"):
 
-        sku = st.text_input(
-            "SKU",
-            placeholder="DT-1005"
-        )
+        col1, col2 = st.columns(2)
 
-        product = st.text_input(
-            "Product Name",
-            placeholder="Coca-Cola"
-        )
+        with col1:
 
-        category = st.text_input(
-            "Category",
-            placeholder="Beverages"
-        )
+            sku = st.text_input(
+                "SKU",
+                placeholder="DT-1005"
+            )
 
-        quantity = st.number_input(
-            "Quantity",
-            min_value=1,
-            step=1
-        )
+            barcode = st.text_input(
+                "Barcode",
+                placeholder="100000000005"
+            )
 
-        price = st.number_input(
-            "Price",
-            min_value=0.01,
-            step=0.01,
-            format="%.2f"
-        )
+            product = st.text_input(
+                "Product Name",
+                placeholder="Coca-Cola"
+            )
+
+            category = st.text_input(
+                "Category",
+                placeholder="Beverages"
+            )
+
+        with col2:
+
+            quantity = st.number_input(
+                "Quantity",
+                min_value=0,
+                step=1
+            )
+
+            price = st.number_input(
+                "Price",
+                min_value=0.01,
+                step=0.01,
+                format="%.2f"
+            )
+
+            item_fee = st.number_input(
+                "Item Fee",
+                min_value=0.00,
+                step=0.01,
+                format="%.2f"
+            )
+
+            tax_type = st.selectbox(
+                "Tax Type",
+                [
+                    "NONE",
+                    "LOW",
+                    "HIGH",
+                    "CUSTOM"
+                ]
+            )
+
+        custom_tax_rate = 0.00
+
+        if tax_type == "CUSTOM":
+            custom_tax_rate = st.number_input(
+                "Custom Tax %",
+                min_value=0.00,
+                step=0.10,
+                format="%.2f"
+            )
 
         add_button = st.form_submit_button(
             "Add Item"
@@ -181,9 +234,16 @@ with add_tab:
 
     if add_button:
 
+        sku = sku.strip().upper()
+        product = product.strip()
+        category = category.strip()
+        barcode = barcode.strip()
+
         if not sku or not product or not category:
 
-            st.error("Please complete all fields.")
+            st.error(
+                "SKU, product name, and category are required."
+            )
 
         else:
 
@@ -191,7 +251,6 @@ with add_tab:
 
             with connection.cursor() as cursor:
 
-                # Check if SKU already exists
                 cursor.execute(
                     f"""
                     SELECT COUNT(*)
@@ -201,29 +260,71 @@ with add_tab:
                     [sku]
                 )
 
-                exists = cursor.fetchone()[0]
+                sku_exists = cursor.fetchone()[0]
 
-                if exists:
+                if sku_exists:
 
                     st.error("This SKU already exists.")
 
                 else:
 
-                    cursor.execute(
-                        f"""
-                        INSERT INTO {inventory_table}
-                        VALUES (?, ?, ?, ?, ?)
-                        """,
-                        [
-                            sku,
-                            product,
-                            category,
-                            quantity,
-                            price
-                        ]
-                    )
+                    if barcode:
 
-                    st.success("Item added successfully.")
+                        cursor.execute(
+                            f"""
+                            SELECT COUNT(*)
+                            FROM {inventory_table}
+                            WHERE barcode = ?
+                            """,
+                            [barcode]
+                        )
+
+                        barcode_exists = cursor.fetchone()[0]
+
+                    else:
+
+                        barcode_exists = 0
+
+                    if barcode_exists:
+
+                        st.error(
+                            "This barcode already exists."
+                        )
+
+                    else:
+
+                        cursor.execute(
+                            f"""
+                            INSERT INTO {inventory_table}
+                            (
+                                sku,
+                                product,
+                                category,
+                                quantity,
+                                price,
+                                barcode,
+                                item_fee,
+                                tax_type,
+                                custom_tax_rate
+                            )
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            """,
+                            [
+                                sku,
+                                product,
+                                category,
+                                quantity,
+                                price,
+                                barcode if barcode else None,
+                                item_fee,
+                                tax_type,
+                                custom_tax_rate
+                            ]
+                        )
+
+                        st.success(
+                            "Item added successfully."
+                        )
 
             connection.close()
 
@@ -247,7 +348,8 @@ with sell_tab:
                 sku,
                 product,
                 quantity,
-                price
+                price,
+                barcode
             FROM {inventory_table}
             WHERE quantity > 0
             ORDER BY product
@@ -260,7 +362,7 @@ with sell_tab:
     if products:
 
         options = {
-            f"{row[0]} - {row[1]} (Stock: {row[2]})": row
+            f"{row[0]} - {row[1]} | Stock: {row[2]}": row
             for row in products
         }
 
@@ -273,20 +375,36 @@ with sell_tab:
 
         sku = selected_item[0]
         product = selected_item[1]
-        stock = selected_item[2]
-        price = selected_item[3]
+        stock = int(selected_item[2])
+        price = float(selected_item[3])
+        barcode = selected_item[4]
 
-        st.write(f"Price: ${float(price):.2f}")
-        st.write(f"Available Stock: {stock}")
+        info1, info2, info3 = st.columns(3)
+
+        info1.metric("Price", f"${price:.2f}")
+        info2.metric("Available Stock", stock)
+        info3.write(
+            f"**Barcode:** {barcode or 'Not assigned'}"
+        )
 
         quantity_sold = st.number_input(
             "Quantity to Sell",
             min_value=1,
-            max_value=int(stock),
+            max_value=stock,
             step=1
         )
 
-        if st.button("Complete Sale"):
+        sale_total = quantity_sold * price
+
+        st.metric(
+            "Sale Total",
+            f"${sale_total:,.2f}"
+        )
+
+        if st.button(
+            "Complete Sale",
+            type="primary"
+        ):
 
             sale_id = str(uuid.uuid4())[:8].upper()
 
@@ -301,13 +419,26 @@ with sell_tab:
                     SET quantity = quantity - ?
                     WHERE sku = ?
                     """,
-                    [quantity_sold, sku]
+                    [
+                        quantity_sold,
+                        sku
+                    ]
                 )
 
-                # Save sale history
+                # Record sale
+                # Column names are specified so this also works
+                # if your sales table has extra receipt fields.
                 cursor.execute(
                     f"""
                     INSERT INTO {sales_table}
+                    (
+                        sale_id,
+                        sku,
+                        product,
+                        quantity_sold,
+                        sale_price,
+                        sold_at
+                    )
                     VALUES (
                         ?, ?, ?, ?, ?, CURRENT_TIMESTAMP()
                     )
@@ -331,7 +462,9 @@ with sell_tab:
 
     else:
 
-        st.info("No products are currently in stock.")
+        st.info(
+            "No products are currently in stock."
+        )
 
 
 # =================================================
@@ -347,7 +480,15 @@ with manage_tab:
     with connection.cursor() as cursor:
 
         cursor.execute(f"""
-            SELECT sku, product, price
+            SELECT
+                sku,
+                product,
+                quantity,
+                price,
+                item_fee,
+                tax_type,
+                custom_tax_rate,
+                barcode
             FROM {inventory_table}
             ORDER BY product
         """)
@@ -373,24 +514,77 @@ with manage_tab:
 
         sku = item[0]
         product = item[1]
-        current_price = float(item[2])
+        current_quantity = int(item[2])
+        current_price = float(item[3])
+        current_fee = float(item[4] or 0)
+        current_tax_type = item[5] or "NONE"
+        current_custom_tax = float(item[6] or 0)
+        current_barcode = item[7] or ""
 
+        st.write(f"### Edit {product}")
 
-        # -----------------------------------------
-        # Change Price
-        # -----------------------------------------
+        new_barcode = st.text_input(
+            "Barcode",
+            value=current_barcode
+        )
 
-        st.write("### Change Price")
+        new_quantity = st.number_input(
+            "Stock Quantity",
+            min_value=0,
+            value=current_quantity,
+            step=1
+        )
 
         new_price = st.number_input(
-            "New Price",
+            "Price",
             min_value=0.01,
             value=current_price,
             step=0.01,
             format="%.2f"
         )
 
-        if st.button("Update Price"):
+        new_fee = st.number_input(
+            "Item Fee",
+            min_value=0.00,
+            value=current_fee,
+            step=0.01,
+            format="%.2f"
+        )
+
+        tax_options = [
+            "NONE",
+            "LOW",
+            "HIGH",
+            "CUSTOM"
+        ]
+
+        tax_index = (
+            tax_options.index(current_tax_type)
+            if current_tax_type in tax_options
+            else 0
+        )
+
+        new_tax_type = st.selectbox(
+            "Tax Type",
+            tax_options,
+            index=tax_index
+        )
+
+        new_custom_tax = 0.00
+
+        if new_tax_type == "CUSTOM":
+
+            new_custom_tax = st.number_input(
+                "Custom Tax %",
+                min_value=0.00,
+                value=current_custom_tax,
+                step=0.10,
+                format="%.2f"
+            )
+
+        if st.button(
+            "Save Item Changes"
+        ):
 
             connection = get_connection()
 
@@ -399,34 +593,53 @@ with manage_tab:
                 cursor.execute(
                     f"""
                     UPDATE {inventory_table}
-                    SET price = ?
+                    SET
+                        barcode = ?,
+                        quantity = ?,
+                        price = ?,
+                        item_fee = ?,
+                        tax_type = ?,
+                        custom_tax_rate = ?
                     WHERE sku = ?
                     """,
-                    [new_price, sku]
+                    [
+                        new_barcode,
+                        new_quantity,
+                        new_price,
+                        new_fee,
+                        new_tax_type,
+                        new_custom_tax,
+                        sku
+                    ]
                 )
 
             connection.close()
 
-            st.success("Price updated successfully.")
+            st.success(
+                "Item updated successfully."
+            )
 
             st.rerun()
 
 
         # -----------------------------------------
-        # Delete Item
+        # DELETE ITEM
         # -----------------------------------------
 
         st.divider()
 
         st.write("### Delete Item")
 
+        st.warning(
+            "Deleting an item removes it from inventory."
+        )
+
         confirm_delete = st.checkbox(
-            f"I want to delete {product}"
+            f"I confirm that I want to delete {product}"
         )
 
         if st.button(
-            "Delete Item",
-            type="primary"
+            "Delete Item"
         ):
 
             if not confirm_delete:
@@ -451,7 +664,9 @@ with manage_tab:
 
                 connection.close()
 
-                st.success("Item deleted successfully.")
+                st.success(
+                    "Item deleted successfully."
+                )
 
                 st.rerun()
 
@@ -482,7 +697,10 @@ with history_tab:
         """)
 
         rows = cursor.fetchall()
-        columns = [column[0] for column in cursor.description]
+        columns = [
+            column[0]
+            for column in cursor.description
+        ]
 
     connection.close()
 
@@ -500,4 +718,124 @@ with history_tab:
 
     else:
 
-        st.info("No sales have been recorded yet.")
+        st.info(
+            "No sales have been recorded yet."
+        )
+
+
+# =================================================
+# SETTINGS
+# =================================================
+
+with settings_tab:
+
+    st.subheader("POS Settings")
+
+    st.caption(
+        "Configure tax rates and card fee."
+    )
+
+    connection = get_connection()
+
+    with connection.cursor() as cursor:
+
+        cursor.execute(f"""
+            SELECT
+                setting_name,
+                setting_value
+            FROM {settings_table}
+        """)
+
+        rows = cursor.fetchall()
+
+    connection.close()
+
+    settings = {
+        row[0]: float(row[1])
+        for row in rows
+    }
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+
+        low_tax = st.number_input(
+            "Low Tax %",
+            min_value=0.00,
+            value=settings.get(
+                "LOW_TAX",
+                0.00
+            ),
+            step=0.10,
+            format="%.2f"
+        )
+
+    with col2:
+
+        high_tax = st.number_input(
+            "High Tax %",
+            min_value=0.00,
+            value=settings.get(
+                "HIGH_TAX",
+                0.00
+            ),
+            step=0.10,
+            format="%.2f"
+        )
+
+    with col3:
+
+        card_fee = st.number_input(
+            "Card Fee %",
+            min_value=0.00,
+            value=settings.get(
+                "CARD_FEE",
+                0.00
+            ),
+            step=0.10,
+            format="%.2f"
+        )
+
+    if st.button(
+        "Save Settings",
+        type="primary"
+    ):
+
+        connection = get_connection()
+
+        with connection.cursor() as cursor:
+
+            cursor.execute(
+                f"""
+                UPDATE {settings_table}
+                SET setting_value = ?
+                WHERE setting_name = 'LOW_TAX'
+                """,
+                [low_tax]
+            )
+
+            cursor.execute(
+                f"""
+                UPDATE {settings_table}
+                SET setting_value = ?
+                WHERE setting_name = 'HIGH_TAX'
+                """,
+                [high_tax]
+            )
+
+            cursor.execute(
+                f"""
+                UPDATE {settings_table}
+                SET setting_value = ?
+                WHERE setting_name = 'CARD_FEE'
+                """,
+                [card_fee]
+            )
+
+        connection.close()
+
+        st.success(
+            "POS settings saved successfully."
+        )
+
+        st.rerun()
