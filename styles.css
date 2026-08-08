@@ -1,0 +1,71 @@
+/* =========================================================
+   DT Retail POS - Presentation Layer Only
+   Keep visual styling here; no business logic in this file.
+   ========================================================= */
+
+.stApp {
+    background: #f4f6f8;
+}
+
+.block-container {
+    max-width: 1550px;
+    padding-top: 1.2rem;
+    padding-bottom: 2rem;
+}
+
+h1, h2, h3 {
+    color: #111827;
+}
+
+[data-testid="stMetric"] {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+[data-testid="stMetricLabel"],
+[data-testid="stMetricValue"] {
+    color: #111827;
+}
+
+.pos-card,
+.total-box {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    color: #111827;
+}
+
+.cart-line {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+}
+
+.big-total {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #111827;
+}
+
+.muted {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+div.stButton > button {
+    border-radius: 10px;
+    min-height: 42px;
+    font-weight: 600;
+}
+
+div[data-testid="stTabs"] button {
+    font-weight: 600;
+}
