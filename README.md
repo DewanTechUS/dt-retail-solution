@@ -62,6 +62,10 @@ This analytics layer complements the POS application by showing how the same ret
 
 ---
 
+## Terminal Quick Add
+
+The POS includes a fast manual-entry terminal: type a price on the large keypad, then tap No Tax, Low Tax, or High Tax to add the item to the cart immediately. Custom tax uses the same keypad and cart entries can be edited or removed before checkout.
+
 ## Key Features
 
 ### Point of Sale
