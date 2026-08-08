@@ -617,10 +617,10 @@ button:disabled, button:disabled * {
 }
 
 /* =========================================================
-   FINAL HEADER ALIGNMENT ONLY
+   FINAL HEADER ALIGNMENT — CLEAN SINGLE SOURCE OF TRUTH
    ========================================================= */
 
-/* Keep the complete header content vertically centered. */
+/* Keep the full header vertically centered. */
 .st-key-app_header {
   min-height: 68px !important;
   padding: 10px 18px !important;
@@ -630,7 +630,7 @@ button:disabled, button:disabled * {
   align-items: center !important;
 }
 
-/* Brand is centered inside the middle third of the page. */
+/* Title stays truly centered in the middle outer column. */
 .brand {
   width: 100% !important;
   margin: 0 !important;
@@ -638,69 +638,57 @@ button:disabled, button:disabled * {
   line-height: 38px !important;
 }
 
-/* Date/time and toggle use the exact same control height/baseline. */
+/* Time is plain text and sits immediately before the theme toggle. */
 .clock {
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
   height: 38px !important;
   min-height: 38px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: flex-end !important;
-  padding: 0 !important;
+  padding: 0 2px 0 0 !important;
   margin: 0 !important;
   line-height: 1 !important;
   white-space: nowrap !important;
+  text-align: right !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: var(--muted) !important;
 }
 
+/* Dark-mode toggle begins right beside the clock. */
 .st-key-dark_mode {
   height: 38px !important;
   min-height: 38px !important;
   display: flex !important;
   align-items: center !important;
-  justify-content: flex-end !important;
+  justify-content: flex-start !important;
   margin: 0 !important;
-  padding: 0 !important;
-}
-
-.st-key-dark_mode > div,
-.st-key-dark_mode label {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-}
-
-.st-key-dark_mode label {
-  min-height: 38px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 8px !important;
-}
-
-/* =========================================================
-   HEADER MICRO-ALIGNMENT V2
-   Only centers time + Dark Mode inside the right-side group.
-   ========================================================= */
-
-.clock {
-  justify-content: center !important;
-  text-align: center !important;
-}
-
-.st-key-dark_mode {
-  justify-content: center !important;
+  padding: 0 0 0 2px !important;
 }
 
 .st-key-dark_mode > div {
   width: auto !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
+  margin: 0 !important;
 }
 
 .st-key-dark_mode label {
-  justify-content: center !important;
+  min-height: 38px !important;
+  margin: 0 !important;
+  display: flex !important;
   align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 7px !important;
   line-height: 1 !important;
+  white-space: nowrap !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
 }
 
 .st-key-dark_mode [data-baseweb="checkbox"] {
-  transform-origin: center center !important;
+  transform: scale(1.08) !important;
+  transform-origin: left center !important;
 }
