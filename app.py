@@ -208,6 +208,36 @@ def quick_keypad_press(value):
         st.session_state.quick_value = current + value
 
 
+def normalize_quick_keyboard_input():
+    """Keep physical-keyboard entry numeric and POS-friendly."""
+    raw = str(st.session_state.get("quick_value", "") or "")
+    raw = raw.replace("$", "").replace("%", "").replace(",", "").strip()
+
+    cleaned = []
+    dot_seen = False
+
+    for ch in raw:
+        if ch.isdigit():
+            cleaned.append(ch)
+        elif ch == "." and not dot_seen:
+            cleaned.append(ch)
+            dot_seen = True
+
+    value = "".join(cleaned)
+
+    if value.startswith("."):
+        value = "0" + value
+
+    if "." in value:
+        whole, decimals = value.split(".", 1)
+        value = f"{whole or '0'}.{decimals[:2]}"
+
+    if value == "":
+        value = "0"
+
+    st.session_state.quick_value = value
+
+
 def quick_qty_adjust(delta):
     st.session_state.quick_qty = max(1, int(st.session_state.quick_qty) + int(delta))
 
@@ -667,16 +697,24 @@ if st.session_state.page == "POS":
             st.markdown('<div class="panel-title"><span class="bolt">ϟ</span> QUICK ADD ITEM</div>', unsafe_allow_html=True)
 
             mode_label = "CUSTOM TAX %" if st.session_state.quick_mode == "CUSTOM_TAX" else "PRICE"
-            st.markdown(
-                f"""
-                <div class="quick-display-wrap">
-                  <div class="quick-display-label">{mode_label}</div>
-                  <div class="quick-display">{esc(quick_display_value())}<span class="cursor"></span></div>
-                  <div class="quick-qty-chip">Qty&nbsp; {int(st.session_state.quick_qty)}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+
+            # Real input field: supports both the physical keyboard and the on-screen keypad.
+            with st.container(key="quick_entry_display"):
+                st.markdown(
+                    f'<div class="quick-display-label">{mode_label}</div>',
+                    unsafe_allow_html=True,
+                )
+                st.text_input(
+                    "Quick Entry",
+                    key="quick_value",
+                    label_visibility="collapsed",
+                    placeholder="0.00%" if st.session_state.quick_mode == "CUSTOM_TAX" else "0.00",
+                    on_change=normalize_quick_keyboard_input,
+                )
+                st.markdown(
+                    f'<div class="quick-qty-chip">Qty&nbsp; {int(st.session_state.quick_qty)}</div>',
+                    unsafe_allow_html=True,
+                )
 
             search_text = st.text_input(
                 "Scan / Search",
@@ -886,16 +924,9 @@ if st.session_state.page == "POS":
                 st.session_state.cart = []
                 st.rerun()
 
-            # Keep the cart panel compact.
-            # Only the cart item list scrolls; totals and payment stay visible.
             if st.session_state.cart:
-                with st.container(
-                    height=330,
-                    border=False,
-                    key="cart_items_scroll",
-                ):
-                    for index, item in enumerate(st.session_state.cart):
-                        render_cart_item(index, item, settings)
+                for index, item in enumerate(st.session_state.cart):
+                    render_cart_item(index, item, settings)
             else:
                 st.markdown(
                     '<div class="empty-cart"><span class="empty-cart-icon">🛒</span><b>Your cart is empty</b><small>Scan inventory or use Quick Add.</small></div>',

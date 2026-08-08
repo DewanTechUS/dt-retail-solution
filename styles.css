@@ -801,58 +801,99 @@ button:disabled * {
 }
 
 /* =========================================================
-   CART SCROLL AREA
-   Keeps the cart item list fixed-height while totals/payment
-   remain visible below it.
+   PHYSICAL KEYBOARD QUICK ENTRY
+   The large POS price display is now a real Streamlit input.
    ========================================================= */
 
-.st-key-cart_items_scroll {
-  height: 330px !important;
-  max-height: 330px !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  padding: 2px 7px 2px 0 !important;
-  margin: 6px 0 10px !important;
-  scrollbar-gutter: stable;
+.st-key-quick_entry_display {
+  position: relative;
+  min-height: 126px;
+  margin-bottom: 12px;
+  padding: 0 !important;
+  border: 2px solid var(--blue-hi);
+  border-radius: 13px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--blue) 10%, transparent), transparent 32%),
+    var(--input);
+  box-shadow:
+    inset 0 0 28px color-mix(in srgb, var(--blue-hi) 8%, transparent),
+    0 0 18px color-mix(in srgb, var(--blue-hi) 12%, transparent);
+  overflow: hidden;
 }
 
-/* Streamlit may place the scrolling behavior on an inner wrapper. */
-.st-key-cart_items_scroll > div,
-.st-key-cart_items_scroll [data-testid="stVerticalBlockBorderWrapper"],
-.st-key-cart_items_scroll [data-testid="stVerticalBlock"] {
-  max-width: 100% !important;
+.st-key-quick_entry_display .quick-display-label {
+  position: absolute;
+  z-index: 3;
+  top: 9px;
+  left: 15px;
+  color: var(--muted) !important;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  pointer-events: none;
 }
 
-/* Clean POS-style scrollbar */
-.st-key-cart_items_scroll::-webkit-scrollbar,
-.st-key-cart_items_scroll *::-webkit-scrollbar {
-  width: 9px;
+.st-key-quick_entry_display [data-testid="stTextInput"] {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-.st-key-cart_items_scroll::-webkit-scrollbar-track,
-.st-key-cart_items_scroll *::-webkit-scrollbar-track {
-  background: color-mix(in srgb, var(--panel-2) 92%, transparent);
-  border-radius: 999px;
+.st-key-quick_entry_display [data-testid="stTextInput"] > div {
+  margin: 0 !important;
 }
 
-.st-key-cart_items_scroll::-webkit-scrollbar-thumb,
-.st-key-cart_items_scroll *::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--blue-hi), var(--navy));
-  border-radius: 999px;
-  border: 2px solid var(--panel-2);
+.st-key-quick_entry_display [data-testid="stTextInput"] input {
+  height: 122px !important;
+  min-height: 122px !important;
+  padding: 27px 110px 8px 24px !important;
+  border: 0 !important;
+  border-radius: 11px !important;
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+  caret-color: #6ea5ff !important;
+  font-size: clamp(58px, 5.4vw, 86px) !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  letter-spacing: -2px !important;
+  text-shadow: 0 0 18px rgba(72,144,255,.14);
 }
 
-.st-key-cart_items_scroll::-webkit-scrollbar-thumb:hover,
-.st-key-cart_items_scroll *::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--blue-hi) 88%, white), var(--blue));
+.st-key-quick_entry_display [data-testid="stTextInput"] input:focus {
+  border: 0 !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blue-hi) 38%, transparent) !important;
 }
 
-/* Prevent the item rows themselves from stretching the outer cart panel. */
-.st-key-cart_items_scroll [class*="st-key-cart_row_"] {
-  flex: 0 0 auto;
+.st-key-quick_entry_display [data-testid="stTextInput"] input::placeholder {
+  color: color-mix(in srgb, var(--muted) 58%, transparent) !important;
+  -webkit-text-fill-color: color-mix(in srgb, var(--muted) 58%, transparent) !important;
 }
 
-/* The checkout summary stays visually separated from the scroll list. */
-.st-key-cart_items_scroll + div {
-  margin-top: 2px;
+.st-key-quick_entry_display .quick-qty-chip {
+  position: absolute;
+  z-index: 3;
+  right: 13px;
+  bottom: 10px;
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--muted) !important;
+  font-size: 11px;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+@media (max-width: 760px) {
+  .st-key-quick_entry_display {
+    min-height: 105px;
+  }
+
+  .st-key-quick_entry_display [data-testid="stTextInput"] input {
+    height: 101px !important;
+    min-height: 101px !important;
+    font-size: 50px !important;
+  }
 }
