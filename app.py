@@ -886,9 +886,16 @@ if st.session_state.page == "POS":
                 st.session_state.cart = []
                 st.rerun()
 
+            # Keep the cart panel compact.
+            # Only the cart item list scrolls; totals and payment stay visible.
             if st.session_state.cart:
-                for index, item in enumerate(st.session_state.cart):
-                    render_cart_item(index, item, settings)
+                with st.container(
+                    height=330,
+                    border=False,
+                    key="cart_items_scroll",
+                ):
+                    for index, item in enumerate(st.session_state.cart):
+                        render_cart_item(index, item, settings)
             else:
                 st.markdown(
                     '<div class="empty-cart"><span class="empty-cart-icon">🛒</span><b>Your cart is empty</b><small>Scan inventory or use Quick Add.</small></div>',
