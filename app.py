@@ -547,7 +547,7 @@ def render_cart_item(index, item, settings):
 
     with st.container(key=f"cart_row_{index}"):
         img_col, info_col, qty_group_col, total_col, edit_col, remove_col = st.columns(
-            [0.82, 3.0, 1.8, 1.15, 0.78, 0.78],
+            [0.58, 2.9, 1.45, 1.0, 0.48, 0.48],
             vertical_alignment="center",
             gap="small",
         )
@@ -609,14 +609,20 @@ def render_cart_item(index, item, settings):
 
         edit_open = st.session_state.editing_cart_index == index
         if edit_col.button(
-            "Edit" if not edit_open else "Close",
+            "✎" if not edit_open else "×",
             key=f"cart_edit_toggle_{index}",
             use_container_width=True,
+            help="Edit item" if not edit_open else "Close editor",
         ):
             st.session_state.editing_cart_index = None if edit_open else index
             st.rerun()
 
-        if remove_col.button("Remove", key=f"cart_remove_{index}", use_container_width=True):
+        if remove_col.button(
+            "×",
+            key=f"cart_remove_{index}",
+            use_container_width=True,
+            help="Remove item",
+        ):
             st.session_state.cart.pop(index)
             st.session_state.editing_cart_index = None
             st.rerun()
