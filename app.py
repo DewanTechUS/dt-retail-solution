@@ -167,14 +167,30 @@ def add_product_to_cart(product, quantity=1):
 
 def render_header():
     with st.container(key="app_header"):
-        title_col, time_col, theme_col = st.columns([6.6, 2.45, 1.2], vertical_alignment="center")
-        title_col.markdown('<div class="brand">DT Retail POS</div>', unsafe_allow_html=True)
-        time_col.markdown(
-            f'<div class="clock">◷&nbsp;&nbsp;{datetime.now().strftime("%b %d, %Y&nbsp;&nbsp;%I:%M %p")}</div>',
-            unsafe_allow_html=True,
+        # Balanced 3-column header keeps the brand at the true page center.
+        left_space, title_col, right_controls = st.columns(
+            [1, 1, 1],
+            vertical_alignment="center",
         )
-        with theme_col:
-            st.toggle("Dark mode", key="dark_mode", help="Switch light / dark mode")
+
+        with title_col:
+            st.markdown('<div class="brand">DT Retail POS</div>', unsafe_allow_html=True)
+
+        with right_controls:
+            time_col, theme_col = st.columns(
+                [2.25, 1.05],
+                vertical_alignment="center",
+                gap="small",
+            )
+
+            with time_col:
+                st.markdown(
+                    f'<div class="clock">◷&nbsp;&nbsp;{datetime.now().strftime("%b %d, %Y&nbsp;&nbsp;%I:%M %p")}</div>',
+                    unsafe_allow_html=True,
+                )
+
+            with theme_col:
+                st.toggle("Dark mode", key="dark_mode", help="Switch light / dark mode")
 
 
 def render_bottom_nav():
