@@ -45,23 +45,52 @@ html, body, [class*="css"] {
 }
 .st-key-topbar [data-testid="stHorizontalBlock"] { align-items: center !important; }
 
-.brand-lockup { display:flex; align-items:center; gap:13px; min-height:46px; }
-.brand-mark {
-  font-size:30px; line-height:1; font-weight:950; font-style:italic; letter-spacing:-4px;
-  background:linear-gradient(135deg,#35ccff,#2f6fff 55%,#4ee58b);
-  -webkit-background-clip:text; background-clip:text; color:transparent !important;
-  filter:drop-shadow(0 0 10px rgba(43,126,255,.22));
+.brand-lockup {
+  min-height:46px;
+  display:flex;
+  align-items:center;
 }
-.brand-name { font-size:25px; font-weight:900; letter-spacing:-.6px; }
 
-.header-clock { display:flex; align-items:center; justify-content:center; gap:9px; min-height:46px; white-space:nowrap; }
-.clock-icon {
-  width:34px; height:34px; display:grid; place-items:center; border:1px solid var(--line);
-  border-radius:9px; background:var(--panel-2); color:#55a5ff !important; font-size:16px;
+.brand-name {
+  font-size:25px;
+  line-height:1.1;
+  font-weight:900;
+  letter-spacing:-.55px;
+  white-space:nowrap;
 }
-.header-clock b, .header-clock small { display:block; }
-.header-clock b { font-size:12px; font-weight:900; }
-.header-clock small { margin-top:2px; color:var(--muted) !important; font-size:10px; font-weight:700; }
+
+/* Clean date/time block — no icon */
+.header-clock {
+  min-height:46px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  text-align:center;
+  white-space:nowrap;
+}
+
+.header-clock b,
+.header-clock small {
+  display:block;
+  width:100%;
+  text-align:center;
+}
+
+.header-clock b {
+  font-size:12px;
+  line-height:1.15;
+  font-weight:900;
+}
+
+.header-clock small {
+  margin:0;
+  color:var(--muted) !important;
+  font-size:10px;
+  line-height:1.15;
+  font-weight:700;
+}
 
 .st-key-topbar button { min-height:45px !important; border-radius:9px !important; }
 .more-menu-title { font-size:17px; font-weight:900; margin:2px 0 10px; }
@@ -267,7 +296,6 @@ button:disabled, button:disabled * { opacity:1 !important; color:var(--muted) !i
 @media (max-width:1100px) {
   .block-container { padding-left:.55rem !important; padding-right:.55rem !important; }
   .brand-name { font-size:20px; }
-  .brand-mark { font-size:24px; }
   .header-clock b { font-size:10px; }
   .header-clock small { font-size:9px; }
   .st-key-quick_panel, .st-key-cart_panel { min-height:unset; }
@@ -278,7 +306,8 @@ button:disabled, button:disabled * { opacity:1 !important; color:var(--muted) !i
 
 @media (max-width:760px) {
   .brand-name { font-size:18px; }
-  .header-clock { display:none; }
+  .header-clock b { font-size:9px; }
+  .header-clock small { font-size:8px; }
   .st-key-quick_entry_display { height:102px; min-height:102px; }
   .st-key-quick_entry_display [data-testid="stTextInput"], .st-key-quick_entry_display [data-testid="stTextInput"] > div, .st-key-quick_entry_display [data-testid="stTextInput"] > div > div, .st-key-quick_entry_display [data-baseweb="input"], .st-key-quick_entry_display [data-baseweb="base-input"] { height:98px !important; min-height:98px !important; }
   .st-key-quick_entry_display input { height:94px !important; min-height:94px !important; font-size:43px !important; }

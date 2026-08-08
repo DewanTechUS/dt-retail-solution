@@ -31,7 +31,7 @@ from receipt import build_receipt_html
 # ============================================================
 
 st.set_page_config(
-    page_title="DT Retail POS",
+    page_title="DT Retail Solutions",
     page_icon="🛒",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -495,14 +495,14 @@ def render_header():
 
         with brand_col:
             st.markdown(
-                '<div class="brand-lockup"><span class="brand-mark">DT</span><span class="brand-name">Retail POS</span></div>',
+                '<div class="brand-lockup"><span class="brand-name">DT Retail Solutions</span></div>',
                 unsafe_allow_html=True,
             )
 
         with clock_col:
             now = local_now()
             st.markdown(
-                f'<div class="header-clock"><span class="clock-icon">◷</span><div><b>{now.strftime("%b %d, %Y")}</b><small>{now.strftime("%I:%M %p")}</small></div></div>',
+                f'<div class="header-clock"><b>{now.strftime("%b %d, %Y")}</b><small>{now.strftime("%I:%M %p")}</small></div>',
                 unsafe_allow_html=True,
             )
 
@@ -534,7 +534,7 @@ def render_header():
                 st.rerun()
 
             with n4.popover("⋮  More", use_container_width=True):
-                st.markdown('<div class="more-menu-title">DT Retail POS</div>', unsafe_allow_html=True)
+                st.markdown('<div class="more-menu-title">DT Retail Solutions</div>', unsafe_allow_html=True)
                 if st.session_state.cart:
                     if st.button("Edit Cart Items", key="menu_cart_editor", use_container_width=True):
                         goto("Cart Editor")
