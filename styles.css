@@ -1,6 +1,5 @@
 /* =========================================================
-   DT Retail POS — Approved Terminal UI
-   Single-source stylesheet. Designed to match the approved reference.
+   DT Retail POS
    ========================================================= */
 
 * { box-sizing: border-box; }
@@ -443,4 +442,48 @@ button:disabled, button:disabled * { opacity:1 !important; color:var(--muted) !i
     font-size:7px;
     padding:2px 5px;
   }
+}
+
+/* =========================================================
+   FINAL MANUAL ITEM THUMB ALIGNMENT FIX
+   CSS ONLY — keeps the purple box inside the cart row divider.
+   ========================================================= */
+
+/* Vertically center all content in each cart row. */
+[class*="st-key-cart_row_"] > div,
+[class*="st-key-cart_row_"] [data-testid="stHorizontalBlock"] {
+  align-items: center !important;
+}
+
+/* Only the purple manual-item thumbnail needed resizing. */
+[class*="st-key-cart_row_"] .manual-thumb {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  max-width: 48px !important;
+  max-height: 48px !important;
+  margin: 0 auto !important;
+  align-self: center !important;
+  border-radius: 8px !important;
+}
+
+/* Scale the tag icon proportionally inside the smaller purple box. */
+[class*="st-key-cart_row_"] .manual-thumb svg {
+  width: 27px !important;
+  height: 27px !important;
+  display: block !important;
+}
+
+/* Give the row enough vertical room so the divider stays below every element. */
+[class*="st-key-cart_row_"] {
+  min-height: 66px !important;
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+}
+
+/* Keep the product text vertically balanced with the thumbnail. */
+[class*="st-key-cart_row_"] .cart-item-copy {
+  min-height: 48px !important;
+  justify-content: center !important;
 }
