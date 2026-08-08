@@ -1109,3 +1109,144 @@ button:disabled * {
     top: 10px;
   }
 }
+
+/* =========================================================
+   QUICK ADD NUMBER VISIBILITY — BASEWEB INNER WRAPPER FIX
+   IMPORTANT: keep this as the LAST block in styles.css.
+   The clipping layer is data-baseweb="base-input".
+   ========================================================= */
+
+.st-key-quick_entry_display {
+  height: 132px !important;
+  min-height: 132px !important;
+  overflow: visible !important;
+}
+
+/* Streamlit widget shell */
+.st-key-quick_entry_display [data-testid="stTextInput"] {
+  height: 128px !important;
+  min-height: 128px !important;
+  overflow: visible !important;
+}
+
+/* Streamlit immediate widget wrappers */
+.st-key-quick_entry_display [data-testid="stTextInput"] > div,
+.st-key-quick_entry_display [data-testid="stTextInput"] > div > div {
+  height: 128px !important;
+  min-height: 128px !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* BaseWeb OUTER input wrapper */
+.st-key-quick_entry_display [data-baseweb="input"] {
+  width: 100% !important;
+  height: 128px !important;
+  min-height: 128px !important;
+  max-height: none !important;
+  overflow: visible !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* THIS IS THE LAYER THAT WAS STILL CLIPPING THE NUMBER */
+.st-key-quick_entry_display [data-baseweb="base-input"] {
+  width: 100% !important;
+  height: 128px !important;
+  min-height: 128px !important;
+  max-height: none !important;
+  overflow: visible !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Actual keyboard-enabled field */
+.st-key-quick_entry_display [data-baseweb="base-input"] input,
+.st-key-quick_entry_display [data-testid="stTextInput"] input {
+  width: 100% !important;
+  height: 118px !important;
+  min-height: 118px !important;
+  max-height: 118px !important;
+
+  margin: 0 !important;
+  padding: 27px 105px 4px 22px !important;
+
+  border: 0 !important;
+  outline: 0 !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+  caret-color: #79aaff !important;
+
+  font-size: 64px !important;
+  line-height: 1.05 !important;
+  font-weight: 950 !important;
+  letter-spacing: -2px !important;
+
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+}
+
+.st-key-quick_entry_display [data-baseweb="base-input"] input:focus,
+.st-key-quick_entry_display [data-testid="stTextInput"] input:focus {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Keep labels above the value, never over it */
+.st-key-quick_entry_display .quick-display-label {
+  top: 10px !important;
+  left: 16px !important;
+  z-index: 20 !important;
+}
+
+.st-key-quick_entry_display .quick-qty-chip {
+  top: 13px !important;
+  right: 13px !important;
+  bottom: auto !important;
+  z-index: 20 !important;
+}
+
+@media (max-width: 760px) {
+  .st-key-quick_entry_display {
+    height: 112px !important;
+    min-height: 112px !important;
+  }
+
+  .st-key-quick_entry_display [data-testid="stTextInput"],
+  .st-key-quick_entry_display [data-testid="stTextInput"] > div,
+  .st-key-quick_entry_display [data-testid="stTextInput"] > div > div,
+  .st-key-quick_entry_display [data-baseweb="input"],
+  .st-key-quick_entry_display [data-baseweb="base-input"] {
+    height: 108px !important;
+    min-height: 108px !important;
+  }
+
+  .st-key-quick_entry_display [data-baseweb="base-input"] input,
+  .st-key-quick_entry_display [data-testid="stTextInput"] input {
+    height: 100px !important;
+    min-height: 100px !important;
+    max-height: 100px !important;
+    padding: 25px 82px 3px 18px !important;
+    font-size: 48px !important;
+  }
+}
