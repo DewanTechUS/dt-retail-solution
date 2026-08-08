@@ -1161,3 +1161,148 @@ div[class*="st-key-card_button"] button * {
         color-scheme: light;
     }
 }
+
+/* =========================================================
+   Final UI cleanup v2 — toggle + placeholder hard fixes
+   ========================================================= */
+
+/* Header sizing */
+.st-key-top_header {
+    padding: 12px 18px !important;
+}
+
+.st-key-top_header [data-testid="column"]:last-child {
+    min-width: 120px;
+}
+
+.theme-toggle-label {
+    text-align: right;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 2px;
+    padding-right: 6px;
+}
+
+/* Make the native Streamlit toggle usable and visible */
+.st-key-dark_mode {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.st-key-dark_mode > div {
+    width: auto !important;
+    margin-left: auto !important;
+}
+
+.st-key-dark_mode label {
+    justify-content: flex-end !important;
+    width: 100%;
+    gap: 8px !important;
+}
+
+.st-key-dark_mode p {
+    display: none !important;
+}
+
+.st-key-dark_mode [data-baseweb="checkbox"] {
+    transform: scale(1.12);
+    transform-origin: right center;
+    margin-left: auto !important;
+}
+
+/* Ensure change due bar is readable in both themes */
+.st-key-change_due_box {
+    border: 1px solid color-mix(in srgb, var(--success) 28%, var(--line)) !important;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--success) 20%, transparent), color-mix(in srgb, var(--success) 10%, transparent)) !important;
+}
+
+.change-due,
+.change-due * {
+    color: var(--success) !important;
+}
+
+.change-due span {
+    font-weight: 700 !important;
+}
+
+/* HARD FIX: no-image thumb placeholders should never show stray text */
+.cart-thumb.no-product-image,
+.inventory-thumb.no-product-image {
+    position: relative;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 62px !important;
+    height: 62px !important;
+    min-width: 62px !important;
+    min-height: 62px !important;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 94%, white), var(--panel-soft));
+    font-size: 0 !important;
+    line-height: 0 !important;
+}
+
+.cart-thumb.no-product-image > *,
+.inventory-thumb.no-product-image > * {
+    display: none !important;
+}
+
+.cart-thumb.no-product-image::before,
+.inventory-thumb.no-product-image::before {
+    content: "🛍️";
+    font-size: 22px;
+    line-height: 1;
+}
+
+/* Larger placeholders stay centered and clean */
+.selected-product-image.no-product-image,
+.upload-preview.no-product-image,
+.manage-preview.no-product-image {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 94%, white), var(--panel-soft));
+    color: var(--muted) !important;
+}
+
+.selected-product-image.no-product-image .no-image-icon,
+.upload-preview.no-product-image .no-image-icon,
+.manage-preview.no-product-image .no-image-icon {
+    font-size: 34px;
+}
+
+.selected-product-image.no-product-image small,
+.upload-preview.no-product-image small,
+.manage-preview.no-product-image small {
+    color: var(--muted) !important;
+    font-size: 12px;
+    margin: 0;
+}
+
+/* Avoid weird extra spacing around markdown-inserted image blocks */
+.stMarkdown div.cart-thumb,
+.stMarkdown div.inventory-thumb,
+.stMarkdown div.selected-product-image,
+.stMarkdown div.upload-preview,
+.stMarkdown div.manage-preview {
+    margin: 0 !important;
+}
+
+/* Cart rows: stronger alignment */
+[class*="st-key-cart_item_"] [data-testid="column"] {
+    display: flex;
+    align-items: center;
+}
+
+[class*="st-key-cart_item_"] [data-testid="column"]:first-child {
+    align-items: flex-start;
+}
+
+/* Search suggestions buttons more consistent */
+[class*="st-key-suggestion_view_"] button,
+[class*="st-key-suggestion_add_"] button {
+    min-height: 34px !important;
+}

@@ -238,7 +238,7 @@ def render_bottom_navigation():
 # ============================================================
 
 with st.container(key="top_header"):
-    title_col, clock_col, theme_col = st.columns([7.2, 2.0, 0.8], vertical_alignment="center")
+    title_col, clock_col, theme_col = st.columns([6.8, 2.4, 1.4], vertical_alignment="center")
 
     with title_col:
         st.markdown('<div class="dt-brand">DT Retail POS</div>', unsafe_allow_html=True)
@@ -250,9 +250,11 @@ with st.container(key="top_header"):
         )
 
     with theme_col:
+        st.markdown('<div class="theme-toggle-label">Dark</div>', unsafe_allow_html=True)
         st.toggle(
-            "Dark",
+            "Dark mode",
             key="dark_mode",
+            label_visibility="collapsed",
             help="Switch between light and dark mode",
         )
 
