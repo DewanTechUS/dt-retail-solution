@@ -47,13 +47,20 @@ DEFAULT_STATE = {
     "apply_card_fee": True,
     "last_receipt": None,
     "show_receipt": False,
-    "dark_mode": False,
+    "dark_mode": True,
     "reset_pos_qty_pending": False,
+    "manage_sku": None,
 }
 
 for key, value in DEFAULT_STATE.items():
     if key not in st.session_state:
         st.session_state[key] = value
+
+# This release intentionally opens in Dark Mode the first time it loads.
+# After that, the user's toggle choice is respected for the current session.
+if "theme_default_v2_initialized" not in st.session_state:
+    st.session_state.dark_mode = True
+    st.session_state.theme_default_v2_initialized = True
 
 
 def theme_vars():
@@ -420,7 +427,6 @@ if st.session_state.page == "POS":
                 st.session_state.tax_override = "PRODUCT DEFAULT"
                 st.rerun()
 
-            render_settings_strip(low_tax, high_tax, card_fee)
 
     with right:
         with st.container(key="pos_right"):
@@ -565,15 +571,27 @@ elif st.session_state.page == "Inventory":
             i3.metric("Stock", int(item["quantity"]))
             i4.metric("Price", money(item["price"]))
             i5.metric("Value", money(float(item["quantity"]) * float(item["price"])))
-            if i6.button("+ Add to POS", key=f"inv_add_{item['sku']}", use_container_width=True, disabled=int(item["quantity"]) <= 0):
-                ok, msg = add_product_to_cart(item, 1)
-                if ok:
-                    st.session_state.selected_sku = item["sku"]
-                    goto("POS")
-                    st.toast(msg)
+            stock_qty = int(item["quantity"])
+            action_label = "Restock" if stock_qty <= 0 else "+ Add to POS"
+            if i6.button(
+                action_label,
+                key=f"inv_action_{item['sku']}",
+                use_container_width=True,
+                type="primary" if stock_qty > 0 else "secondary",
+            ):
+                if stock_qty <= 0:
+                    st.session_state.manage_sku = item["sku"]
+                    goto("Manage Item")
                     st.rerun()
                 else:
-                    st.error(msg)
+                    ok, msg = add_product_to_cart(item, 1)
+                    if ok:
+                        st.session_state.selected_sku = item["sku"]
+                        goto("POS")
+                        st.toast(msg)
+                        st.rerun()
+                    else:
+                        st.error(msg)
 
 
 # ============================================================
@@ -630,8 +648,17 @@ elif st.session_state.page == "Manage Item":
         st.info("No inventory items found.")
     else:
         options = {f'{row["sku"]} — {row["product"]}': row for row in inventory}
-        selected_label = st.selectbox("Select Item", list(options.keys()))
+        option_labels = list(options.keys())
+        requested_sku = st.session_state.get("manage_sku")
+        requested_index = 0
+        if requested_sku:
+            for idx, label in enumerate(option_labels):
+                if options[label]["sku"] == requested_sku:
+                    requested_index = idx
+                    break
+        selected_label = st.selectbox("Select Item", option_labels, index=requested_index, key="manage_item_selector")
         item = options[selected_label]
+        st.session_state.manage_sku = item["sku"]
 
         with st.container(key="form_card"):
             photo, edit = st.columns([1, 2], gap="large")
@@ -641,16 +668,16 @@ elif st.session_state.page == "Manage Item":
                 new_image_file = st.file_uploader("Change product picture", type=["png", "jpg", "jpeg"], key=f"img_{item['sku']}")
                 remove_image = st.checkbox("Remove current picture", key=f"rm_img_{item['sku']}")
             with edit:
-                new_barcode = st.text_input("Barcode", value=item["barcode"] or "")
-                new_quantity = st.number_input("Stock Quantity", min_value=0, value=int(item["quantity"]), step=1)
-                new_price = st.number_input("Price", min_value=0.01, value=float(item["price"]), step=0.01, format="%.2f")
-                new_fee = st.number_input("Item Fee", min_value=0.0, value=float(item["item_fee"] or 0), step=0.01, format="%.2f")
+                new_barcode = st.text_input("Barcode", value=item["barcode"] or "", key=f"manage_barcode_{item['sku']}")
+                new_quantity = st.number_input("Stock Quantity", min_value=0, value=int(item["quantity"]), step=1, key=f"manage_quantity_{item['sku']}", help="Restock is allowed even when current stock is 0.")
+                new_price = st.number_input("Price", min_value=0.01, value=float(item["price"]), step=0.01, format="%.2f", key=f"manage_price_{item['sku']}")
+                new_fee = st.number_input("Item Fee", min_value=0.0, value=float(item["item_fee"] or 0), step=0.01, format="%.2f", key=f"manage_fee_{item['sku']}")
                 tax_options = ["NONE", "LOW", "HIGH", "CUSTOM"]
                 current_tax = item["tax_type"] if item["tax_type"] in tax_options else "NONE"
-                new_tax_type = st.selectbox("Tax Type", tax_options, index=tax_options.index(current_tax))
+                new_tax_type = st.selectbox("Tax Type", tax_options, index=tax_options.index(current_tax), key=f"manage_tax_type_{item['sku']}")
                 new_custom_tax = float(item["custom_tax_rate"] or 0)
                 if new_tax_type == "CUSTOM":
-                    new_custom_tax = st.number_input("Custom Tax %", min_value=0.0, value=new_custom_tax, step=0.1, format="%.2f")
+                    new_custom_tax = st.number_input("Custom Tax %", min_value=0.0, value=new_custom_tax, step=0.1, format="%.2f", key=f"manage_custom_tax_{item['sku']}")
 
             if st.button("Save Changes", key="save_changes", type="primary", use_container_width=True):
                 if new_image_file:

@@ -489,3 +489,129 @@ button:disabled, button:disabled * {
   .st-key-pos_left, .st-key-pos_right { min-height:unset; }
   .st-key-bottom_nav { position:static; transform:none; width:100%; margin-top:16px; }
 }
+
+/* =========================================================
+   Targeted polish requested 2026-08-08
+   - Dark mode default handled in app.py
+   - clock no longer has an inner box
+   - Quick Tax controls larger and centered
+   - POS settings summary strip removed from app.py
+   - zero-stock items use Restock action
+   ========================================================= */
+
+/* Plain clock text: keep it in the header, remove the pill/box. */
+.clock {
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 4px 2px !important;
+  box-shadow: none !important;
+  text-align: right !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: var(--muted) !important;
+}
+
+/* Give the header a little more breathing room around time/toggle. */
+.st-key-app_header [data-testid="stHorizontalBlock"] {
+  gap: 16px !important;
+}
+
+.st-key-dark_mode label {
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  justify-content: flex-end !important;
+}
+
+/* Quick Tax: bigger type, centered labels, equal-size controls. */
+.subheading {
+  font-size: 23px !important;
+  line-height: 1.2 !important;
+}
+
+.st-key-tax_no button,
+.st-key-tax_low button,
+.st-key-tax_high button,
+.st-key-tax_custom button {
+  min-height: 54px !important;
+  font-size: 16px !important;
+  font-weight: 850 !important;
+  text-align: center !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.st-key-tax_no button p,
+.st-key-tax_low button p,
+.st-key-tax_high button p,
+.st-key-tax_custom button p,
+.st-key-tax_no button span,
+.st-key-tax_low button span,
+.st-key-tax_high button span,
+.st-key-tax_custom button span {
+  width: 100% !important;
+  text-align: center !important;
+  justify-content: center !important;
+  font-size: 16px !important;
+  font-weight: 850 !important;
+}
+
+.st-key-use_product_tax {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.st-key-use_product_tax button {
+  width: 100% !important;
+  min-height: 44px !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  justify-content: center !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 11px !important;
+  background: var(--panel-2) !important;
+  box-shadow: none !important;
+}
+
+/* Slightly larger footer navigation labels for readability. */
+.st-key-bottom_nav button {
+  font-size: 13px !important;
+  font-weight: 850 !important;
+}
+
+/* Zero-stock Restock action should be clearly actionable, not look disabled. */
+[class*="st-key-inv_action_"] button {
+  min-height: 44px !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+}
+
+/* More readable management form labels and stock control. */
+.st-key-form_card label {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+}
+
+.st-key-form_card [data-testid="stNumberInput"] input {
+  font-size: 16px !important;
+  font-weight: 750 !important;
+}
+
+/* Key-safe Quick Tax selector (works with Streamlit's sanitized widget keys). */
+[class*="st-key-tax_"] button {
+  min-height: 54px !important;
+  font-size: 16px !important;
+  font-weight: 850 !important;
+  text-align: center !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+[class*="st-key-tax_"] button p,
+[class*="st-key-tax_"] button span {
+  width: 100% !important;
+  text-align: center !important;
+  justify-content: center !important;
+  font-size: 16px !important;
+  font-weight: 850 !important;
+}
