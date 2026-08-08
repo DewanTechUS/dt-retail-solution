@@ -132,7 +132,7 @@ DEFAULT_STATE = {
     "apply_card_fee": True,
     "last_receipt": None,
     "show_receipt": False,
-    "dark_mode": True,
+    "dark_mode": False,
     "reset_pos_qty_pending": False,
     "selected_sku": None,
 }
@@ -217,7 +217,7 @@ def render_bottom_navigation():
         ("Add Item", "Add Item"),
         ("Manage", "Manage Item"),
         ("History", "Sales History"),
-        ("More", "More"),
+        ("Settings", "More"),
     ]
 
     with st.container(key="bottom_navigation", border=True):
@@ -501,7 +501,7 @@ if st.session_state.page == "POS":
 
             with st.container(key="more_strip", border=True):
                 m1, m2, m3, m4 = st.columns([1.45, 1, 1, 1])
-                m1.markdown("<div class='more-title'>••• &nbsp;More</div>", unsafe_allow_html=True)
+                m1.markdown("<div class='more-title'>⚙&nbsp;&nbsp;Settings</div>", unsafe_allow_html=True)
                 m2.markdown(f"<div class='more-cell'><span>Low Tax</span><b>{low_tax:.2f}%</b></div>", unsafe_allow_html=True)
                 m3.markdown(f"<div class='more-cell'><span>High Tax</span><b>{high_tax:.2f}%</b></div>", unsafe_allow_html=True)
                 m4.markdown(f"<div class='more-cell'><span>Card Fee</span><b>{card_fee:.2f}%</b></div>", unsafe_allow_html=True)
@@ -914,7 +914,7 @@ elif st.session_state.page == "Sales History":
 # ============================================================
 
 elif st.session_state.page == "More":
-    st.markdown('<h1 class="page-title">More</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="page-title">Settings</h1>', unsafe_allow_html=True)
     st.caption("POS configuration and recently added inventory.")
 
     with st.container(key="form_card", border=True):

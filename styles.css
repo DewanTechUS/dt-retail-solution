@@ -1306,3 +1306,255 @@ div[class*="st-key-card_button"] button * {
 [class*="st-key-suggestion_add_"] button {
     min-height: 34px !important;
 }
+
+/* =========================================================
+   Premium visual polish v3 — match the clean reference more closely
+   ========================================================= */
+
+:root {
+    --btn-shadow: 0 10px 18px rgba(15, 23, 42, .12), 0 2px 5px rgba(15, 23, 42, .06);
+    --btn-shadow-hover: 0 14px 24px rgba(15, 23, 42, .16), 0 3px 8px rgba(15, 23, 42, .09);
+}
+
+html[data-theme="light"] {
+    --page: #f4f5f7;
+    --panel: #ffffff;
+    --panel-soft: #fafafa;
+    --line: #dfe3e8;
+    --table-head: #f6f6f7;
+    --text: #0f172a;
+    --muted: #667085;
+    --navy: #13254b;
+    --navy-2: #1b2f5a;
+    --green: #1a9c5a;
+    --green-2: #23b26b;
+    --blue: #2f6fe4;
+    --blue-2: #3d84ff;
+}
+
+/* Crisper clean layout */
+.stApp {
+    background: var(--page) !important;
+}
+
+.st-key-top_header,
+.st-key-pos_left_panel,
+.st-key-pos_right_panel,
+.st-key-bottom_navigation,
+.st-key-more_strip,
+.st-key-empty_cart,
+.st-key-search_help,
+.st-key-selected_card,
+.st-key-suggestion_card,
+.st-key-manual_item,
+.st-key-add_item_form,
+.st-key-manage_form,
+.st-key-inventory_summary,
+.st-key-history_filters,
+.st-key-history_summary,
+.st-key-settings_page,
+.st-key-inventory_item_card {
+    box-shadow: 0 10px 22px rgba(17, 24, 39, .05), 0 1px 3px rgba(17, 24, 39, .04) !important;
+}
+
+/* Reference-style white panels in light mode */
+html[data-theme="light"] .st-key-pos_left_panel,
+html[data-theme="light"] .st-key-pos_right_panel,
+html[data-theme="light"] .st-key-more_strip,
+html[data-theme="light"] .st-key-bottom_navigation,
+html[data-theme="light"] .st-key-top_header {
+    background: #fff !important;
+    border-color: #e5e7eb !important;
+}
+
+/* Stronger section title look */
+.section-title {
+    font-size: 24px !important;
+    font-weight: 900 !important;
+    letter-spacing: -.02em;
+}
+
+/* Make every button more premium / 3D */
+.stButton > button,
+.stDownloadButton > button {
+    border-radius: 14px !important;
+    border: 1px solid var(--line) !important;
+    box-shadow: var(--btn-shadow) !important;
+    transition: transform .14s ease, box-shadow .14s ease, background .14s ease, border-color .14s ease;
+    font-weight: 800 !important;
+}
+
+.stButton > button:hover,
+.stDownloadButton > button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--btn-shadow-hover) !important;
+}
+
+.stButton > button:active,
+.stDownloadButton > button:active {
+    transform: translateY(0px) scale(.99);
+}
+
+/* Search suggestion buttons */
+[class*="st-key-suggestion_view_"] button,
+[class*="st-key-suggestion_add_"] button {
+    border-radius: 12px !important;
+    min-height: 40px !important;
+}
+
+[class*="st-key-suggestion_view_"] button:not(:disabled) {
+    background: linear-gradient(180deg, #ffffff, #f7f8fb) !important;
+    color: var(--text) !important;
+}
+
+[class*="st-key-suggestion_add_"] button:not(:disabled) {
+    background: linear-gradient(180deg, var(--navy-2), var(--navy)) !important;
+    color: #fff !important;
+    border-color: color-mix(in srgb, var(--navy) 78%, black) !important;
+}
+
+/* Keypad = chunky 3D keys */
+[class*="st-key-keypad_"] button {
+    min-height: 54px !important;
+    font-size: 28px !important;
+    font-weight: 900 !important;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 94%, white), color-mix(in srgb, var(--panel-soft) 88%, var(--line))) !important;
+}
+
+[class*="st-key-keypad_10"] button {
+    color: #d14343 !important;
+}
+
+/* 3D tax buttons */
+[class*="st-key-tax_"] button,
+.st-key-use_product_tax button {
+    min-height: 44px !important;
+    border-radius: 12px !important;
+}
+
+[class*="st-key-tax_"] button[kind="primary"],
+[class*="st-key-tax_"] button[data-testid="baseButton-primary"],
+.st-key-use_product_tax button:not(:disabled) {
+    background: linear-gradient(180deg, var(--navy-2), var(--navy)) !important;
+    color: #fff !important;
+    border-color: color-mix(in srgb, var(--navy) 82%, black) !important;
+}
+
+/* Settings strip instead of More */
+.more-title {
+    font-size: 21px !important;
+    font-weight: 900 !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text) !important;
+}
+
+.more-cell {
+    border-left: 1px solid var(--line) !important;
+}
+
+.more-cell span {
+    font-size: 12px !important;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.more-cell b {
+    font-size: 18px !important;
+    font-weight: 900 !important;
+}
+
+/* Payment buttons exactly more colorful */
+div[class*="st-key-cash_button"] div.stButton > button {
+    background: linear-gradient(180deg, var(--green-2), var(--green)) !important;
+    box-shadow: 0 12px 24px rgba(26, 156, 90, .22), inset 0 1px 0 rgba(255,255,255,.16) !important;
+}
+
+div[class*="st-key-card_button"] div.stButton > button {
+    background: linear-gradient(180deg, var(--blue-2), var(--blue)) !important;
+    box-shadow: 0 12px 24px rgba(47, 111, 228, .22), inset 0 1px 0 rgba(255,255,255,.16) !important;
+}
+
+/* Complete / print buttons */
+div[class*="st-key-complete_sale"] button:not(:disabled) {
+    background: linear-gradient(180deg, var(--navy-2), var(--navy)) !important;
+    color: #fff !important;
+    border-color: color-mix(in srgb, var(--navy) 82%, black) !important;
+}
+
+div[class*="st-key-print_receipt"] button:not(:disabled) {
+    background: linear-gradient(180deg, #ffffff, #f8fafc) !important;
+    color: var(--text) !important;
+    border: 1px solid color-mix(in srgb, var(--text) 15%, var(--line)) !important;
+}
+
+/* Cart qty buttons */
+[class*="st-key-cart_minus_"] button,
+[class*="st-key-cart_plus_"] button,
+[class*="st-key-remove_cart_"] button {
+    min-height: 38px !important;
+    min-width: 38px !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+}
+
+/* Light mode search input and cash box cleaner */
+html[data-theme="light"] input,
+html[data-theme="light"] textarea,
+html[data-theme="light"] [data-baseweb="select"] > div,
+html[data-theme="light"] .stNumberInput > div > div > input {
+    background: #fff !important;
+}
+
+/* Bottom navigation more balanced, no ugly More feeling */
+.st-key-bottom_navigation button {
+    min-height: 50px !important;
+    border-radius: 13px !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+}
+
+.st-key-bottom_navigation button[kind="primary"],
+.st-key-bottom_navigation button[data-testid="baseButton-primary"] {
+    background: linear-gradient(180deg, var(--navy-2), var(--navy)) !important;
+    color: #fff !important;
+    border-color: color-mix(in srgb, var(--navy) 82%, black) !important;
+}
+
+/* Dark mode still clean */
+html[data-theme="dark"] .st-key-pos_left_panel,
+html[data-theme="dark"] .st-key-pos_right_panel,
+html[data-theme="dark"] .st-key-more_strip,
+html[data-theme="dark"] .st-key-bottom_navigation,
+html[data-theme="dark"] .st-key-top_header {
+    box-shadow: 0 14px 28px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.18) !important;
+}
+
+/* Make product image blocks match card proportions */
+.selected-product-image,
+.upload-preview,
+.manage-preview {
+    border-radius: 16px !important;
+    overflow: hidden;
+}
+
+.cart-thumb,
+.inventory-thumb {
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+/* Clean label for toggle */
+.theme-toggle-label {
+    margin-bottom: 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+}
+
+/* Hide any remaining stray markdown from summary label areas */
+.st-key-more_strip p {
+    margin-bottom: 0 !important;
+}
