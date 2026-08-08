@@ -340,6 +340,7 @@ if st.session_state.page == "POS":
                                 selected_product.get("image_data"),
                                 selected_product["product"],
                                 "selected-product-image",
+                                "detail",
                             ),
                             unsafe_allow_html=True,
                         )
@@ -529,7 +530,7 @@ if st.session_state.page == "POS":
                         )
 
                         c_img.markdown(
-                            image_markup(item.get("image_data"), item["product"], "cart-thumb"),
+                            image_markup(item.get("image_data"), item["product"], "cart-thumb", "thumb"),
                             unsafe_allow_html=True,
                         )
                         c_name.markdown(
@@ -724,7 +725,7 @@ elif st.session_state.page == "Inventory":
                 vertical_alignment="center",
                 gap="small",
             )
-            i1.markdown(image_markup(item.get("image_data"), item["product"], "inventory-thumb"), unsafe_allow_html=True)
+            i1.markdown(image_markup(item.get("image_data"), item["product"], "inventory-thumb", "thumb"), unsafe_allow_html=True)
             i2.markdown(
                 f'<div class="inventory-name"><b>{item["product"]}</b><span>SKU: {item["sku"]} · {item["barcode"] or "No barcode"}</span></div>',
                 unsafe_allow_html=True,
@@ -784,9 +785,9 @@ elif st.session_state.page == "Add Item":
             preview_data = None
             if uploaded_image:
                 preview_data = prepare_image_data(uploaded_image)
-                st.markdown(image_markup(preview_data, product or "Product", "upload-preview"), unsafe_allow_html=True)
+                st.markdown(image_markup(preview_data, product or "Product", "upload-preview", "detail"), unsafe_allow_html=True)
             else:
-                st.markdown(image_markup(None, "Product", "upload-preview"), unsafe_allow_html=True)
+                st.markdown(image_markup(None, "Product", "upload-preview", "detail"), unsafe_allow_html=True)
 
         if st.button("Add Product", key="add_product_submit", type="primary", use_container_width=True):
             sku = sku.strip().upper()
@@ -835,7 +836,7 @@ elif st.session_state.page == "Manage Item":
 
             with image_col:
                 st.markdown("### Product Picture")
-                st.markdown(image_markup(item.get("image_data"), item["product"], "manage-preview"), unsafe_allow_html=True)
+                st.markdown(image_markup(item.get("image_data"), item["product"], "manage-preview", "detail"), unsafe_allow_html=True)
                 new_image_file = st.file_uploader(
                     "Change product picture",
                     type=["png", "jpg", "jpeg"],

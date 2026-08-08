@@ -990,3 +990,174 @@ div[class*="st-key-print_receipt_button"] div.stButton > button {
         font-size: 9px;
     }
 }
+
+/* =========================================================
+   UI Cleanup Patch — image placeholders + cleaner row alignment
+   ========================================================= */
+
+/* smoother theme switching */
+.stApp *,
+.stApp *::before,
+.stApp *::after {
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+/* keep cards proportionate in both modes */
+.st-key-pos_left_panel,
+.st-key-pos_right_panel,
+.st-key-form_card,
+.st-key-more_strip,
+[class*="st-key-inventory_row_"] {
+    overflow: hidden;
+}
+
+/* ---------- placeholder system ---------- */
+.no-product-image {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.no-image-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.no-image-detail {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 94%, white), var(--panel-soft));
+}
+
+.no-image-detail small {
+    display: block;
+    font-size: 12px;
+    color: var(--muted) !important;
+    margin: 0;
+}
+
+.no-image-thumb {
+    width: 62px !important;
+    height: 62px !important;
+    min-width: 62px !important;
+    min-height: 62px !important;
+    padding: 0 !important;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 94%, white), var(--panel-soft));
+}
+
+.no-image-thumb .no-image-icon {
+    font-size: 22px;
+}
+
+.no-image-thumb small {
+    display: none !important;
+}
+
+.cart-thumb.no-product-image,
+.inventory-thumb.no-product-image {
+    width: 62px !important;
+    height: 62px !important;
+    min-width: 62px !important;
+    min-height: 62px !important;
+}
+
+.selected-product-image.no-product-image,
+.upload-preview.no-product-image,
+.manage-preview.no-product-image {
+    min-height: 180px;
+}
+
+/* ---------- selected product layout ---------- */
+.selected-product-image,
+.upload-preview,
+.manage-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-inline: auto;
+}
+
+.product-info {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* ---------- cart row cleanup ---------- */
+[class*="st-key-cart_item_"] {
+    border-bottom: 1px solid var(--line);
+    padding: 8px 0 !important;
+    margin: 0 !important;
+}
+
+.cart-product {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 62px;
+}
+
+.cart-qty,
+.cart-money {
+    min-height: 62px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[class*="st-key-minus_"] button,
+[class*="st-key-plus_"] button,
+[class*="st-key-remove_"] button {
+    min-height: 40px !important;
+    min-width: 40px !important;
+}
+
+/* hide stray margin under thumbnail placeholders in rows */
+.cart-thumb,
+.inventory-thumb {
+    display: block;
+    margin: 0 !important;
+}
+
+/* ---------- suggestion list cleanup ---------- */
+[class*="st-key-suggestion_card_"] {
+    padding: 7px 10px !important;
+}
+
+.suggestion-copy {
+    justify-content: center;
+    min-height: 42px;
+}
+
+/* ---------- payment buttons stay visible in both modes ---------- */
+div[class*="st-key-cash_button"] button,
+div[class*="st-key-cash_button"] button *,
+div[class*="st-key-card_button"] button,
+div[class*="st-key-card_button"] button * {
+    color: #ffffff !important;
+}
+
+/* ---------- theme toggle refinement ---------- */
+.st-key-dark_mode [data-baseweb="checkbox"] {
+    padding-top: 4px;
+}
+
+.st-key-dark_mode label {
+    font-weight: 700 !important;
+}
+
+/* ---------- bottom nav polish ---------- */
+.st-key-bottom_navigation button {
+    min-height: 46px !important;
+    font-weight: 700 !important;
+}
+
+/* ---------- light mode subtle contrast ---------- */
+@media (prefers-color-scheme: light) {
+    .stApp {
+        color-scheme: light;
+    }
+}

@@ -23,12 +23,23 @@ def prepare_image_data(uploaded_file):
     return f"data:image/jpeg;base64,{encoded}"
 
 
-def image_markup(image_data, alt="Product", css_class="product-image"):
+def image_markup(image_data, alt="Product", css_class="product-image", variant="detail"):
+    """
+    Render either a product image or a theme-safe placeholder.
+
+    variant:
+      - detail : larger preview blocks (selected product / add item / manage item)
+      - thumb  : compact thumbnail blocks (cart / inventory / suggestions)
+    """
+    safe_alt = str(alt).replace('"', "&quot;")
+
     if image_data:
-        safe_alt = str(alt).replace('"', "&quot;")
         return f'<img class="{css_class}" src="{image_data}" alt="{safe_alt}">'
 
+    label_html = '<small>No image</small>' if variant == "detail" else ""
     return (
-        f'<div class="{css_class} no-product-image">'
-        '<span>🛍️</span><small>No image</small></div>'
+        f'<div class="{css_class} no-product-image no-image-{variant}" aria-label="{safe_alt}">'
+        '<div class="no-image-icon">🛍️</div>'
+        f'{label_html}'
+        '</div>'
     )
