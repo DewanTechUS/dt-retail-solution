@@ -78,7 +78,13 @@ if "theme_initialized_v4" not in st.session_state:
 # the value here, before the Quick Entry input is rendered.
 if st.session_state.get("quick_input_sync_pending"):
     _quick_sync_value = str(st.session_state.get("quick_value", "0") or "0")
-    st.session_state.quick_input_widget = "" if _quick_sync_value in ("0", "0.0", "0.00") else _quick_sync_value
+    _is_zero = _quick_sync_value in ("0", "0.0", "0.00")
+
+    if st.session_state.get("quick_mode") == "PRICE":
+        st.session_state.quick_input_widget = "" if _is_zero else f"${_quick_sync_value}"
+    else:
+        st.session_state.quick_input_widget = "" if _is_zero else _quick_sync_value
+
     st.session_state.quick_input_sync_pending = False
 
 if st.session_state.get("reset_cash_pending"):
@@ -284,10 +290,9 @@ def normalize_quick_keyboard_input():
 
     st.session_state.quick_value = value
 
-    # If we stripped invalid characters or trimmed decimals, update the
-    # visible field safely at the beginning of the rerun.
-    if value != raw:
-        request_quick_input_sync()
+    # Reformat the visible POS field on the rerun. PRICE mode gets a $
+    # prefix; custom-tax mode stays numeric.
+    request_quick_input_sync()
 
 def quick_qty_adjust(delta):
     st.session_state.quick_qty = max(1, int(st.session_state.quick_qty) + int(delta))
@@ -621,8 +626,20 @@ def render_cart_item(index, item, settings):
             f'<div class="cart-money">{money(float(item["price"]))}</div>',
             unsafe_allow_html=True,
         )
+
+        badge_label, badge_rate, badge_class = tax_badge(item, settings)
+        if badge_label == "No Tax":
+            badge_text = "No Tax"
+        else:
+            badge_text = f"{badge_label} {badge_rate:.2f}%"
+
         total_col.markdown(
-            f'<div class="cart-money">{money(float(item["price"]) * int(item["quantity"]))}</div>',
+            f"""
+            <div class="cart-total-stack">
+                <div class="cart-money">{money(float(item["price"]) * int(item["quantity"]))}</div>
+                <span class="tax-badge {badge_class}">{esc(badge_text)}</span>
+            </div>
+            """,
             unsafe_allow_html=True,
         )
 
@@ -749,18 +766,17 @@ if st.session_state.page == "POS":
             )
 
             mode_label = "CUSTOM TAX %" if st.session_state.quick_mode == "CUSTOM_TAX" else "PRICE"
-            prefix = "" if st.session_state.quick_mode == "CUSTOM_TAX" else "$"
 
             with st.container(key="quick_entry_display"):
                 st.markdown(
-                    f'<div class="quick-display-label">{mode_label}</div><span class="quick-prefix">{prefix}</span>',
+                    f'<div class="quick-display-label">{mode_label}</div>',
                     unsafe_allow_html=True,
                 )
                 st.text_input(
                     "Quick Entry",
                     key="quick_input_widget",
                     label_visibility="collapsed",
-                    placeholder="0.00" if st.session_state.quick_mode == "PRICE" else "0.00",
+                    placeholder="$0.00" if st.session_state.quick_mode == "PRICE" else "0.00",
                     on_change=normalize_quick_keyboard_input,
                 )
 

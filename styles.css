@@ -1,5 +1,6 @@
 /* =========================================================
-   DT Retail
+   DT Retail POS — Approved Terminal UI
+   Single-source stylesheet. Designed to match the approved reference.
    ========================================================= */
 
 * { box-sizing: border-box; }
@@ -174,19 +175,6 @@ button:disabled, button:disabled * { opacity:1 !important; color:var(--muted) !i
   pointer-events:none;
 }
 
-/* Currency prefix is aligned on the same baseline as the number. */
-.quick-prefix {
-  position:absolute;
-  z-index:10;
-  left:17px;
-  bottom:12px;
-  font-size:36px;
-  line-height:1;
-  font-weight:900;
-  color:var(--text) !important;
-  pointer-events:none;
-}
-
 .st-key-quick_entry_display [data-testid="stTextInput"],
 .st-key-quick_entry_display [data-testid="stTextInput"] > div,
 .st-key-quick_entry_display [data-testid="stTextInput"] > div > div,
@@ -211,7 +199,7 @@ button:disabled, button:disabled * { opacity:1 !important; color:var(--muted) !i
   min-height:82px !important;
   max-height:82px !important;
   margin:0 !important;
-  padding:23px 16px 2px 43px !important;
+  padding:23px 16px 2px 16px !important;
   border:0 !important;
   outline:0 !important;
   border-radius:9px !important;
@@ -377,7 +365,82 @@ button:disabled, button:disabled * { opacity:1 !important; color:var(--muted) !i
   .header-clock small { font-size:8px; }
   .st-key-quick_entry_display { height:80px; min-height:80px; }
   .st-key-quick_entry_display [data-testid="stTextInput"], .st-key-quick_entry_display [data-testid="stTextInput"] > div, .st-key-quick_entry_display [data-testid="stTextInput"] > div > div, .st-key-quick_entry_display [data-baseweb="input"], .st-key-quick_entry_display [data-baseweb="base-input"] { height:76px !important; min-height:76px !important; max-height:76px !important; }
-  .st-key-quick_entry_display input { height:76px !important; min-height:76px !important; max-height:76px !important; padding:22px 12px 2px 39px !important; font-size:32px !important; }
+  .st-key-quick_entry_display input { height:76px !important; min-height:76px !important; max-height:76px !important; padding:22px 12px 2px 14px !important; font-size:32px !important; }
   .quick-prefix { left:15px; bottom:11px; font-size:32px; }
   .cart-table-head { display:none; }
+}
+
+/* =========================================================
+   FINAL CART TAX + QUICK ENTRY CONSISTENCY
+   ========================================================= */
+
+/* Quick entry: full $0.00 / $2.99 stays on one baseline. */
+.st-key-quick_entry_display input {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Total + tax information is stacked like the earlier working cart. */
+.cart-total-stack {
+  min-height:56px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:center;
+  gap:4px;
+  overflow:visible;
+}
+
+.cart-total-stack .cart-money {
+  min-height:auto;
+  display:block;
+  line-height:1.15;
+}
+
+.tax-badge {
+  display:inline-block;
+  width:max-content;
+  max-width:100%;
+  padding:3px 6px;
+  border-radius:5px;
+  font-size:8px;
+  line-height:1.1;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.tax-badge-low {
+  background:#104923;
+  color:#6cf67b !important;
+}
+
+.tax-badge-high {
+  background:#573d0d;
+  color:#ffc554 !important;
+}
+
+.tax-badge-custom {
+  background:#432362;
+  color:#d5a2ff !important;
+}
+
+.tax-badge-none {
+  background:#27354a;
+  color:#aab9ca !important;
+}
+
+/* Give TOTAL a little room so the badge never gets cut off. */
+[class*="st-key-cart_row_"] .cart-total-stack {
+  padding-right:1px;
+}
+
+/* Preserve the compact table layout. */
+[class*="st-key-cart_row_"] {
+  overflow:visible !important;
+}
+
+@media (max-width:1100px) {
+  .tax-badge {
+    font-size:7px;
+    padding:2px 5px;
+  }
 }
