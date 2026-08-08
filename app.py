@@ -547,7 +547,7 @@ def render_cart_item(index, item, settings):
 
     with st.container(key=f"cart_row_{index}"):
         img_col, info_col, qty_group_col, total_col, edit_col, remove_col = st.columns(
-            [0.58, 2.9, 1.45, 1.0, 0.48, 0.48],
+            [0.70, 2.70, 1.65, 1.12, 0.58, 0.58],
             vertical_alignment="center",
             gap="small",
         )
