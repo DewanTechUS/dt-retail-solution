@@ -178,8 +178,9 @@ def render_header():
             st.markdown('<div class="brand">DT Retail POS</div>', unsafe_allow_html=True)
 
         with right_controls:
-            time_col, theme_col = st.columns(
-                [1.85, 1.15],
+            # Compact centered control group: spacer | time | toggle | spacer
+            pad_left, time_col, theme_col, pad_right = st.columns(
+                [0.28, 1.55, 1.15, 0.28],
                 vertical_alignment="center",
                 gap="small",
             )
