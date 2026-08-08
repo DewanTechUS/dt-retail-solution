@@ -78,18 +78,6 @@ footer {
     white-space: nowrap;
 }
 
-.st-key-top_header [data-testid="stPopover"] button {
-    width: 46px !important;
-    min-width: 46px !important;
-    height: 46px !important;
-    min-height: 46px !important;
-    border: 0 !important;
-    background: transparent !important;
-    color: var(--text) !important;
-    font-size: 26px !important;
-    box-shadow: none !important;
-}
-
 /* ---------- Main POS panels ---------- */
 .st-key-pos_left_panel,
 .st-key-pos_right_panel {
@@ -316,7 +304,7 @@ footer {
 }
 
 /* ---------- Settings strip ---------- */
-.st-key-settings_strip {
+.st-key-more_strip {
     margin-top: 10px;
     background: var(--panel);
     border: 1px solid var(--line) !important;
@@ -325,29 +313,29 @@ footer {
     padding: 13px 16px !important;
 }
 
-.settings-title {
+.more-title {
     font-size: 18px;
     font-weight: 800;
     padding-top: 7px;
 }
 
-.setting-cell {
+.more-cell {
     text-align: center;
     border-left: 1px solid #dfe3e8;
     min-height: 48px;
 }
 
-.setting-cell span,
-.setting-cell b {
+.more-cell span,
+.more-cell b {
     display: block;
 }
 
-.setting-cell span {
+.more-cell span {
     color: var(--muted);
     font-size: 13px;
 }
 
-.setting-cell b {
+.more-cell b {
     margin-top: 3px;
     font-size: 16px;
 }
@@ -742,7 +730,263 @@ textarea::placeholder {
 [data-testid="stCaptionContainer"],
 [data-testid="stCaptionContainer"] p,
 .product-detail span,
-.setting-cell span,
+.more-cell span,
 .cart-product small {
     color: var(--muted) !important;
+}
+
+
+/* =========================================================
+   Professional V2 navigation, search suggestions, theme toggle
+   ========================================================= */
+
+/* Header is intentionally clean: brand + clock + theme toggle only. */
+.st-key-top_header {
+    padding: 10px 18px !important;
+    min-height: 64px;
+}
+
+.st-key-top_header [data-testid="stHorizontalBlock"] {
+    gap: 12px !important;
+}
+
+.st-key-dark_mode,
+.st-key-dark_mode > div {
+    margin: 0 !important;
+}
+
+.st-key-dark_mode label {
+    justify-content: flex-end !important;
+    font-size: 12px !important;
+    color: var(--muted) !important;
+    white-space: nowrap;
+}
+
+.st-key-dark_mode [data-baseweb="checkbox"] {
+    transform: scale(.95);
+}
+
+/* Search suggestions: compact, scannable, and clearly actionable. */
+.suggestion-title {
+    margin: 8px 0 6px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+[class*="st-key-suggestion_card_"] {
+    border: 1px solid var(--line) !important;
+    background: var(--panel-soft) !important;
+    border-radius: 9px !important;
+    padding: 6px 8px !important;
+    margin-bottom: 5px;
+}
+
+.suggestion-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: transparent !important;
+}
+
+.suggestion-copy b {
+    font-size: 14px;
+    color: var(--text);
+}
+
+.suggestion-copy span {
+    font-size: 11px;
+    color: var(--muted) !important;
+}
+
+[class*="st-key-suggest_view_"] button,
+[class*="st-key-suggest_add_"] button {
+    min-height: 38px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+}
+
+[class*="st-key-suggest_add_"] button:not(:disabled) {
+    background: var(--navy) !important;
+    color: #fff !important;
+    border-color: var(--navy) !important;
+}
+
+.no-match-card {
+    justify-content: flex-start;
+    padding: 18px 22px;
+    text-align: left;
+}
+
+/* More summary strip replaces the old Settings label. */
+.st-key-more_strip {
+    margin-top: 10px;
+    background: var(--panel);
+    border: 1px solid var(--line) !important;
+    border-radius: 11px !important;
+    box-shadow: 0 2px 8px rgba(19, 30, 48, 0.04);
+    padding: 13px 16px !important;
+}
+
+.more-title {
+    font-size: 18px;
+    font-weight: 850;
+    padding-top: 7px;
+}
+
+.more-cell {
+    text-align: center;
+    border-left: 1px solid var(--line);
+    min-height: 48px;
+}
+
+.more-cell span,
+.more-cell b {
+    display: block;
+}
+
+.more-cell span {
+    color: var(--muted) !important;
+    font-size: 12px;
+}
+
+.more-cell b {
+    margin-top: 3px;
+    font-size: 15px;
+}
+
+/* Inventory becomes an action surface, not just a report. */
+.inventory-name {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.inventory-name b {
+    font-size: 16px;
+}
+
+.inventory-name span {
+    color: var(--muted) !important;
+    font-size: 12px;
+}
+
+[class*="st-key-inventory_add_"] button:not(:disabled) {
+    background: var(--navy) !important;
+    color: #fff !important;
+    border-color: var(--navy) !important;
+    min-height: 42px !important;
+}
+
+/* Sticky footer navigation replaces the hamburger menu. */
+.st-key-bottom_navigation {
+    position: sticky;
+    bottom: 10px;
+    z-index: 999;
+    margin-top: 18px;
+    padding: 9px 10px !important;
+    background: color-mix(in srgb, var(--panel) 94%, transparent) !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 13px !important;
+    box-shadow: 0 12px 34px rgba(15, 24, 38, .16) !important;
+    backdrop-filter: blur(14px);
+}
+
+.st-key-bottom_navigation button {
+    min-height: 44px !important;
+    font-size: 12px !important;
+    border-radius: 9px !important;
+}
+
+/* Payment buttons: target the real Streamlit button, never the text node. */
+div[class*="st-key-cash_button"] div.stButton > button {
+    width: 100% !important;
+    min-height: 54px !important;
+    background: var(--green) !important;
+    border: 1px solid var(--green) !important;
+    color: #fff !important;
+    font-size: 16px !important;
+    font-weight: 850 !important;
+}
+
+div[class*="st-key-card_button"] div.stButton > button {
+    width: 100% !important;
+    min-height: 54px !important;
+    background: var(--blue) !important;
+    border: 1px solid var(--blue) !important;
+    color: #fff !important;
+    font-size: 16px !important;
+    font-weight: 850 !important;
+}
+
+div[class*="st-key-cash_button"] button p,
+div[class*="st-key-cash_button"] button span,
+div[class*="st-key-card_button"] button p,
+div[class*="st-key-card_button"] button span {
+    background: transparent !important;
+    color: #fff !important;
+}
+
+div[class*="st-key-complete_sale_button"] div.stButton > button:not(:disabled) {
+    width: 100% !important;
+    min-height: 54px !important;
+    background: var(--navy) !important;
+    border-color: var(--navy) !important;
+    color: #fff !important;
+    font-weight: 850 !important;
+}
+
+div[class*="st-key-print_receipt_button"] div.stButton > button {
+    width: 100% !important;
+    min-height: 54px !important;
+    background: var(--panel) !important;
+    border-color: var(--line) !important;
+    color: var(--text) !important;
+    font-weight: 800 !important;
+}
+
+/* Remove legacy text-node backgrounds that caused tiny colored labels. */
+.st-key-cash_button button p,
+.st-key-cash_button button span,
+.st-key-card_button button p,
+.st-key-card_button button span,
+.st-key-add_to_cart button p,
+.st-key-add_to_cart button span,
+.st-key-complete_sale_button button p,
+.st-key-complete_sale_button button span {
+    background: transparent !important;
+}
+
+/* A little more polish for non-POS pages. */
+.page-title {
+    margin-top: 8px !important;
+}
+
+[data-testid="stMetric"] {
+    min-height: 94px;
+}
+
+@media (max-width: 1100px) {
+    .st-key-bottom_navigation [data-testid="stHorizontalBlock"] {
+        gap: 4px !important;
+    }
+    .st-key-bottom_navigation button {
+        font-size: 10px !important;
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+}
+
+@media (max-width: 800px) {
+    .st-key-bottom_navigation {
+        position: static;
+    }
+    .dt-brand {
+        font-size: 21px;
+    }
+    .dt-clock {
+        font-size: 9px;
+    }
 }

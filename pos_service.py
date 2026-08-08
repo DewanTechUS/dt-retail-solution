@@ -1,3 +1,5 @@
+from difflib import SequenceMatcher
+
 from config import INVENTORY_TABLE, SALES_TABLE, SETTINGS_TABLE
 from database import execute, get_connection, query_all, query_one
 
@@ -38,13 +40,8 @@ def get_dashboard_summary():
     }
 
 
-def search_products(term):
-    term = term.strip()
-    if not term:
-        return []
-
-    return query_all(
-        f"""
+def _base_inventory_select():
+    return f"""
         SELECT
             sku,
             product,
@@ -57,21 +54,86 @@ def search_products(term):
             COALESCE(custom_tax_rate, 0) AS custom_tax_rate,
             image_data
         FROM {INVENTORY_TABLE}
+    """
+
+
+def search_products(term, limit=8):
+    """Search inventory by barcode, SKU, product, category, and typo-friendly similarity."""
+    term = (term or "").strip()
+    if not term:
+        return []
+
+    sql_matches = query_all(
+        _base_inventory_select()
+        + f"""
         WHERE
             LOWER(sku) = LOWER(?)
             OR barcode = ?
             OR LOWER(product) LIKE LOWER(?)
+            OR LOWER(category) LIKE LOWER(?)
+            OR LOWER(sku) LIKE LOWER(?)
         ORDER BY
             CASE
                 WHEN LOWER(sku) = LOWER(?) THEN 1
                 WHEN barcode = ? THEN 2
-                ELSE 3
+                WHEN LOWER(product) = LOWER(?) THEN 3
+                WHEN LOWER(product) LIKE LOWER(?) THEN 4
+                ELSE 5
             END,
             product
-        LIMIT 10
+        LIMIT {int(limit)}
         """,
-        [term, term, f"%{term}%", term, term],
+        [
+            term,
+            term,
+            f"%{term}%",
+            f"%{term}%",
+            f"%{term}%",
+            term,
+            term,
+            term,
+            f"{term}%",
+        ],
     )
+
+    # Keep SQL matches first, then fill remaining slots with typo-friendly suggestions.
+    seen = {row["sku"] for row in sql_matches}
+    results = list(sql_matches)
+
+    if len(results) < limit and len(term) >= 3:
+        all_items = query_all(_base_inventory_select() + " ORDER BY product LIMIT 500")
+        needle = term.lower()
+        scored = []
+
+        for item in all_items:
+            if item["sku"] in seen:
+                continue
+
+            candidates = [
+                str(item.get("product") or "").lower(),
+                str(item.get("category") or "").lower(),
+                str(item.get("sku") or "").lower(),
+                str(item.get("barcode") or "").lower(),
+            ]
+
+            score = max(SequenceMatcher(None, needle, candidate).ratio() for candidate in candidates if candidate)
+
+            # Prefixes and word-prefixes deserve a stronger suggestion score.
+            for candidate in candidates:
+                if candidate.startswith(needle) or any(word.startswith(needle) for word in candidate.split()):
+                    score = max(score, 0.88)
+
+            if score >= 0.46:
+                scored.append((score, item))
+
+        scored.sort(key=lambda pair: (-pair[0], pair[1]["product"].lower()))
+        for _, item in scored:
+            if len(results) >= limit:
+                break
+            results.append(item)
+            seen.add(item["sku"])
+
+    return results[:limit]
 
 
 def list_inventory():
@@ -93,6 +155,37 @@ def list_inventory():
         ORDER BY product
         """
     )
+
+
+def list_recent_additions(limit=20):
+    """Return recently added inventory when the optional added_at column is installed."""
+    try:
+        return query_all(
+            f"""
+            SELECT
+                sku,
+                product,
+                category,
+                quantity,
+                price,
+                barcode,
+                added_at
+            FROM {INVENTORY_TABLE}
+            WHERE added_at IS NOT NULL
+            ORDER BY added_at DESC
+            LIMIT {int(limit)}
+            """
+        )
+    except Exception:
+        return None
+
+
+def _inventory_has_added_at():
+    try:
+        query_one(f"SELECT added_at FROM {INVENTORY_TABLE} LIMIT 1")
+        return True
+    except Exception:
+        return False
 
 
 def add_inventory_item(
@@ -123,36 +216,61 @@ def add_inventory_item(
         if barcode_count:
             return False, "That barcode already exists."
 
-    execute(
-        f"""
-        INSERT INTO {INVENTORY_TABLE}
-        (
-            sku,
-            product,
-            category,
-            quantity,
-            price,
-            barcode,
-            item_fee,
-            tax_type,
-            custom_tax_rate,
-            image_data
+    params = [
+        sku,
+        product,
+        category,
+        int(quantity),
+        float(price),
+        barcode or None,
+        float(item_fee),
+        tax_type,
+        float(custom_tax_rate),
+        image_data,
+    ]
+
+    if _inventory_has_added_at():
+        execute(
+            f"""
+            INSERT INTO {INVENTORY_TABLE}
+            (
+                sku,
+                product,
+                category,
+                quantity,
+                price,
+                barcode,
+                item_fee,
+                tax_type,
+                custom_tax_rate,
+                image_data,
+                added_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
+            """,
+            params,
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        [
-            sku,
-            product,
-            category,
-            int(quantity),
-            float(price),
-            barcode or None,
-            float(item_fee),
-            tax_type,
-            float(custom_tax_rate),
-            image_data,
-        ],
-    )
+    else:
+        execute(
+            f"""
+            INSERT INTO {INVENTORY_TABLE}
+            (
+                sku,
+                product,
+                category,
+                quantity,
+                price,
+                barcode,
+                item_fee,
+                tax_type,
+                custom_tax_rate,
+                image_data
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            params,
+        )
+
     return True, "Item added."
 
 
