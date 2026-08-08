@@ -59,6 +59,8 @@ DEFAULT_STATE = {
     "quick_pending_qty": 1,
     "quick_message": "Enter a price, then tap a tax to add instantly.",
     "editing_cart_index": None,
+    "cash_received": 0.0,
+    "reset_cash_pending": False,
 }
 
 for key, value in DEFAULT_STATE.items():
@@ -78,6 +80,10 @@ if st.session_state.get("quick_input_sync_pending"):
         st.session_state.get("quick_value", "0") or "0"
     )
     st.session_state.quick_input_sync_pending = False
+
+if st.session_state.get("reset_cash_pending"):
+    st.session_state.cash_received = 0.0
+    st.session_state.reset_cash_pending = False
 
 
 # ============================================================
@@ -171,6 +177,11 @@ def esc(value):
 
 def goto(page_name):
     st.session_state.page = page_name
+
+
+def set_cash_received(amount):
+    """Set cash tendered from POS quick-cash buttons."""
+    st.session_state.cash_received = max(float(amount), 0.0)
 
 
 def quick_numeric_value():
@@ -476,13 +487,14 @@ def render_header():
 
         with brand_col:
             st.markdown(
-                '<div class="brand-lockup"><span class="brand-mark">DT</span><span class="brand-name">DT Retail POS</span></div>',
+                '<div class="brand-lockup"><span class="brand-mark">DT</span><span class="brand-name">Retail POS</span></div>',
                 unsafe_allow_html=True,
             )
 
         with terminal_col:
+            now = datetime.now()
             st.markdown(
-                '<div class="terminal-status"><span class="terminal-icon">▣</span><span><b>POS Terminal 1</b><small><i></i>Online</small></span></div>',
+                f'<div class="header-clock"><span>◷</span><div><b>{now.strftime("%b %d, %Y")}</b><small>{now.strftime("%I:%M %p")}</small></div></div>',
                 unsafe_allow_html=True,
             )
 
@@ -1021,14 +1033,41 @@ if st.session_state.page == "POS":
             change_due = 0.0
 
             if st.session_state.payment_method == "CASH":
-                cash_received = st.number_input(
-                    "Cash Received",
+                st.markdown('<div class="cash-label">Cash Received</div>', unsafe_allow_html=True)
+
+                # POS quick-cash buttons. Callback runs before the number
+                # input is created on the rerun, so state updates safely.
+                cash_presets = [
+                    ("Exact", float(totals["total"])),
+                    ("$20", 20.0),
+                    ("$50", 50.0),
+                    ("$100", 100.0),
+                    ("$200", 200.0),
+                ]
+                preset_cols = st.columns(5, gap="small")
+                for col, (label, amount) in zip(preset_cols, cash_presets):
+                    col.button(
+                        label,
+                        key=f"cash_preset_{label.replace('$', '').lower()}",
+                        use_container_width=True,
+                        on_click=set_cash_received,
+                        args=(amount,),
+                    )
+
+                st.number_input(
+                    "Cash Received Amount",
                     min_value=0.0,
                     step=1.0,
                     format="%.2f",
                     key="cash_received",
+                    label_visibility="collapsed",
+                    help="Type an amount and press Enter, or use a quick-cash button above.",
                 )
-                change_due = max(cash_received - totals["total"], 0.0)
+
+                # Always read the committed widget value from session state.
+                cash_received = float(st.session_state.get("cash_received", 0.0) or 0.0)
+                change_due = max(cash_received - float(totals["total"]), 0.0)
+
                 st.markdown(
                     f'<div class="change-card"><span>Change Due</span><b>{money(change_due)}</b></div>',
                     unsafe_allow_html=True,
@@ -1080,6 +1119,7 @@ if st.session_state.page == "POS":
                     }
                     st.session_state.cart = []
                     st.session_state.show_receipt = True
+                    st.session_state.reset_cash_pending = True
                     st.toast(f"Sale complete · {receipt_id}")
                     st.rerun()
 

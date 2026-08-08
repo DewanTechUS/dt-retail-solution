@@ -956,3 +956,121 @@ button:disabled * {
     font-size: 50px !important;
   }
 }
+
+
+/* =========================================================
+   FINAL FOUR FIXES
+   - One DT brand
+   - Header date/time
+   - Quick-entry clipping
+   - POS cash tender presets
+   ========================================================= */
+
+/* Header date/time replaces POS Terminal 1 / Online. */
+.header-clock {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  white-space: nowrap;
+}
+
+.header-clock > span {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel-2);
+  color: #77aeea !important;
+  font-size: 15px;
+}
+
+.header-clock b,
+.header-clock small {
+  display: block;
+}
+
+.header-clock b {
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.header-clock small {
+  margin-top: 2px;
+  color: var(--muted) !important;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+/* The large Quick Add input wrapper must grow with the input.
+   Baseweb's inner input wrapper was clipping the large numbers. */
+.st-key-quick_entry_display [data-baseweb="input"] {
+  min-height: 122px !important;
+  height: 122px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 11px !important;
+  overflow: visible !important;
+  box-shadow: none !important;
+}
+
+.st-key-quick_entry_display [data-baseweb="input"] > div {
+  min-height: 122px !important;
+  height: 122px !important;
+  overflow: visible !important;
+}
+
+.st-key-quick_entry_display [data-testid="stTextInput"] input {
+  height: 122px !important;
+  min-height: 122px !important;
+  padding: 30px 110px 10px 24px !important;
+  line-height: 1.08 !important;
+  font-size: clamp(54px, 4.9vw, 78px) !important;
+  overflow: visible !important;
+}
+
+/* Cash tender section */
+.cash-label {
+  margin: 4px 0 7px;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+[class*="st-key-cash_preset_"] button {
+  min-height: 39px !important;
+  padding: 0 7px !important;
+  border-radius: 9px !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  box-shadow: none !important;
+}
+
+.st-key-cash_preset_exact button {
+  color: #6ef39c !important;
+  border-color: #2f8755 !important;
+  background: linear-gradient(180deg, #153f2b, #102f22) !important;
+}
+
+.st-key-cash_preset_exact button * {
+  color: #6ef39c !important;
+}
+
+@media (max-width: 760px) {
+  .header-clock > span { display: none; }
+  .header-clock b { font-size: 10px; }
+  .header-clock small { font-size: 9px; }
+
+  .st-key-quick_entry_display [data-baseweb="input"],
+  .st-key-quick_entry_display [data-baseweb="input"] > div,
+  .st-key-quick_entry_display [data-testid="stTextInput"] input {
+    min-height: 101px !important;
+    height: 101px !important;
+  }
+
+  .st-key-quick_entry_display [data-testid="stTextInput"] input {
+    font-size: 46px !important;
+  }
+}
