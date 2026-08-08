@@ -4,5 +4,8 @@ env:
   - name: DATABRICKS_WAREHOUSE_ID
     valueFrom: sql-warehouse
 
-  - name: UC_TABLE_NAME
-    valueFrom: table
+  - name: INVENTORY_TABLE
+    valueFrom: inventory-table
+
+  - name: SALES_HISTORY_TABLE
+    valueFrom: sales-history-table
