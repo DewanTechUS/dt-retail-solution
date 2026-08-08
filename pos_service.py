@@ -468,7 +468,7 @@ def complete_sale(cart, receipt_id):
                     cursor.execute(
                         f"""
                         UPDATE {INVENTORY_TABLE}
-                        SET quantity = quantity - ?
+                        SET quantity = GREATEST(COALESCE(quantity, 0) - ?, 0)
                         WHERE sku = ?
                         """,
                         [qty, item["sku"]],

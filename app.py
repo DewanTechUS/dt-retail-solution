@@ -1232,10 +1232,21 @@ elif st.session_state.page == "Manage Item":
 
             with edit:
                 new_barcode = st.text_input("Barcode", value=item["barcode"] or "", key=f"bar_{item['sku']}")
+
+                stored_quantity = int(item.get("quantity") or 0)
+                safe_quantity = max(0, stored_quantity)
+
+                if stored_quantity < 0:
+                    st.warning(
+                        f"Stored stock was {stored_quantity}. "
+                        "The editor has reset the displayed value to 0. "
+                        "Save the item to correct the inventory record."
+                    )
+
                 new_quantity = st.number_input(
                     "Stock Quantity",
                     min_value=0,
-                    value=int(item["quantity"]),
+                    value=safe_quantity,
                     step=1,
                     key=f"qty_{item['sku']}",
                 )
