@@ -9,3 +9,6 @@ env:
 
   - name: SALES_HISTORY_TABLE
     valueFrom: sales-history-table
+
+  - name: SETTINGS_TABLE
+    valueFrom: settings-table
