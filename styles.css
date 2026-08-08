@@ -1,20 +1,23 @@
 /* =========================================================
-   DT Retail POS — Picture-Matched Theme
-   Visual layer only. No business logic belongs here.
+   DT Retail POS — screenshot matched UI
+   Reference: supplied DT Retail POS mockup
    ========================================================= */
 
 :root {
-    --dt-bg: #f3f5f7;
-    --dt-panel: #ffffff;
-    --dt-text: #162033;
-    --dt-muted: #6b7280;
-    --dt-line: #e2e7ec;
-    --dt-navy: #172238;
-    --dt-blue: #1265d8;
-    --dt-green: #19a66a;
-    --dt-red: #dc5a63;
-    --dt-soft-green: #e9f8f0;
-    --dt-shadow: 0 5px 18px rgba(20, 31, 48, 0.08);
+    --bg: #f4f6f8;
+    --panel: #ffffff;
+    --text: #121a2a;
+    --muted: #6f7681;
+    --line: #dfe3e8;
+    --navy: #152138;
+    --navy-hover: #1b2a46;
+    --green: #18a65d;
+    --green-dark: #11844a;
+    --blue: #1f66d1;
+    --blue-dark: #1657b7;
+    --red: #d44545;
+    --soft-green: #edf8f1;
+    --shadow: 0 4px 18px rgba(19, 30, 48, 0.07);
 }
 
 html, body, [class*="css"] {
@@ -22,319 +25,569 @@ html, body, [class*="css"] {
 }
 
 .stApp {
-    background: var(--dt-bg);
-    color: var(--dt-text);
+    background: var(--bg);
+    color: var(--text);
 }
 
-[data-testid="stHeader"] {
-    background: transparent;
+[data-testid="stHeader"],
+[data-testid="stToolbar"],
+#MainMenu,
+footer {
+    visibility: hidden;
+    height: 0;
 }
 
 .block-container {
-    max-width: 1500px;
-    padding-top: 0.8rem;
-    padding-bottom: 2.2rem;
+    max-width: 1670px;
+    padding: 0.15rem 1.15rem 1.3rem;
 }
 
 /* ---------- Header ---------- */
-.dt-topbar {
-    position: relative;
-    min-height: 74px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--dt-panel);
-    border: 1px solid var(--dt-line);
+.st-key-top_header {
+    background: var(--panel);
+    border: 1px solid var(--line);
     border-radius: 14px;
-    box-shadow: 0 3px 14px rgba(20, 31, 48, 0.06);
-    margin-bottom: 14px;
-    padding: 0 24px;
+    box-shadow: 0 2px 11px rgba(19, 30, 48, 0.05);
+    padding: 11px 18px;
+    margin: 0 0 14px;
+    min-height: 68px;
+}
+
+.st-key-top_header [data-testid="stHorizontalBlock"] {
+    align-items: center;
 }
 
 .dt-brand {
-    font-size: 29px;
-    line-height: 1;
-    font-weight: 800;
-    letter-spacing: -0.7px;
-    color: var(--dt-text);
+    text-align: center;
+    font-size: 30px;
+    font-weight: 850;
+    letter-spacing: -0.8px;
+    color: var(--text);
+    line-height: 1.1;
 }
 
 .dt-clock {
-    position: absolute;
-    right: 24px;
-    top: 50%;
-    transform: translateY(-50%);
+    border: 1px solid var(--line);
+    background: #fafafa;
+    border-radius: 9px;
+    padding: 9px 11px;
     font-size: 13px;
     font-weight: 600;
-    color: #4b5563;
-    background: #f7f8fa;
-    border: 1px solid var(--dt-line);
-    border-radius: 9px;
-    padding: 8px 11px;
+    color: #4d5560;
+    text-align: center;
+    white-space: nowrap;
 }
 
-h1, h2, h3, h4, p, label {
-    color: var(--dt-text);
+.st-key-top_header [data-testid="stPopover"] button {
+    width: 46px !important;
+    min-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--text) !important;
+    font-size: 26px !important;
+    box-shadow: none !important;
 }
 
-h2, h3 {
-    letter-spacing: -0.25px;
+/* ---------- Main POS panels ---------- */
+.st-key-pos_left_panel,
+.st-key-pos_right_panel {
+    background: var(--panel);
+    border: 1px solid var(--line) !important;
+    border-radius: 13px !important;
+    box-shadow: var(--shadow);
+    padding: 16px 20px 18px !important;
+    min-height: 795px;
 }
 
-/* ---------- Tabs / navigation ---------- */
-[data-testid="stTabs"] [data-baseweb="tab-list"] {
-    gap: 4px;
-    background: #edf0f3;
-    border-radius: 11px;
-    padding: 4px;
-    margin-bottom: 14px;
-}
-
-[data-testid="stTabs"] button[role="tab"] {
-    min-height: 38px;
-    border-radius: 8px;
-    padding: 7px 15px;
-    font-weight: 700;
-    color: #596273;
-}
-
-[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
-    background: #ffffff;
-    color: var(--dt-text);
-    box-shadow: 0 1px 5px rgba(20, 31, 48, 0.08);
-}
-
-[data-testid="stTabs"] [data-baseweb="tab-highlight"] {
-    display: none;
-}
-
-/* ---------- Panels ---------- */
-.pos-card,
-.total-box {
-    background: var(--dt-panel);
-    border: 1px solid var(--dt-line);
-    border-radius: 13px;
-    padding: 18px;
-    margin: 8px 0 13px 0;
-    box-shadow: var(--dt-shadow);
-    color: var(--dt-text);
-}
-
-.pos-card h3 {
-    font-size: 21px;
+.section-title {
+    font-size: 23px;
+    margin: 0 0 10px;
     font-weight: 800;
+    letter-spacing: -0.4px;
+    color: var(--text);
 }
 
-.total-box {
-    padding: 18px 20px;
-}
-
-.total-box > div {
-    margin: 5px 0;
-}
-
-.total-box hr {
-    border: 0;
-    border-top: 1px solid var(--dt-line);
-    margin: 12px 0;
-}
-
-.big-total {
-    font-size: 1.75rem;
+.page-title {
+    font-size: 30px;
     font-weight: 850;
-    color: var(--dt-text);
+    letter-spacing: -0.6px;
+    margin: 5px 0 10px;
 }
 
-.muted {
-    color: var(--dt-muted);
-    font-size: 0.86rem;
+/* ---------- Search ---------- */
+.st-key-pos_search input {
+    height: 56px !important;
+    border-radius: 10px !important;
+    border: 1px solid #ccd3db !important;
+    font-size: 16px !important;
+    padding-left: 16px !important;
+    background: #fff !important;
+}
+
+.st-key-pos_search input:focus {
+    border-color: #8895a5 !important;
+    box-shadow: 0 0 0 2px rgba(21, 33, 56, 0.07) !important;
+}
+
+.search-hint-card {
+    min-height: 112px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    margin: 12px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--muted);
+    background: #fbfbfc;
+}
+
+.scan-icon {
+    font-size: 34px;
+    color: var(--text);
+}
+
+/* ---------- Selected product ---------- */
+.st-key-selected_product_card {
+    background: #fff;
+    border: 1px solid var(--line) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 10px rgba(19, 30, 48, 0.05);
+    padding: 12px !important;
+    margin: 10px 0 14px;
+}
+
+.selected-product-image,
+.upload-preview,
+.manage-preview {
+    display: block;
+    width: 100%;
+    max-width: 180px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: #f7f7f7;
+}
+
+.no-product-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #8b929c;
+}
+
+.no-product-image span {
+    font-size: 38px;
+}
+
+.no-product-image small {
+    margin-top: 5px;
+}
+
+.product-info {
+    padding: 3px 4px;
+}
+
+.product-name {
+    font-size: 23px;
+    line-height: 1.1;
+    font-weight: 850;
+    margin-bottom: 12px;
+}
+
+.product-detail {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 4px 0;
+    font-size: 14px;
+}
+
+.product-detail span {
+    color: #424b57;
+}
+
+.product-price {
+    font-size: 20px;
+}
+
+.stock-value {
+    color: #008e51;
+}
+
+.quantity-label {
+    font-weight: 750;
+    margin-bottom: 6px;
+}
+
+.st-key-add_to_cart button {
+    background: var(--navy) !important;
+    color: white !important;
+    border: 1px solid var(--navy) !important;
+    min-height: 58px !important;
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    margin-top: 6px;
 }
 
 /* ---------- Inputs ---------- */
 [data-testid="stTextInput"] input,
 [data-testid="stNumberInput"] input,
 [data-baseweb="select"] > div {
-    background: #ffffff !important;
-    color: var(--dt-text) !important;
-    border-color: #d6dde5 !important;
-    border-radius: 10px !important;
-    min-height: 44px;
+    background: #fff !important;
+    color: var(--text) !important;
+    border-color: #cfd6de !important;
+    border-radius: 9px !important;
 }
 
-[data-testid="stTextInput"] input:focus,
-[data-testid="stNumberInput"] input:focus {
-    border-color: #92a2b4 !important;
-    box-shadow: 0 0 0 2px rgba(23, 34, 56, 0.08) !important;
+[data-testid="stTextInput"] input,
+[data-testid="stNumberInput"] input {
+    min-height: 47px;
 }
 
-/* ---------- Generic buttons ---------- */
-div.stButton > button,
-div[data-testid="stFormSubmitButton"] > button {
-    border-radius: 10px !important;
-    min-height: 43px;
-    font-weight: 750;
-    border: 1px solid #d8dee6;
-    background: #ffffff;
-    color: var(--dt-text);
-    box-shadow: 0 1px 3px rgba(20, 31, 48, 0.04);
-    transition: transform .08s ease, box-shadow .08s ease, border-color .08s ease;
-}
-
-div.stButton > button:hover,
-div[data-testid="stFormSubmitButton"] > button:hover {
-    border-color: #aeb8c4;
-    color: var(--dt-text);
-    transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(20, 31, 48, 0.08);
-}
-
-button[kind="primary"] {
-    background: var(--dt-navy) !important;
-    border-color: var(--dt-navy) !important;
-    color: #ffffff !important;
-}
-
-/* ---------- Search / quantity keypad ---------- */
+/* ---------- Keypad ---------- */
 [class*="st-key-keypad_"] button {
-    min-height: 62px !important;
-    font-size: 23px !important;
-    font-weight: 800 !important;
-    background: #ffffff !important;
-    color: var(--dt-text) !important;
-    border: 1px solid #dfe4ea !important;
-    box-shadow: 0 2px 7px rgba(20, 31, 48, 0.06) !important;
+    min-height: 54px !important;
+    border-radius: 9px !important;
+    background: #fff !important;
+    color: var(--text) !important;
+    border: 1px solid #d9dfe6 !important;
+    box-shadow: 0 1px 4px rgba(19, 30, 48, 0.04) !important;
+    font-size: 22px !important;
+    font-weight: 750 !important;
 }
 
-[class*="st-key-keypad_0_"],
-[class*="st-key-keypad_1_"],
-[class*="st-key-keypad_2_"],
-[class*="st-key-keypad_3_"] {
-    margin-bottom: 2px;
+[class*="st-key-keypad_"] button:hover {
+    background: #f7f8fa !important;
+    border-color: #aab4c0 !important;
 }
 
-[class*="st-key-keypad_3_0_C"] button {
-    color: var(--dt-red) !important;
-    background: #fff7f7 !important;
+.st-key-keypad_3_0_C button {
+    color: var(--red) !important;
 }
 
-.st-key-add_to_cart button,
-.st-key-complete_sale_button button {
-    min-height: 49px !important;
-    background: var(--dt-navy) !important;
-    color: #ffffff !important;
-    border-color: var(--dt-navy) !important;
-    font-size: 15px !important;
+/* ---------- Expander ---------- */
+[data-testid="stExpander"] {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    box-shadow: 0 1px 5px rgba(19, 30, 48, 0.04);
 }
 
 /* ---------- Quick tax ---------- */
+.quick-tax-heading {
+    font-size: 21px;
+    margin: 15px 0 8px;
+    font-weight: 800;
+}
+
 .st-key-tax_no button,
 .st-key-tax_low button,
 .st-key-tax_high button,
-.st-key-tax_custom button,
-.st-key-tax_product button {
-    min-height: 38px !important;
-    font-size: 12px !important;
-    padding-left: 8px !important;
-    padding-right: 8px !important;
+.st-key-tax_custom button {
+    min-height: 50px !important;
+    font-size: 14px !important;
+    background: #fff !important;
+    color: var(--text) !important;
+    border: 1px solid #d9dfe6 !important;
 }
 
 .st-key-tax_no button[kind="primary"],
 .st-key-tax_low button[kind="primary"],
 .st-key-tax_high button[kind="primary"],
-.st-key-tax_custom button[kind="primary"],
-.st-key-tax_product button[kind="primary"] {
-    background: #e9edf2 !important;
-    color: var(--dt-text) !important;
-    border: 2px solid var(--dt-navy) !important;
+.st-key-tax_custom button[kind="primary"] {
+    background: #f5f6f8 !important;
+    border: 2px solid var(--navy) !important;
+    color: var(--text) !important;
 }
 
-/* ---------- Payment buttons ---------- */
-.st-key-cash_button button {
-    min-height: 50px !important;
-    background: var(--dt-green) !important;
-    border-color: var(--dt-green) !important;
-    color: #ffffff !important;
-    font-size: 16px !important;
+.st-key-use_product_tax button {
+    font-size: 12px !important;
+    min-height: 34px !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #4f5a68 !important;
+    box-shadow: none !important;
+    padding-left: 0 !important;
 }
 
-.st-key-card_button button {
-    min-height: 50px !important;
-    background: var(--dt-blue) !important;
-    border-color: var(--dt-blue) !important;
-    color: #ffffff !important;
-    font-size: 16px !important;
+/* ---------- Settings strip ---------- */
+.st-key-settings_strip {
+    margin-top: 10px;
+    background: #fff;
+    border: 1px solid var(--line) !important;
+    border-radius: 11px !important;
+    box-shadow: 0 2px 8px rgba(19, 30, 48, 0.04);
+    padding: 13px 16px !important;
 }
 
-.st-key-cash_button button:hover,
-.st-key-card_button button:hover {
-    filter: brightness(0.96);
-    color: #ffffff !important;
+.settings-title {
+    font-size: 18px;
+    font-weight: 800;
+    padding-top: 7px;
 }
 
-/* ---------- Change due / metric cards ---------- */
-[data-testid="stMetric"] {
-    background: var(--dt-panel);
-    border: 1px solid var(--dt-line);
-    border-radius: 12px;
-    padding: 14px 16px;
-    box-shadow: 0 2px 9px rgba(20, 31, 48, 0.05);
+.setting-cell {
+    text-align: center;
+    border-left: 1px solid #dfe3e8;
+    min-height: 48px;
 }
 
-[data-testid="stMetricLabel"] {
-    color: var(--dt-muted) !important;
-    font-weight: 650;
+.setting-cell span,
+.setting-cell b {
+    display: block;
 }
 
-[data-testid="stMetricValue"] {
-    color: var(--dt-text) !important;
+.setting-cell span {
+    color: #59616d;
+    font-size: 13px;
+}
+
+.setting-cell b {
+    margin-top: 3px;
+    font-size: 16px;
+}
+
+/* ---------- Cart ---------- */
+.cart-table-head {
+    display: grid;
+    grid-template-columns: 4fr 1.5fr 1.3fr 1.6fr .5fr;
+    align-items: center;
+    padding: 12px 14px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+[class*="st-key-cart_item_"] {
+    border-bottom: 1px solid #e5e8ec;
+    padding: 9px 3px !important;
+}
+
+.cart-thumb,
+.inventory-thumb {
+    width: 62px;
+    height: 62px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+}
+
+.cart-product b,
+.cart-product small {
+    display: block;
+}
+
+.cart-product b {
+    font-size: 15px;
+}
+
+.cart-product small {
+    color: #6d7580;
+    margin-top: 3px;
+}
+
+.cart-qty,
+.cart-money {
+    text-align: center;
+    font-weight: 700;
+}
+
+[class*="st-key-minus_"] button,
+[class*="st-key-plus_"] button,
+[class*="st-key-remove_"] button {
+    min-height: 39px !important;
+    border-radius: 8px !important;
+    background: #fff !important;
+    color: var(--text) !important;
+    border: 1px solid #dce1e7 !important;
+    padding: 0 !important;
+}
+
+.empty-cart {
+    background: #f7f8fa;
+    color: #707884;
+    padding: 34px;
+    text-align: center;
+    border: 1px dashed #d4dae1;
+    border-radius: 9px;
+    margin-bottom: 12px;
+}
+
+/* ---------- Totals ---------- */
+.st-key-totals_box {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 9px 2px 0 !important;
+    background: transparent !important;
+}
+
+.totals-list > div {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 15px;
+}
+
+.totals-list hr {
+    border: 0;
+    border-top: 1px solid #dfe3e8;
+    margin: 12px 0;
+}
+
+.totals-list .grand-total {
+    font-size: 25px;
     font-weight: 850;
 }
 
-/* ---------- Dataframes ---------- */
+.payment-heading {
+    font-size: 21px;
+    font-weight: 800;
+    margin: 15px 0 8px;
+}
+
+/* ---------- Payment ---------- */
+.st-key-cash_button button {
+    min-height: 54px !important;
+    border: 0 !important;
+    background: var(--green) !important;
+    color: white !important;
+    font-size: 17px !important;
+    font-weight: 800 !important;
+}
+
+.st-key-card_button button {
+    min-height: 54px !important;
+    border: 0 !important;
+    background: var(--blue) !important;
+    color: white !important;
+    font-size: 17px !important;
+    font-weight: 800 !important;
+}
+
+.st-key-cash_button button:hover {
+    background: var(--green-dark) !important;
+}
+
+.st-key-card_button button:hover {
+    background: var(--blue-dark) !important;
+}
+
+.st-key-change_due_box {
+    background: var(--soft-green);
+    border: 0 !important;
+    border-radius: 9px !important;
+    padding: 12px 14px !important;
+    margin: 10px 0 12px;
+}
+
+.change-due {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #176f43;
+}
+
+.change-due b {
+    font-size: 22px;
+}
+
+.st-key-complete_sale_button button {
+    min-height: 54px !important;
+    border: 1px solid var(--navy) !important;
+    background: var(--navy) !important;
+    color: white !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+}
+
+.st-key-print_receipt_button button {
+    min-height: 54px !important;
+    border: 1px solid #222d40 !important;
+    background: #fff !important;
+    color: var(--text) !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+}
+
+/* ---------- Generic buttons ---------- */
+div.stButton > button,
+div[data-testid="stFormSubmitButton"] > button {
+    border-radius: 9px !important;
+    font-weight: 700;
+}
+
+button[kind="primary"] {
+    background: var(--navy) !important;
+    color: #fff !important;
+    border-color: var(--navy) !important;
+}
+
+/* ---------- Other pages ---------- */
+[data-testid="stMetric"] {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 12px 14px;
+    box-shadow: 0 2px 8px rgba(19, 30, 48, 0.04);
+}
+
+.st-key-form_card {
+    background: #fff;
+    border: 1px solid var(--line) !important;
+    border-radius: 13px !important;
+    box-shadow: var(--shadow);
+    padding: 18px !important;
+}
+
+.upload-preview,
+.manage-preview {
+    max-width: 320px;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    margin: 8px auto 14px;
+}
+
+[class*="st-key-inventory_row_"] {
+    background: #fff;
+    border: 1px solid var(--line) !important;
+    border-radius: 11px !important;
+    box-shadow: 0 2px 7px rgba(19, 30, 48, 0.04);
+    padding: 10px 13px !important;
+    margin-bottom: 8px;
+}
+
 [data-testid="stDataFrame"] {
-    border: 1px solid var(--dt-line);
-    border-radius: 12px;
-    overflow: hidden;
-    background: #ffffff;
-}
-
-/* ---------- Alerts ---------- */
-[data-testid="stAlert"] {
+    border: 1px solid var(--line);
     border-radius: 10px;
-}
-
-/* ---------- Expander ---------- */
-[data-testid="stExpander"] {
-    background: #ffffff;
-    border: 1px solid var(--dt-line);
-    border-radius: 12px;
-    box-shadow: 0 2px 7px rgba(20, 31, 48, 0.04);
-}
-
-/* ---------- Delete ---------- */
-.st-key-delete_item_button button {
-    background: #fff7f7 !important;
-    color: #c73f49 !important;
-    border-color: #efb5ba !important;
+    overflow: hidden;
 }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
-    .dt-topbar {
-        justify-content: flex-start;
-        min-height: 66px;
+    .block-container {
+        padding-left: .7rem;
+        padding-right: .7rem;
     }
 
     .dt-brand {
-        font-size: 24px;
+        font-size: 23px;
     }
 
     .dt-clock {
-        display: none;
+        font-size: 10px;
+        padding: 7px;
     }
 
-    [class*="st-key-keypad_"] button {
-        min-height: 52px !important;
-        font-size: 20px !important;
+    .st-key-pos_left_panel,
+    .st-key-pos_right_panel {
+        min-height: unset;
     }
 }

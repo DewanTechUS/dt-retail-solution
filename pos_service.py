@@ -54,7 +54,8 @@ def search_products(term):
             barcode,
             COALESCE(item_fee, 0) AS item_fee,
             COALESCE(tax_type, 'NONE') AS tax_type,
-            COALESCE(custom_tax_rate, 0) AS custom_tax_rate
+            COALESCE(custom_tax_rate, 0) AS custom_tax_rate,
+            image_data
         FROM {INVENTORY_TABLE}
         WHERE
             LOWER(sku) = LOWER(?)
@@ -86,6 +87,7 @@ def list_inventory():
             COALESCE(item_fee, 0) AS item_fee,
             COALESCE(tax_type, 'NONE') AS tax_type,
             COALESCE(custom_tax_rate, 0) AS custom_tax_rate,
+            image_data,
             quantity * price AS inventory_value
         FROM {INVENTORY_TABLE}
         ORDER BY product
@@ -103,6 +105,7 @@ def add_inventory_item(
     item_fee,
     tax_type,
     custom_tax_rate,
+    image_data=None,
 ):
     sku_count = query_one(
         f"SELECT COUNT(*) FROM {INVENTORY_TABLE} WHERE LOWER(sku) = LOWER(?)",
@@ -132,9 +135,10 @@ def add_inventory_item(
             barcode,
             item_fee,
             tax_type,
-            custom_tax_rate
+            custom_tax_rate,
+            image_data
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             sku,
@@ -146,6 +150,7 @@ def add_inventory_item(
             float(item_fee),
             tax_type,
             float(custom_tax_rate),
+            image_data,
         ],
     )
     return True, "Item added."
@@ -159,29 +164,57 @@ def update_inventory_item(
     item_fee,
     tax_type,
     custom_tax_rate,
+    image_data=None,
+    keep_existing_image=True,
 ):
-    execute(
-        f"""
-        UPDATE {INVENTORY_TABLE}
-        SET
-            barcode = ?,
-            quantity = ?,
-            price = ?,
-            item_fee = ?,
-            tax_type = ?,
-            custom_tax_rate = ?
-        WHERE sku = ?
-        """,
-        [
-            barcode or None,
-            int(quantity),
-            float(price),
-            float(item_fee),
-            tax_type,
-            float(custom_tax_rate),
-            sku,
-        ],
-    )
+    if keep_existing_image:
+        execute(
+            f"""
+            UPDATE {INVENTORY_TABLE}
+            SET
+                barcode = ?,
+                quantity = ?,
+                price = ?,
+                item_fee = ?,
+                tax_type = ?,
+                custom_tax_rate = ?
+            WHERE sku = ?
+            """,
+            [
+                barcode or None,
+                int(quantity),
+                float(price),
+                float(item_fee),
+                tax_type,
+                float(custom_tax_rate),
+                sku,
+            ],
+        )
+    else:
+        execute(
+            f"""
+            UPDATE {INVENTORY_TABLE}
+            SET
+                barcode = ?,
+                quantity = ?,
+                price = ?,
+                item_fee = ?,
+                tax_type = ?,
+                custom_tax_rate = ?,
+                image_data = ?
+            WHERE sku = ?
+            """,
+            [
+                barcode or None,
+                int(quantity),
+                float(price),
+                float(item_fee),
+                tax_type,
+                float(custom_tax_rate),
+                image_data,
+                sku,
+            ],
+        )
 
 
 def delete_inventory_item(sku):
