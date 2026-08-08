@@ -43,9 +43,14 @@ def load_css(filename="styles.css"):
 
 load_css()
 
-st.title("DT Retail POS")
-st.caption(
-    "Retail inventory, checkout, sales history, and configurable POS settings powered by Databricks"
+st.markdown(
+    f"""
+    <div class="dt-topbar">
+        <div class="dt-brand">DT Retail POS</div>
+        <div class="dt-clock">{datetime.now().strftime('%b %d, %Y&nbsp;&nbsp;&nbsp;%I:%M %p')}</div>
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 
 
@@ -78,12 +83,6 @@ high_tax = settings.get("HIGH_TAX", 0.0)
 card_fee = settings.get("CARD_FEE", 0.0)
 
 summary = get_dashboard_summary()
-
-m1, m2, m3, m4 = st.columns(4)
-m1.metric("Products", summary["products"])
-m2.metric("Units in Stock", summary["units"])
-m3.metric("Inventory Value", f'${summary["inventory_value"]:,.2f}')
-m4.metric("Recorded Sales", f'${summary["revenue"]:,.2f}')
 
 
 # ============================================================
@@ -196,7 +195,7 @@ with pos_tab:
         if selected_product:
             requested_qty = max(int(st.session_state.qty_buffer or "1"), 1)
 
-            if st.button("Add to Cart", type="primary", use_container_width=True):
+            if st.button("Add to Cart", type="primary", use_container_width=True, key="add_to_cart"):
                 if requested_qty > int(selected_product["quantity"]):
                     st.error("Not enough stock.")
                 else:
@@ -300,15 +299,21 @@ with pos_tab:
         st.markdown("#### Quick Tax")
         tax_cols = st.columns(5)
         tax_choices = [
-            ("No Tax", "NO TAX"),
-            ("Low Tax", "LOW TAX"),
-            ("High Tax", "HIGH TAX"),
-            ("Custom", "CUSTOM TAX"),
-            ("Product", "PRODUCT DEFAULT"),
+            ("No Tax", "NO TAX", "tax_no"),
+            ("Low Tax", "LOW TAX", "tax_low"),
+            ("High Tax", "HIGH TAX", "tax_high"),
+            ("Custom", "CUSTOM TAX", "tax_custom"),
+            ("Product", "PRODUCT DEFAULT", "tax_product"),
         ]
 
-        for idx, (label, value) in enumerate(tax_choices):
-            if tax_cols[idx].button(label, key=f"tax_{value}", use_container_width=True):
+        for idx, (label, value, button_key) in enumerate(tax_choices):
+            active = st.session_state.tax_override == value
+            if tax_cols[idx].button(
+                label,
+                key=button_key,
+                use_container_width=True,
+                type="primary" if active else "secondary",
+            ):
                 st.session_state.tax_override = value
                 st.rerun()
 
@@ -414,6 +419,7 @@ with pos_tab:
             "Cash",
             type="primary" if st.session_state.payment_method == "CASH" else "secondary",
             use_container_width=True,
+            key="cash_button",
         ):
             st.session_state.payment_method = "CASH"
             st.rerun()
@@ -422,6 +428,7 @@ with pos_tab:
             "Card",
             type="primary" if st.session_state.payment_method == "CARD" else "secondary",
             use_container_width=True,
+            key="card_button",
         ):
             st.session_state.payment_method = "CARD"
             st.rerun()
@@ -459,6 +466,7 @@ with pos_tab:
             type="primary",
             use_container_width=True,
             disabled=not st.session_state.cart,
+            key="complete_sale_button",
         ):
             totals = calculate_cart_totals(
                 st.session_state.cart,
@@ -511,6 +519,13 @@ with pos_tab:
 # ============================================================
 
 with inventory_tab:
+    st.subheader("Inventory Overview")
+    im1, im2, im3, im4 = st.columns(4)
+    im1.metric("Products", summary["products"])
+    im2.metric("Units in Stock", summary["units"])
+    im3.metric("Inventory Value", f'${summary["inventory_value"]:,.2f}')
+    im4.metric("Recorded Sales", f'${summary["revenue"]:,.2f}')
+
     st.subheader("Current Inventory")
     st.dataframe(list_inventory(), use_container_width=True, hide_index=True)
 
@@ -658,7 +673,7 @@ with manage_tab:
             key="confirm_delete",
         )
 
-        if st.button("Delete Item"):
+        if st.button("Delete Item", key="delete_item_button"):
             if not confirm:
                 st.error("Confirm the deletion first.")
             else:

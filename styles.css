@@ -1,71 +1,340 @@
 /* =========================================================
-   DT Retail POS - Presentation Layer Only
-   Keep visual styling here; no business logic in this file.
+   DT Retail POS — Picture-Matched Theme
+   Visual layer only. No business logic belongs here.
    ========================================================= */
 
+:root {
+    --dt-bg: #f3f5f7;
+    --dt-panel: #ffffff;
+    --dt-text: #162033;
+    --dt-muted: #6b7280;
+    --dt-line: #e2e7ec;
+    --dt-navy: #172238;
+    --dt-blue: #1265d8;
+    --dt-green: #19a66a;
+    --dt-red: #dc5a63;
+    --dt-soft-green: #e9f8f0;
+    --dt-shadow: 0 5px 18px rgba(20, 31, 48, 0.08);
+}
+
+html, body, [class*="css"] {
+    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
 .stApp {
-    background: #f4f6f8;
+    background: var(--dt-bg);
+    color: var(--dt-text);
+}
+
+[data-testid="stHeader"] {
+    background: transparent;
 }
 
 .block-container {
-    max-width: 1550px;
-    padding-top: 1.2rem;
-    padding-bottom: 2rem;
+    max-width: 1500px;
+    padding-top: 0.8rem;
+    padding-bottom: 2.2rem;
 }
 
-h1, h2, h3 {
-    color: #111827;
-}
-
-[data-testid="stMetric"] {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
+/* ---------- Header ---------- */
+.dt-topbar {
+    position: relative;
+    min-height: 74px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--dt-panel);
+    border: 1px solid var(--dt-line);
     border-radius: 14px;
-    padding: 16px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 3px 14px rgba(20, 31, 48, 0.06);
+    margin-bottom: 14px;
+    padding: 0 24px;
 }
 
-[data-testid="stMetricLabel"],
-[data-testid="stMetricValue"] {
-    color: #111827;
+.dt-brand {
+    font-size: 29px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -0.7px;
+    color: var(--dt-text);
 }
 
+.dt-clock {
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b5563;
+    background: #f7f8fa;
+    border: 1px solid var(--dt-line);
+    border-radius: 9px;
+    padding: 8px 11px;
+}
+
+h1, h2, h3, h4, p, label {
+    color: var(--dt-text);
+}
+
+h2, h3 {
+    letter-spacing: -0.25px;
+}
+
+/* ---------- Tabs / navigation ---------- */
+[data-testid="stTabs"] [data-baseweb="tab-list"] {
+    gap: 4px;
+    background: #edf0f3;
+    border-radius: 11px;
+    padding: 4px;
+    margin-bottom: 14px;
+}
+
+[data-testid="stTabs"] button[role="tab"] {
+    min-height: 38px;
+    border-radius: 8px;
+    padding: 7px 15px;
+    font-weight: 700;
+    color: #596273;
+}
+
+[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+    background: #ffffff;
+    color: var(--dt-text);
+    box-shadow: 0 1px 5px rgba(20, 31, 48, 0.08);
+}
+
+[data-testid="stTabs"] [data-baseweb="tab-highlight"] {
+    display: none;
+}
+
+/* ---------- Panels ---------- */
 .pos-card,
 .total-box {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
+    background: var(--dt-panel);
+    border: 1px solid var(--dt-line);
+    border-radius: 13px;
     padding: 18px;
-    margin-bottom: 12px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-    color: #111827;
+    margin: 8px 0 13px 0;
+    box-shadow: var(--dt-shadow);
+    color: var(--dt-text);
 }
 
-.cart-line {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
+.pos-card h3 {
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.total-box {
+    padding: 18px 20px;
+}
+
+.total-box > div {
+    margin: 5px 0;
+}
+
+.total-box hr {
+    border: 0;
+    border-top: 1px solid var(--dt-line);
+    margin: 12px 0;
 }
 
 .big-total {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #111827;
+    font-size: 1.75rem;
+    font-weight: 850;
+    color: var(--dt-text);
 }
 
 .muted {
-    color: #6b7280;
-    font-size: 0.9rem;
+    color: var(--dt-muted);
+    font-size: 0.86rem;
 }
 
-div.stButton > button {
+/* ---------- Inputs ---------- */
+[data-testid="stTextInput"] input,
+[data-testid="stNumberInput"] input,
+[data-baseweb="select"] > div {
+    background: #ffffff !important;
+    color: var(--dt-text) !important;
+    border-color: #d6dde5 !important;
+    border-radius: 10px !important;
+    min-height: 44px;
+}
+
+[data-testid="stTextInput"] input:focus,
+[data-testid="stNumberInput"] input:focus {
+    border-color: #92a2b4 !important;
+    box-shadow: 0 0 0 2px rgba(23, 34, 56, 0.08) !important;
+}
+
+/* ---------- Generic buttons ---------- */
+div.stButton > button,
+div[data-testid="stFormSubmitButton"] > button {
+    border-radius: 10px !important;
+    min-height: 43px;
+    font-weight: 750;
+    border: 1px solid #d8dee6;
+    background: #ffffff;
+    color: var(--dt-text);
+    box-shadow: 0 1px 3px rgba(20, 31, 48, 0.04);
+    transition: transform .08s ease, box-shadow .08s ease, border-color .08s ease;
+}
+
+div.stButton > button:hover,
+div[data-testid="stFormSubmitButton"] > button:hover {
+    border-color: #aeb8c4;
+    color: var(--dt-text);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(20, 31, 48, 0.08);
+}
+
+button[kind="primary"] {
+    background: var(--dt-navy) !important;
+    border-color: var(--dt-navy) !important;
+    color: #ffffff !important;
+}
+
+/* ---------- Search / quantity keypad ---------- */
+[class*="st-key-keypad_"] button {
+    min-height: 62px !important;
+    font-size: 23px !important;
+    font-weight: 800 !important;
+    background: #ffffff !important;
+    color: var(--dt-text) !important;
+    border: 1px solid #dfe4ea !important;
+    box-shadow: 0 2px 7px rgba(20, 31, 48, 0.06) !important;
+}
+
+[class*="st-key-keypad_0_"],
+[class*="st-key-keypad_1_"],
+[class*="st-key-keypad_2_"],
+[class*="st-key-keypad_3_"] {
+    margin-bottom: 2px;
+}
+
+[class*="st-key-keypad_3_0_C"] button {
+    color: var(--dt-red) !important;
+    background: #fff7f7 !important;
+}
+
+.st-key-add_to_cart button,
+.st-key-complete_sale_button button {
+    min-height: 49px !important;
+    background: var(--dt-navy) !important;
+    color: #ffffff !important;
+    border-color: var(--dt-navy) !important;
+    font-size: 15px !important;
+}
+
+/* ---------- Quick tax ---------- */
+.st-key-tax_no button,
+.st-key-tax_low button,
+.st-key-tax_high button,
+.st-key-tax_custom button,
+.st-key-tax_product button {
+    min-height: 38px !important;
+    font-size: 12px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+}
+
+.st-key-tax_no button[kind="primary"],
+.st-key-tax_low button[kind="primary"],
+.st-key-tax_high button[kind="primary"],
+.st-key-tax_custom button[kind="primary"],
+.st-key-tax_product button[kind="primary"] {
+    background: #e9edf2 !important;
+    color: var(--dt-text) !important;
+    border: 2px solid var(--dt-navy) !important;
+}
+
+/* ---------- Payment buttons ---------- */
+.st-key-cash_button button {
+    min-height: 50px !important;
+    background: var(--dt-green) !important;
+    border-color: var(--dt-green) !important;
+    color: #ffffff !important;
+    font-size: 16px !important;
+}
+
+.st-key-card_button button {
+    min-height: 50px !important;
+    background: var(--dt-blue) !important;
+    border-color: var(--dt-blue) !important;
+    color: #ffffff !important;
+    font-size: 16px !important;
+}
+
+.st-key-cash_button button:hover,
+.st-key-card_button button:hover {
+    filter: brightness(0.96);
+    color: #ffffff !important;
+}
+
+/* ---------- Change due / metric cards ---------- */
+[data-testid="stMetric"] {
+    background: var(--dt-panel);
+    border: 1px solid var(--dt-line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 9px rgba(20, 31, 48, 0.05);
+}
+
+[data-testid="stMetricLabel"] {
+    color: var(--dt-muted) !important;
+    font-weight: 650;
+}
+
+[data-testid="stMetricValue"] {
+    color: var(--dt-text) !important;
+    font-weight: 850;
+}
+
+/* ---------- Dataframes ---------- */
+[data-testid="stDataFrame"] {
+    border: 1px solid var(--dt-line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+/* ---------- Alerts ---------- */
+[data-testid="stAlert"] {
     border-radius: 10px;
-    min-height: 42px;
-    font-weight: 600;
 }
 
-div[data-testid="stTabs"] button {
-    font-weight: 600;
+/* ---------- Expander ---------- */
+[data-testid="stExpander"] {
+    background: #ffffff;
+    border: 1px solid var(--dt-line);
+    border-radius: 12px;
+    box-shadow: 0 2px 7px rgba(20, 31, 48, 0.04);
+}
+
+/* ---------- Delete ---------- */
+.st-key-delete_item_button button {
+    background: #fff7f7 !important;
+    color: #c73f49 !important;
+    border-color: #efb5ba !important;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+    .dt-topbar {
+        justify-content: flex-start;
+        min-height: 66px;
+    }
+
+    .dt-brand {
+        font-size: 24px;
+    }
+
+    .dt-clock {
+        display: none;
+    }
+
+    [class*="st-key-keypad_"] button {
+        min-height: 52px !important;
+        font-size: 20px !important;
+    }
 }
