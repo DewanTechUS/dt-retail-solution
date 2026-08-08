@@ -859,106 +859,6 @@ button:disabled * {
 
 
 /* =========================================================
-   KEYBOARD-ENABLED QUICK ENTRY
-   Uses a separate widget key so Streamlit state can reset safely.
-   ========================================================= */
-
-.st-key-quick_entry_display {
-  position: relative;
-  min-height: 126px;
-  margin-bottom: 12px;
-  padding: 0 !important;
-  border: 2px solid var(--blue-hi);
-  border-radius: 13px;
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--blue) 10%, transparent), transparent 32%),
-    var(--input);
-  box-shadow:
-    inset 0 0 28px color-mix(in srgb, var(--blue-hi) 8%, transparent),
-    0 0 18px color-mix(in srgb, var(--blue-hi) 12%, transparent);
-  overflow: hidden;
-}
-
-.st-key-quick_entry_display .quick-display-label {
-  position: absolute;
-  z-index: 3;
-  top: 9px;
-  left: 15px;
-  color: var(--muted) !important;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .12em;
-  pointer-events: none;
-}
-
-.st-key-quick_entry_display [data-testid="stTextInput"] {
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.st-key-quick_entry_display [data-testid="stTextInput"] > div {
-  margin: 0 !important;
-}
-
-.st-key-quick_entry_display [data-testid="stTextInput"] input {
-  height: 122px !important;
-  min-height: 122px !important;
-  padding: 27px 110px 8px 24px !important;
-  border: 0 !important;
-  border-radius: 11px !important;
-  outline: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  color: var(--text) !important;
-  -webkit-text-fill-color: var(--text) !important;
-  caret-color: #6ea5ff !important;
-  font-size: clamp(58px, 5.4vw, 86px) !important;
-  line-height: 1 !important;
-  font-weight: 950 !important;
-  letter-spacing: -2px !important;
-  text-shadow: 0 0 18px rgba(72,144,255,.14);
-}
-
-.st-key-quick_entry_display [data-testid="stTextInput"] input:focus {
-  box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--blue-hi) 42%, transparent),
-    inset 0 0 24px color-mix(in srgb, var(--blue-hi) 7%, transparent) !important;
-}
-
-.st-key-quick_entry_display [data-testid="stTextInput"] input::placeholder {
-  color: color-mix(in srgb, var(--muted) 58%, transparent) !important;
-  -webkit-text-fill-color: color-mix(in srgb, var(--muted) 58%, transparent) !important;
-}
-
-.st-key-quick_entry_display .quick-qty-chip {
-  position: absolute;
-  z-index: 3;
-  right: 13px;
-  bottom: 10px;
-  padding: 5px 9px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--panel-2);
-  color: var(--muted) !important;
-  font-size: 11px;
-  font-weight: 800;
-  pointer-events: none;
-}
-
-@media (max-width: 760px) {
-  .st-key-quick_entry_display {
-    min-height: 105px;
-  }
-
-  .st-key-quick_entry_display [data-testid="stTextInput"] input {
-    height: 101px !important;
-    min-height: 101px !important;
-    font-size: 50px !important;
-  }
-}
-
-
-/* =========================================================
    FINAL FOUR FIXES
    - One DT brand
    - Header date/time
@@ -1005,33 +905,6 @@ button:disabled * {
   font-weight: 750;
 }
 
-/* The large Quick Add input wrapper must grow with the input.
-   Baseweb's inner input wrapper was clipping the large numbers. */
-.st-key-quick_entry_display [data-baseweb="input"] {
-  min-height: 122px !important;
-  height: 122px !important;
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 11px !important;
-  overflow: visible !important;
-  box-shadow: none !important;
-}
-
-.st-key-quick_entry_display [data-baseweb="input"] > div {
-  min-height: 122px !important;
-  height: 122px !important;
-  overflow: visible !important;
-}
-
-.st-key-quick_entry_display [data-testid="stTextInput"] input {
-  height: 122px !important;
-  min-height: 122px !important;
-  padding: 30px 110px 10px 24px !important;
-  line-height: 1.08 !important;
-  font-size: clamp(54px, 4.9vw, 78px) !important;
-  overflow: visible !important;
-}
-
 /* Cash tender section */
 .cash-label {
   margin: 4px 0 7px;
@@ -1062,15 +935,177 @@ button:disabled * {
   .header-clock > span { display: none; }
   .header-clock b { font-size: 10px; }
   .header-clock small { font-size: 9px; }
+}
 
-  .st-key-quick_entry_display [data-baseweb="input"],
-  .st-key-quick_entry_display [data-baseweb="input"] > div,
-  .st-key-quick_entry_display [data-testid="stTextInput"] input {
-    min-height: 101px !important;
-    height: 101px !important;
+
+/* =========================================================
+   QUICK ADD PRICE DISPLAY — FINAL CLEAN VERSION
+   One rule set only. Prevents clipping and keeps keyboard input.
+   ========================================================= */
+
+.st-key-quick_entry_display {
+  position: relative;
+  width: 100%;
+  min-height: 132px;
+  height: 132px;
+  margin: 0 0 12px 0;
+  padding: 0 !important;
+  border: 2px solid var(--blue-hi);
+  border-radius: 14px;
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--blue) 8%, transparent),
+      transparent 34%
+    ),
+    var(--input);
+  box-shadow:
+    inset 0 0 28px color-mix(in srgb, var(--blue-hi) 7%, transparent),
+    0 0 16px color-mix(in srgb, var(--blue-hi) 10%, transparent);
+  overflow: visible !important;
+}
+
+/* PRICE / CUSTOM TAX label */
+.st-key-quick_entry_display .quick-display-label {
+  position: absolute;
+  z-index: 10;
+  top: 10px;
+  left: 16px;
+  margin: 0;
+  color: var(--muted) !important;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: .12em;
+  pointer-events: none;
+}
+
+/* Qty badge */
+.st-key-quick_entry_display .quick-qty-chip {
+  position: absolute;
+  z-index: 10;
+  top: 14px;
+  right: 14px;
+  bottom: auto !important;
+  padding: 6px 10px;
+  border: 1px solid var(--line-bright);
+  border-radius: 9px;
+  background: var(--panel-2);
+  color: var(--muted) !important;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 850;
+  pointer-events: none;
+}
+
+/* Remove Streamlit spacing around this special input */
+.st-key-quick_entry_display [data-testid="stTextInput"],
+.st-key-quick_entry_display [data-testid="stTextInput"] > div {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 128px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+/* BaseWeb's wrapper is the layer that was clipping the number */
+.st-key-quick_entry_display div[data-baseweb="input"] {
+  width: 100% !important;
+  height: 128px !important;
+  min-height: 128px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Any inner BaseWeb wrappers must also allow the text to show */
+.st-key-quick_entry_display div[data-baseweb="input"] > div {
+  width: 100% !important;
+  height: 128px !important;
+  min-height: 128px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Actual keyboard-enabled price input */
+.st-key-quick_entry_display input {
+  width: 100% !important;
+  height: 124px !important;
+  min-height: 124px !important;
+  margin: 0 !important;
+
+  /* Extra top room keeps PRICE label separate from the number */
+  padding: 30px 105px 8px 22px !important;
+
+  border: 0 !important;
+  outline: 0 !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+  caret-color: #79aaff !important;
+
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-size: clamp(52px, 4.6vw, 72px) !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  letter-spacing: -2px !important;
+
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+/* No extra focus box inside the blue POS frame */
+.st-key-quick_entry_display input:focus {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+.st-key-quick_entry_display input::placeholder {
+  color: color-mix(in srgb, var(--muted) 52%, transparent) !important;
+  -webkit-text-fill-color: color-mix(in srgb, var(--muted) 52%, transparent) !important;
+  opacity: 1 !important;
+}
+
+/* Mobile */
+@media (max-width: 760px) {
+  .st-key-quick_entry_display {
+    min-height: 112px;
+    height: 112px;
   }
 
-  .st-key-quick_entry_display [data-testid="stTextInput"] input {
+  .st-key-quick_entry_display [data-testid="stTextInput"],
+  .st-key-quick_entry_display [data-testid="stTextInput"] > div,
+  .st-key-quick_entry_display div[data-baseweb="input"],
+  .st-key-quick_entry_display div[data-baseweb="input"] > div {
+    min-height: 108px !important;
+    height: 108px !important;
+  }
+
+  .st-key-quick_entry_display input {
+    min-height: 104px !important;
+    height: 104px !important;
+    padding: 27px 82px 7px 18px !important;
     font-size: 46px !important;
+  }
+
+  .st-key-quick_entry_display .quick-qty-chip {
+    right: 10px;
+    top: 10px;
   }
 }
