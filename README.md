@@ -40,6 +40,26 @@ The POS interface includes:
 
 The application is deployed from the GitHub `main` branch to **Databricks Apps** and uses Databricks-managed resources for SQL and Unity Catalog data access.
 
+
+---
+
+## Databricks SQL Analytics Dashboard
+
+![Databricks SQL analytics dashboard](screenshots/databricks-sql-dashboard.png)
+
+In addition to the transactional POS application, the project includes a **Databricks SQL dashboard** for retail analytics.
+
+The dashboard demonstrates:
+
+- Sales by category
+- Total sales
+- Total items sold
+- Databricks SQL visualization
+- SQL-based retail reporting
+- Dashboard publishing inside Databricks
+
+This analytics layer complements the POS application by showing how the same retail data can be used for both **operational transactions** and **business reporting**.
+
 ---
 
 ## Key Features
@@ -242,7 +262,8 @@ dt-retail-solution/
 |
 `-- screenshots/
     |-- app-interface.png
-    `-- databricks-deployment.png
+    |-- databricks-deployment.png
+    `-- databricks-sql-dashboard.png
 ```
 
 ---
