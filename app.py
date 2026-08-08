@@ -861,27 +861,21 @@ if st.session_state.page == "POS":
                                     st.session_state.quick_message = msg
                                     st.rerun()
                                 st.error(msg)
-            else:
-                st.markdown(
-                    '<div class="scan-hint"><span class="barcode-glyph">▥</span><span>Scan a barcode or type a SKU / product name.</span></div>',
-                    unsafe_allow_html=True,
-                )
-
             # Tax selector
             st.markdown('<div class="control-label">CHOOSE TAX</div>', unsafe_allow_html=True)
             tax_cols = st.columns(4, gap="small")
             tax_defs = [
-                ("NONE", "⊘", "No Tax", "0%", "tax-none"),
-                ("LOW", "↻", "Low Tax", f"{low_tax:.2f}%", "tax-low"),
-                ("HIGH", "⊘", "High Tax", f"{high_tax:.2f}%", "tax-high"),
-                ("CUSTOM", "⚙", "Custom Tax", "…", "tax-custom"),
+                ("NONE", "No Tax", "0%"),
+                ("LOW", "Low Tax", f"{low_tax:.2f}%"),
+                ("HIGH", "High Tax", f"{high_tax:.2f}%"),
+                ("CUSTOM", "Custom Tax", "Custom"),
             ]
 
-            for col, (tax_value, icon, label, rate_text, css_key) in zip(tax_cols, tax_defs):
+            for col, (tax_value, label, rate_text) in zip(tax_cols, tax_defs):
                 active = st.session_state.quick_tax == tax_value
                 with col:
                     if st.button(
-                        f"{icon}  {label}\n{rate_text}",
+                        f"{label}\n{rate_text}",
                         key=f"quick_tax_{tax_value}",
                         use_container_width=True,
                         type="primary" if active else "secondary",
@@ -950,11 +944,6 @@ if st.session_state.page == "POS":
                 if st.button("← Cancel custom tax", key="cancel_custom_tax", use_container_width=True):
                     cancel_custom_tax()
                     st.rerun()
-
-            st.markdown(
-                f'<div class="terminal-message"><span>✓</span><div>{esc(st.session_state.quick_message)}</div></div>',
-                unsafe_allow_html=True,
-            )
 
     # --------------------------------------------------------
     # CART / PAYMENT

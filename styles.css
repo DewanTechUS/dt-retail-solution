@@ -349,29 +349,55 @@ button:disabled * {
   text-transform: uppercase;
 }
 
-/* Tax cards */
+/* Tax cards — clean labels, distinct colors */
 [class*="st-key-quick_tax_"] button {
   min-height: 71px !important;
   white-space: pre-line !important;
   font-size: 13px !important;
   line-height: 1.45 !important;
+  font-weight: 900 !important;
+  color: #fff !important;
 }
 
-.st-key-quick_tax_NONE button[kind="primary"] {
-  background: linear-gradient(180deg, #40516a, #26354a) !important;
+[class*="st-key-quick_tax_"] button * {
+  color: #fff !important;
 }
-.st-key-quick_tax_LOW button[kind="primary"] {
-  background: linear-gradient(180deg, #42bd39, #167b29) !important;
-  border-color: #63e254 !important;
-  box-shadow: 0 0 20px rgba(55,211,72,.25), inset 0 1px 0 rgba(255,255,255,.2) !important;
+
+/* No Tax — slate */
+.st-key-quick_tax_NONE button {
+  background: linear-gradient(180deg, #53657d, #33445c) !important;
+  border-color: #71849d !important;
 }
-.st-key-quick_tax_HIGH button[kind="primary"] {
-  background: linear-gradient(180deg, var(--orange-hi), var(--orange)) !important;
-  border-color: #f5b63e !important;
+
+/* Low Tax — green */
+.st-key-quick_tax_LOW button {
+  background: linear-gradient(180deg, #35b854, #167a35) !important;
+  border-color: #52d76e !important;
 }
+
+/* High Tax — orange */
+.st-key-quick_tax_HIGH button {
+  background: linear-gradient(180deg, #f0a321, #b96900) !important;
+  border-color: #ffc052 !important;
+}
+
+/* Custom Tax — purple */
+.st-key-quick_tax_CUSTOM button {
+  background: linear-gradient(180deg, #9657e3, #6130a5) !important;
+  border-color: #b478f0 !important;
+}
+
+/* Selected tax gets a clear active state */
+.st-key-quick_tax_NONE button[kind="primary"],
+.st-key-quick_tax_LOW button[kind="primary"],
+.st-key-quick_tax_HIGH button[kind="primary"],
 .st-key-quick_tax_CUSTOM button[kind="primary"] {
-  background: linear-gradient(180deg, var(--purple-hi), var(--purple)) !important;
-  border-color: #9e63ea !important;
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.42),
+    0 9px 20px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.25) !important;
+  filter: brightness(1.08);
 }
 
 /* Keypad */
