@@ -1,1560 +1,491 @@
 /* =========================================================
-   DT Retail POS — screenshot matched UI
-   Reference: supplied DT Retail POS mockup
+   DT Retail POS — clean rebuild
+   One stylesheet. No legacy patches. No duplicate rule blocks.
    ========================================================= */
 
-:root {
-    --bg: #f4f6f8;
-    --panel: #ffffff;
-    --text: #121a2a;
-    --muted: #6f7681;
-    --line: #dfe3e8;
-    --navy: #152138;
-    --navy-hover: #1b2a46;
-    --green: #18a65d;
-    --green-dark: #11844a;
-    --blue: #1f66d1;
-    --blue-dark: #1657b7;
-    --red: #d44545;
-    --soft-green: #edf8f1;
-    --shadow: 0 4px 18px rgba(19, 30, 48, 0.07);
-}
+* { box-sizing: border-box; }
 
 html, body, [class*="css"] {
-    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .stApp {
-    background: var(--bg);
-    color: var(--text);
+  background: var(--bg) !important;
+  color: var(--text) !important;
 }
 
-[data-testid="stHeader"],
-[data-testid="stToolbar"],
-#MainMenu,
-footer {
-    visibility: hidden;
-    height: 0;
+[data-testid="stHeader"], [data-testid="stToolbar"], #MainMenu, footer {
+  visibility: hidden;
+  height: 0;
 }
 
 .block-container {
-    max-width: 1670px;
-    padding: 0.15rem 1.15rem 1.3rem;
+  max-width: 1660px;
+  padding: .35rem 1.05rem 5.8rem !important;
 }
 
-/* ---------- Header ---------- */
-.st-key-top_header {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    box-shadow: 0 2px 11px rgba(19, 30, 48, 0.05);
-    padding: 11px 18px;
-    margin: 0 0 14px;
-    min-height: 68px;
+/* ---------- universal text ---------- */
+.stApp, .stApp p, .stApp span, .stApp label,
+.stApp h1, .stApp h2, .stApp h3, .stApp h4,
+.stApp li, .stApp div { color: var(--text); }
+
+.stCaption, [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {
+  color: var(--muted) !important;
 }
 
-.st-key-top_header [data-testid="stHorizontalBlock"] {
-    align-items: center;
+/* ---------- header ---------- */
+.st-key-app_header {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--soft-shadow);
+  padding: 12px 18px !important;
+  margin-bottom: 16px;
 }
 
-.dt-brand {
-    text-align: center;
-    font-size: 30px;
-    font-weight: 850;
-    letter-spacing: -0.8px;
-    color: var(--text);
-    line-height: 1.1;
+.st-key-app_header [data-testid="stHorizontalBlock"] { align-items: center; }
+
+.brand {
+  text-align: center;
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: -.7px;
+  color: var(--text);
 }
 
-.dt-clock {
-    border: 1px solid var(--line);
-    background: var(--panel-soft);
-    border-radius: 9px;
-    padding: 9px 11px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--muted);
-    text-align: center;
-    white-space: nowrap;
+.clock {
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 750;
+  color: var(--muted) !important;
 }
 
-/* ---------- Main POS panels ---------- */
-.st-key-pos_left_panel,
-.st-key-pos_right_panel {
-    background: var(--panel);
-    border: 1px solid var(--line) !important;
-    border-radius: 13px !important;
-    box-shadow: var(--shadow);
-    padding: 16px 20px 18px !important;
-    min-height: 795px;
+/* Streamlit toggle: keep it roomy and professional */
+.st-key-dark_mode { display: flex; align-items: center; justify-content: flex-end; }
+.st-key-dark_mode > div { width: auto !important; margin-left: auto; }
+.st-key-dark_mode label {
+  gap: 8px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  white-space: nowrap;
+}
+.st-key-dark_mode [data-baseweb="checkbox"] { transform: scale(1.08); transform-origin: right center; }
+
+/* ---------- major POS panels ---------- */
+.st-key-pos_left, .st-key-pos_right {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 20px 22px !important;
+  min-height: 770px;
 }
 
 .section-title {
-    font-size: 23px;
-    margin: 0 0 10px;
-    font-weight: 800;
-    letter-spacing: -0.4px;
-    color: var(--text);
+  margin: 0 0 12px;
+  font-size: 25px;
+  font-weight: 900;
+  letter-spacing: -.45px;
+}
+
+.subheading {
+  margin: 18px 0 10px;
+  font-size: 21px;
+  font-weight: 900;
 }
 
 .page-title {
-    font-size: 30px;
-    font-weight: 850;
-    letter-spacing: -0.6px;
-    margin: 5px 0 10px;
+  margin: 5px 0 5px;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -.55px;
 }
 
-/* ---------- Search ---------- */
-.st-key-pos_search input {
-    height: 56px !important;
-    border-radius: 10px !important;
-    border: 1px solid var(--input-border) !important;
-    font-size: 16px !important;
-    padding-left: 16px !important;
-    background: var(--panel) !important;
-}
-
-.st-key-pos_search input:focus {
-    border-color: #8895a5 !important;
-    box-shadow: 0 0 0 2px rgba(21, 33, 56, 0.07) !important;
-}
-
-.search-hint-card {
-    min-height: 112px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    margin: 12px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    color: var(--muted);
-    background: var(--panel-soft);
-}
-
-.scan-icon {
-    font-size: 34px;
-    color: var(--text);
-}
-
-/* ---------- Selected product ---------- */
-.st-key-selected_product_card {
-    background: var(--panel);
-    border: 1px solid var(--line) !important;
-    border-radius: 12px !important;
-    box-shadow: 0 2px 10px rgba(19, 30, 48, 0.05);
-    padding: 12px !important;
-    margin: 10px 0 14px;
-}
-
-.selected-product-image,
-.upload-preview,
-.manage-preview {
-    display: block;
-    width: 100%;
-    max-width: 180px;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    border-radius: 10px;
-    border: 1px solid var(--line);
-    background: #f7f7f7;
-}
-
-.no-product-image {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #8b929c;
-}
-
-.no-product-image span {
-    font-size: 38px;
-}
-
-.no-product-image small {
-    margin-top: 5px;
-}
-
-.product-info {
-    padding: 3px 4px;
-}
-
-.product-name {
-    font-size: 23px;
-    line-height: 1.1;
-    font-weight: 850;
-    margin-bottom: 12px;
-}
-
-.product-detail {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 4px 0;
-    font-size: 14px;
-}
-
-.product-detail span {
-    color: var(--muted);
-}
-
-.product-price {
-    font-size: 20px;
-}
-
-.stock-value {
-    color: #008e51;
-}
-
-.quantity-label {
-    font-weight: 750;
-    margin-bottom: 6px;
-}
-
-.st-key-add_to_cart button {
-    background: var(--navy) !important;
-    color: white !important;
-    border: 1px solid var(--navy) !important;
-    min-height: 58px !important;
-    font-size: 17px !important;
-    font-weight: 800 !important;
-    margin-top: 6px;
-}
-
-/* ---------- Inputs ---------- */
+/* ---------- inputs ---------- */
 [data-testid="stTextInput"] input,
 [data-testid="stNumberInput"] input,
+textarea,
 [data-baseweb="select"] > div {
-    background: var(--panel) !important;
-    color: var(--text) !important;
-    border-color: var(--input-border) !important;
-    border-radius: 9px !important;
+  background: var(--input) !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+  border-color: var(--line) !important;
+  border-radius: 10px !important;
 }
 
 [data-testid="stTextInput"] input,
-[data-testid="stNumberInput"] input {
-    min-height: 47px;
-}
+[data-testid="stNumberInput"] input { min-height: 46px; }
 
-/* ---------- Keypad ---------- */
-[class*="st-key-keypad_"] button {
-    min-height: 54px !important;
-    border-radius: 9px !important;
-    background: var(--panel) !important;
-    color: var(--text) !important;
-    border: 1px solid #d9dfe6 !important;
-    box-shadow: 0 1px 4px rgba(19, 30, 48, 0.04) !important;
-    font-size: 22px !important;
-    font-weight: 750 !important;
-}
-
-[class*="st-key-keypad_"] button:hover {
-    background: #f7f8fa !important;
-    border-color: #aab4c0 !important;
-}
-
-.st-key-keypad_3_0_C button {
-    color: var(--red) !important;
-}
-
-/* ---------- Expander ---------- */
-[data-testid="stExpander"] {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 11px;
-    box-shadow: 0 1px 5px rgba(19, 30, 48, 0.04);
-}
-
-/* ---------- Quick tax ---------- */
-.quick-tax-heading {
-    font-size: 21px;
-    margin: 15px 0 8px;
-    font-weight: 800;
-}
-
-.st-key-tax_no button,
-.st-key-tax_low button,
-.st-key-tax_high button,
-.st-key-tax_custom button {
-    min-height: 50px !important;
-    font-size: 14px !important;
-    background: var(--panel) !important;
-    color: var(--text) !important;
-    border: 1px solid #d9dfe6 !important;
-}
-
-.st-key-tax_no button[kind="primary"],
-.st-key-tax_low button[kind="primary"],
-.st-key-tax_high button[kind="primary"],
-.st-key-tax_custom button[kind="primary"] {
-    background: #f5f6f8 !important;
-    border: 2px solid var(--navy) !important;
-    color: var(--text) !important;
-}
-
-.st-key-use_product_tax button {
-    font-size: 12px !important;
-    min-height: 34px !important;
-    border: 0 !important;
-    background: transparent !important;
-    color: #4f5a68 !important;
-    box-shadow: none !important;
-    padding-left: 0 !important;
-}
-
-/* ---------- Settings strip ---------- */
-.st-key-more_strip {
-    margin-top: 10px;
-    background: var(--panel);
-    border: 1px solid var(--line) !important;
-    border-radius: 11px !important;
-    box-shadow: 0 2px 8px rgba(19, 30, 48, 0.04);
-    padding: 13px 16px !important;
-}
-
-.more-title {
-    font-size: 18px;
-    font-weight: 800;
-    padding-top: 7px;
-}
-
-.more-cell {
-    text-align: center;
-    border-left: 1px solid #dfe3e8;
-    min-height: 48px;
-}
-
-.more-cell span,
-.more-cell b {
-    display: block;
-}
-
-.more-cell span {
-    color: var(--muted);
-    font-size: 13px;
-}
-
-.more-cell b {
-    margin-top: 3px;
-    font-size: 16px;
-}
-
-/* ---------- Cart ---------- */
-.cart-table-head {
-    display: grid;
-    grid-template-columns: 4fr 1.5fr 1.3fr 1.6fr .5fr;
-    align-items: center;
-    padding: 12px 14px;
-    background: var(--table-head);
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 800;
-    margin-bottom: 5px;
-}
-
-[class*="st-key-cart_item_"] {
-    border-bottom: 1px solid #e5e8ec;
-    padding: 9px 3px !important;
-}
-
-.cart-thumb,
-.inventory-thumb {
-    width: 62px;
-    height: 62px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid var(--line);
-}
-
-.cart-product b,
-.cart-product small {
-    display: block;
-}
-
-.cart-product b {
-    font-size: 15px;
-}
-
-.cart-product small {
-    color: var(--muted);
-    margin-top: 3px;
-}
-
-.cart-qty,
-.cart-money {
-    text-align: center;
-    font-weight: 700;
-}
-
-[class*="st-key-minus_"] button,
-[class*="st-key-plus_"] button,
-[class*="st-key-remove_"] button {
-    min-height: 39px !important;
-    border-radius: 8px !important;
-    background: var(--panel) !important;
-    color: var(--text) !important;
-    border: 1px solid #dce1e7 !important;
-    padding: 0 !important;
-}
-
-.empty-cart {
-    background: var(--soft-surface);
-    color: var(--muted);
-    padding: 34px;
-    text-align: center;
-    border: 1px dashed #d4dae1;
-    border-radius: 9px;
-    margin-bottom: 12px;
-}
-
-/* ---------- Totals ---------- */
-.st-key-totals_box {
-    border: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    padding: 9px 2px 0 !important;
-    background: transparent !important;
-}
-
-.totals-list > div {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-    font-size: 15px;
-}
-
-.totals-list hr {
-    border: 0;
-    border-top: 1px solid #dfe3e8;
-    margin: 12px 0;
-}
-
-.totals-list .grand-total {
-    font-size: 25px;
-    font-weight: 850;
-}
-
-.payment-heading {
-    font-size: 21px;
-    font-weight: 800;
-    margin: 15px 0 8px;
-}
-
-/* ---------- Payment ---------- */
-.st-key-cash_button button {
-    min-height: 54px !important;
-    border: 0 !important;
-    background: var(--green) !important;
-    color: white !important;
-    font-size: 17px !important;
-    font-weight: 800 !important;
-}
-
-.st-key-card_button button {
-    min-height: 54px !important;
-    border: 0 !important;
-    background: var(--blue) !important;
-    color: white !important;
-    font-size: 17px !important;
-    font-weight: 800 !important;
-}
-
-.st-key-cash_button button:hover {
-    background: var(--green-dark) !important;
-}
-
-.st-key-card_button button:hover {
-    background: var(--blue-dark) !important;
-}
-
-.st-key-change_due_box {
-    background: var(--soft-green);
-    border: 0 !important;
-    border-radius: 9px !important;
-    padding: 12px 14px !important;
-    margin: 10px 0 12px;
-}
-
-.change-due {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: #176f43;
-}
-
-.change-due b {
-    font-size: 22px;
-}
-
-.st-key-complete_sale_button button {
-    min-height: 54px !important;
-    border: 1px solid var(--navy) !important;
-    background: var(--navy) !important;
-    color: white !important;
-    font-size: 16px !important;
-    font-weight: 800 !important;
-}
-
-.st-key-print_receipt_button button {
-    min-height: 54px !important;
-    border: 1px solid #222d40 !important;
-    background: var(--panel) !important;
-    color: var(--text) !important;
-    font-size: 16px !important;
-    font-weight: 800 !important;
-}
-
-/* ---------- Generic buttons ---------- */
-div.stButton > button,
-div[data-testid="stFormSubmitButton"] > button {
-    border-radius: 9px !important;
-    font-weight: 700;
-}
-
-button[kind="primary"] {
-    background: var(--navy) !important;
-    color: #fff !important;
-    border-color: var(--navy) !important;
-}
-
-/* ---------- Other pages ---------- */
-[data-testid="stMetric"] {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 11px;
-    padding: 12px 14px;
-    box-shadow: 0 2px 8px rgba(19, 30, 48, 0.04);
-}
-
-.st-key-form_card {
-    background: var(--panel);
-    border: 1px solid var(--line) !important;
-    border-radius: 13px !important;
-    box-shadow: var(--shadow);
-    padding: 18px !important;
-}
-
-.upload-preview,
-.manage-preview {
-    max-width: 320px;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    margin: 8px auto 14px;
-}
-
-[class*="st-key-inventory_row_"] {
-    background: var(--panel);
-    border: 1px solid var(--line) !important;
-    border-radius: 11px !important;
-    box-shadow: 0 2px 7px rgba(19, 30, 48, 0.04);
-    padding: 10px 13px !important;
-    margin-bottom: 8px;
-}
-
-[data-testid="stDataFrame"] {
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-/* ---------- Responsive ---------- */
-@media (max-width: 900px) {
-    .block-container {
-        padding-left: .7rem;
-        padding-right: .7rem;
-    }
-
-    .dt-brand {
-        font-size: 23px;
-    }
-
-    .dt-clock {
-        font-size: 10px;
-        padding: 7px;
-    }
-
-    .st-key-pos_left_panel,
-    .st-key-pos_right_panel {
-        min-height: unset;
-    }
-}
-
-
-/* =========================================================
-   Theme-safe readability fixes
-   ========================================================= */
-
-.stApp,
-.stApp p,
-.stApp span,
-.stApp label,
-.stApp h1,
-.stApp h2,
-.stApp h3,
-.stApp h4,
-.stApp h5,
-.stApp h6,
-.stApp li,
-.stApp div {
-    color: var(--text);
-}
-
-/* Let branded button colors stay visible even when Streamlit theme changes. */
-.stApp button,
-.stApp button p,
-.stApp button span,
-.stApp [role="button"],
-.stApp [role="button"] p,
-.stApp [role="button"] span {
-    color: inherit !important;
-}
-
-/* Secondary controls / keypad */
-.stApp div.stButton > button:not([kind="primary"]),
-.stApp div[data-testid="stFormSubmitButton"] > button:not([kind="primary"]) {
-    background: var(--panel) !important;
-    color: var(--text) !important;
-    border-color: var(--line) !important;
-}
-
-.stApp div.stButton > button:not([kind="primary"]):hover,
-.stApp div[data-testid="stFormSubmitButton"] > button:not([kind="primary"]):hover {
-    background: var(--hover) !important;
-}
-
-/* Explicit action colors override generic Streamlit button styles. */
-.st-key-cash_button button,
-.st-key-cash_button button p,
-.st-key-cash_button button span {
-    background: var(--green) !important;
-    color: #ffffff !important;
-    border-color: var(--green) !important;
-}
-
-.st-key-card_button button,
-.st-key-card_button button p,
-.st-key-card_button button span {
-    background: var(--blue) !important;
-    color: #ffffff !important;
-    border-color: var(--blue) !important;
-}
-
-.st-key-add_to_cart button,
-.st-key-add_to_cart button p,
-.st-key-add_to_cart button span,
-.st-key-complete_sale_button button,
-.st-key-complete_sale_button button p,
-.st-key-complete_sale_button button span,
-button[kind="primary"],
-button[kind="primary"] p,
-button[kind="primary"] span {
-    background: var(--navy) !important;
-    color: #ffffff !important;
-    border-color: var(--navy) !important;
-}
-
-.st-key-print_receipt_button button,
-.st-key-print_receipt_button button p,
-.st-key-print_receipt_button button span {
-    background: var(--panel) !important;
-    color: var(--text) !important;
-    border-color: var(--text) !important;
-}
-
-button:disabled,
-button:disabled p,
-button:disabled span {
-    background: var(--disabled-bg) !important;
-    color: var(--disabled-text) !important;
-    border-color: var(--line) !important;
-    opacity: 1 !important;
-}
-
-/* Inputs must remain legible in both modes. */
-[data-testid="stTextInput"] input,
-[data-testid="stNumberInput"] input,
-[data-baseweb="input"] input,
-textarea {
-    background: var(--input-bg) !important;
-    color: var(--text) !important;
-    -webkit-text-fill-color: var(--text) !important;
-}
-
-[data-testid="stTextInput"] input::placeholder,
-textarea::placeholder {
-    color: var(--placeholder) !important;
-    -webkit-text-fill-color: var(--placeholder) !important;
-    opacity: 1 !important;
+[data-testid="stTextInput"] input::placeholder, textarea::placeholder {
+  color: var(--muted) !important;
+  -webkit-text-fill-color: var(--muted) !important;
+  opacity: .78 !important;
 }
 
 [data-testid="stNumberInput"] button {
-    background: var(--panel-soft) !important;
-    color: var(--text) !important;
-    border-color: var(--line) !important;
+  background: var(--panel-2) !important;
+  color: var(--text) !important;
+  border-color: var(--line) !important;
 }
 
-[data-testid="stNumberInput"] button svg,
-[data-baseweb="select"] svg {
-    fill: currentColor !important;
-    color: var(--text) !important;
+[data-baseweb="popover"], [data-baseweb="menu"], [role="listbox"], [role="option"] {
+  background: var(--panel) !important;
+  color: var(--text) !important;
 }
 
-/* Popovers / selects / uploader */
-[data-baseweb="popover"],
-[data-baseweb="menu"],
-[role="listbox"],
-[data-testid="stFileUploaderDropzone"] {
-    background: var(--panel) !important;
-    color: var(--text) !important;
-    border-color: var(--line) !important;
+/* ---------- buttons ---------- */
+.stButton > button, div[data-testid="stFormSubmitButton"] > button {
+  border-radius: 12px !important;
+  border: 1px solid var(--line) !important;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 96%, white), var(--panel-2)) !important;
+  color: var(--text) !important;
+  font-weight: 800 !important;
+  box-shadow: 0 5px 10px rgba(15,23,42,.07), inset 0 1px 0 rgba(255,255,255,.28) !important;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
 }
 
-[data-testid="stFileUploaderDropzone"] * {
-    color: var(--text) !important;
+.stButton > button:hover, div[data-testid="stFormSubmitButton"] > button:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--line) 45%, var(--text)) !important;
+  box-shadow: 0 8px 14px rgba(15,23,42,.11), inset 0 1px 0 rgba(255,255,255,.28) !important;
 }
 
-/* Metrics and data tables */
-[data-testid="stMetric"] label,
-[data-testid="stMetricValue"],
-[data-testid="stMetricDelta"] {
-    color: var(--text) !important;
+.stButton > button:active { transform: translateY(0); }
+
+button[kind="primary"], button[data-testid="baseButton-primary"] {
+  background: linear-gradient(180deg, var(--navy-hi), var(--navy)) !important;
+  color: #fff !important;
+  border-color: color-mix(in srgb, var(--navy) 82%, black) !important;
+  box-shadow: 0 8px 16px rgba(19,40,78,.20), inset 0 1px 0 rgba(255,255,255,.16) !important;
+}
+button[kind="primary"] *, button[data-testid="baseButton-primary"] * { color: #fff !important; }
+
+button:disabled, button:disabled * {
+  opacity: 1 !important;
+  color: var(--muted) !important;
+  background: var(--panel-2) !important;
+  border-color: var(--line) !important;
+  box-shadow: none !important;
 }
 
-[data-testid="stDataFrame"] * {
-    color-scheme: light dark;
+/* ---------- search / suggestions ---------- */
+.st-key-pos_search input { min-height: 54px !important; font-size: 16px !important; }
+
+.search-state {
+  min-height: 108px;
+  margin: 12px 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--panel-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  color: var(--muted);
+}
+.search-state b { color: var(--text); }
+.search-state span { color: var(--muted) !important; }
+.scan-glyph { font-size: 30px; }
+
+.suggestions-title {
+  margin: 10px 0 6px;
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--muted) !important;
+  text-transform: uppercase;
+  letter-spacing: .09em;
 }
 
-/* Keep muted copy visible. */
-.stCaption,
-[data-testid="stCaptionContainer"],
-[data-testid="stCaptionContainer"] p,
-.product-detail span,
-.more-cell span,
-.cart-product small {
-    color: var(--muted) !important;
+[class*="st-key-suggestion_"] {
+  padding: 7px 9px !important;
+  margin-bottom: 5px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.suggestion-copy { display: flex; flex-direction: column; gap: 2px; }
+.suggestion-copy b { font-size: 14px; }
+.suggestion-copy span { font-size: 11px; color: var(--muted) !important; }
+
+[class*="st-key-quick_add_"] button:not(:disabled) {
+  background: linear-gradient(180deg, var(--navy-hi), var(--navy)) !important;
+  color: #fff !important;
+  border-color: var(--navy) !important;
+}
+[class*="st-key-quick_add_"] button:not(:disabled) * { color:#fff !important; }
+
+/* ---------- selected product card ---------- */
+.st-key-product_card {
+  margin: 12px 0 14px;
+  padding: 13px !important;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--soft-shadow);
 }
 
-
-/* =========================================================
-   Professional V2 navigation, search suggestions, theme toggle
-   ========================================================= */
-
-/* Header is intentionally clean: brand + clock + theme toggle only. */
-.st-key-top_header {
-    padding: 10px 18px !important;
-    min-height: 64px;
-}
-
-.st-key-top_header [data-testid="stHorizontalBlock"] {
-    gap: 12px !important;
-}
-
-.st-key-dark_mode,
-.st-key-dark_mode > div {
-    margin: 0 !important;
-}
-
-.st-key-dark_mode label {
-    justify-content: flex-end !important;
-    font-size: 12px !important;
-    color: var(--muted) !important;
-    white-space: nowrap;
-}
-
-.st-key-dark_mode [data-baseweb="checkbox"] {
-    transform: scale(.95);
-}
-
-/* Search suggestions: compact, scannable, and clearly actionable. */
-.suggestion-title {
-    margin: 8px 0 6px;
-    color: var(--muted);
-    font-size: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-}
-
-[class*="st-key-suggestion_card_"] {
-    border: 1px solid var(--line) !important;
-    background: var(--panel-soft) !important;
-    border-radius: 9px !important;
-    padding: 6px 8px !important;
-    margin-bottom: 5px;
-}
-
-.suggestion-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    background: transparent !important;
-}
-
-.suggestion-copy b {
-    font-size: 14px;
-    color: var(--text);
-}
-
-.suggestion-copy span {
-    font-size: 11px;
-    color: var(--muted) !important;
-}
-
-[class*="st-key-suggest_view_"] button,
-[class*="st-key-suggest_add_"] button {
-    min-height: 38px !important;
-    font-size: 12px !important;
-    border-radius: 8px !important;
-}
-
-[class*="st-key-suggest_add_"] button:not(:disabled) {
-    background: var(--navy) !important;
-    color: #fff !important;
-    border-color: var(--navy) !important;
-}
-
-.no-match-card {
-    justify-content: flex-start;
-    padding: 18px 22px;
-    text-align: left;
-}
-
-/* More summary strip replaces the old Settings label. */
-.st-key-more_strip {
-    margin-top: 10px;
-    background: var(--panel);
-    border: 1px solid var(--line) !important;
-    border-radius: 11px !important;
-    box-shadow: 0 2px 8px rgba(19, 30, 48, 0.04);
-    padding: 13px 16px !important;
-}
-
-.more-title {
-    font-size: 18px;
-    font-weight: 850;
-    padding-top: 7px;
-}
-
-.more-cell {
-    text-align: center;
-    border-left: 1px solid var(--line);
-    min-height: 48px;
-}
-
-.more-cell span,
-.more-cell b {
-    display: block;
-}
-
-.more-cell span {
-    color: var(--muted) !important;
-    font-size: 12px;
-}
-
-.more-cell b {
-    margin-top: 3px;
-    font-size: 15px;
-}
-
-/* Inventory becomes an action surface, not just a report. */
-.inventory-name {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.inventory-name b {
-    font-size: 16px;
-}
-
-.inventory-name span {
-    color: var(--muted) !important;
-    font-size: 12px;
-}
-
-[class*="st-key-inventory_add_"] button:not(:disabled) {
-    background: var(--navy) !important;
-    color: #fff !important;
-    border-color: var(--navy) !important;
-    min-height: 42px !important;
-}
-
-/* Sticky footer navigation replaces the hamburger menu. */
-.st-key-bottom_navigation {
-    position: sticky;
-    bottom: 10px;
-    z-index: 999;
-    margin-top: 18px;
-    padding: 9px 10px !important;
-    background: color-mix(in srgb, var(--panel) 94%, transparent) !important;
-    border: 1px solid var(--line) !important;
-    border-radius: 13px !important;
-    box-shadow: 0 12px 34px rgba(15, 24, 38, .16) !important;
-    backdrop-filter: blur(14px);
-}
-
-.st-key-bottom_navigation button {
-    min-height: 44px !important;
-    font-size: 12px !important;
-    border-radius: 9px !important;
-}
-
-/* Payment buttons: target the real Streamlit button, never the text node. */
-div[class*="st-key-cash_button"] div.stButton > button {
-    width: 100% !important;
-    min-height: 54px !important;
-    background: var(--green) !important;
-    border: 1px solid var(--green) !important;
-    color: #fff !important;
-    font-size: 16px !important;
-    font-weight: 850 !important;
-}
-
-div[class*="st-key-card_button"] div.stButton > button {
-    width: 100% !important;
-    min-height: 54px !important;
-    background: var(--blue) !important;
-    border: 1px solid var(--blue) !important;
-    color: #fff !important;
-    font-size: 16px !important;
-    font-weight: 850 !important;
-}
-
-div[class*="st-key-cash_button"] button p,
-div[class*="st-key-cash_button"] button span,
-div[class*="st-key-card_button"] button p,
-div[class*="st-key-card_button"] button span {
-    background: transparent !important;
-    color: #fff !important;
-}
-
-div[class*="st-key-complete_sale_button"] div.stButton > button:not(:disabled) {
-    width: 100% !important;
-    min-height: 54px !important;
-    background: var(--navy) !important;
-    border-color: var(--navy) !important;
-    color: #fff !important;
-    font-weight: 850 !important;
-}
-
-div[class*="st-key-print_receipt_button"] div.stButton > button {
-    width: 100% !important;
-    min-height: 54px !important;
-    background: var(--panel) !important;
-    border-color: var(--line) !important;
-    color: var(--text) !important;
-    font-weight: 800 !important;
-}
-
-/* Remove legacy text-node backgrounds that caused tiny colored labels. */
-.st-key-cash_button button p,
-.st-key-cash_button button span,
-.st-key-card_button button p,
-.st-key-card_button button span,
-.st-key-add_to_cart button p,
-.st-key-add_to_cart button span,
-.st-key-complete_sale_button button p,
-.st-key-complete_sale_button button span {
-    background: transparent !important;
-}
-
-/* A little more polish for non-POS pages. */
-.page-title {
-    margin-top: 8px !important;
-}
-
-[data-testid="stMetric"] {
-    min-height: 94px;
-}
-
-@media (max-width: 1100px) {
-    .st-key-bottom_navigation [data-testid="stHorizontalBlock"] {
-        gap: 4px !important;
-    }
-    .st-key-bottom_navigation button {
-        font-size: 10px !important;
-        padding-left: 4px !important;
-        padding-right: 4px !important;
-    }
-}
-
-@media (max-width: 800px) {
-    .st-key-bottom_navigation {
-        position: static;
-    }
-    .dt-brand {
-        font-size: 21px;
-    }
-    .dt-clock {
-        font-size: 9px;
-    }
-}
-
-/* =========================================================
-   UI Cleanup Patch — image placeholders + cleaner row alignment
-   ========================================================= */
-
-/* smoother theme switching */
-.stApp *,
-.stApp *::before,
-.stApp *::after {
-    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
-}
-
-/* keep cards proportionate in both modes */
-.st-key-pos_left_panel,
-.st-key-pos_right_panel,
-.st-key-form_card,
-.st-key-more_strip,
-[class*="st-key-inventory_row_"] {
-    overflow: hidden;
-}
-
-/* ---------- placeholder system ---------- */
-.no-product-image {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 6px;
-    text-align: center;
-    overflow: hidden;
-}
-
-.no-image-icon {
-    font-size: 28px;
-    line-height: 1;
-}
-
-.no-image-detail {
-    background: linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 94%, white), var(--panel-soft));
-}
-
-.no-image-detail small {
-    display: block;
-    font-size: 12px;
-    color: var(--muted) !important;
-    margin: 0;
-}
-
-.no-image-thumb {
-    width: 62px !important;
-    height: 62px !important;
-    min-width: 62px !important;
-    min-height: 62px !important;
-    padding: 0 !important;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 94%, white), var(--panel-soft));
-}
-
-.no-image-thumb .no-image-icon {
-    font-size: 22px;
-}
-
-.no-image-thumb small {
-    display: none !important;
-}
-
-.cart-thumb.no-product-image,
-.inventory-thumb.no-product-image {
-    width: 62px !important;
-    height: 62px !important;
-    min-width: 62px !important;
-    min-height: 62px !important;
-}
-
-.selected-product-image.no-product-image,
-.upload-preview.no-product-image,
-.manage-preview.no-product-image {
-    min-height: 180px;
-}
-
-/* ---------- selected product layout ---------- */
 .selected-product-image,
 .upload-preview,
 .manage-preview {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-inline: auto;
+  width: 100%;
+  max-width: 185px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline: auto;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--panel-2);
+  overflow: hidden;
 }
 
-.product-info {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.product-placeholder { color: var(--muted) !important; }
+.product-placeholder * { color: inherit !important; }
+.placeholder-icon { width: 42px; height: 42px; opacity: .7; }
+.placeholder-icon svg { width: 100%; height: 100%; display: block; }
+.placeholder-label { margin-top: 6px; font-size: 11px; font-weight: 700; color: var(--muted) !important; }
+.product-placeholder-thumb .placeholder-label { display: none; }
+
+.product-copy { padding: 2px 4px; }
+.product-name { font-size: 22px; font-weight: 900; margin-bottom: 11px; }
+.product-line { display:flex; justify-content:space-between; gap:12px; padding:4px 0; font-size:13px; }
+.product-line span { color: var(--muted) !important; }
+.product-price { font-size:19px; }
+.stock { color: var(--green-hi) !important; }
+.quantity-label { font-size:14px; font-weight:850; margin-bottom:6px; }
+
+.st-key-add_to_cart button {
+  min-height: 56px !important;
+  background: linear-gradient(180deg, var(--navy-hi), var(--navy)) !important;
+  color:#fff !important;
+  border-color:var(--navy) !important;
+  font-size:16px !important;
 }
+.st-key-add_to_cart button * { color:#fff !important; }
 
-/* ---------- cart row cleanup ---------- */
-[class*="st-key-cart_item_"] {
-    border-bottom: 1px solid var(--line);
-    padding: 8px 0 !important;
-    margin: 0 !important;
-}
-
-.cart-product {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 62px;
-}
-
-.cart-qty,
-.cart-money {
-    min-height: 62px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-[class*="st-key-minus_"] button,
-[class*="st-key-plus_"] button,
-[class*="st-key-remove_"] button {
-    min-height: 40px !important;
-    min-width: 40px !important;
-}
-
-/* hide stray margin under thumbnail placeholders in rows */
-.cart-thumb,
-.inventory-thumb {
-    display: block;
-    margin: 0 !important;
-}
-
-/* ---------- suggestion list cleanup ---------- */
-[class*="st-key-suggestion_card_"] {
-    padding: 7px 10px !important;
-}
-
-.suggestion-copy {
-    justify-content: center;
-    min-height: 42px;
-}
-
-/* ---------- payment buttons stay visible in both modes ---------- */
-div[class*="st-key-cash_button"] button,
-div[class*="st-key-cash_button"] button *,
-div[class*="st-key-card_button"] button,
-div[class*="st-key-card_button"] button * {
-    color: #ffffff !important;
-}
-
-/* ---------- theme toggle refinement ---------- */
-.st-key-dark_mode [data-baseweb="checkbox"] {
-    padding-top: 4px;
-}
-
-.st-key-dark_mode label {
-    font-weight: 700 !important;
-}
-
-/* ---------- bottom nav polish ---------- */
-.st-key-bottom_navigation button {
-    min-height: 46px !important;
-    font-weight: 700 !important;
-}
-
-/* ---------- light mode subtle contrast ---------- */
-@media (prefers-color-scheme: light) {
-    .stApp {
-        color-scheme: light;
-    }
-}
-
-/* =========================================================
-   Final UI cleanup v2 — toggle + placeholder hard fixes
-   ========================================================= */
-
-/* Header sizing */
-.st-key-top_header {
-    padding: 12px 18px !important;
-}
-
-.st-key-top_header [data-testid="column"]:last-child {
-    min-width: 120px;
-}
-
-.theme-toggle-label {
-    text-align: right;
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 2px;
-    padding-right: 6px;
-}
-
-/* Make the native Streamlit toggle usable and visible */
-.st-key-dark_mode {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
-
-.st-key-dark_mode > div {
-    width: auto !important;
-    margin-left: auto !important;
-}
-
-.st-key-dark_mode label {
-    justify-content: flex-end !important;
-    width: 100%;
-    gap: 8px !important;
-}
-
-.st-key-dark_mode p {
-    display: none !important;
-}
-
-.st-key-dark_mode [data-baseweb="checkbox"] {
-    transform: scale(1.12);
-    transform-origin: right center;
-    margin-left: auto !important;
-}
-
-/* Ensure change due bar is readable in both themes */
-.st-key-change_due_box {
-    border: 1px solid color-mix(in srgb, var(--success) 28%, var(--line)) !important;
-    background: linear-gradient(90deg, color-mix(in srgb, var(--success) 20%, transparent), color-mix(in srgb, var(--success) 10%, transparent)) !important;
-}
-
-.change-due,
-.change-due * {
-    color: var(--success) !important;
-}
-
-.change-due span {
-    font-weight: 700 !important;
-}
-
-/* HARD FIX: no-image thumb placeholders should never show stray text */
-.cart-thumb.no-product-image,
-.inventory-thumb.no-product-image {
-    position: relative;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 62px !important;
-    height: 62px !important;
-    min-width: 62px !important;
-    min-height: 62px !important;
-    border-radius: 10px;
-    border: 1px solid var(--line);
-    background: linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 94%, white), var(--panel-soft));
-    font-size: 0 !important;
-    line-height: 0 !important;
-}
-
-.cart-thumb.no-product-image > *,
-.inventory-thumb.no-product-image > * {
-    display: none !important;
-}
-
-.cart-thumb.no-product-image::before,
-.inventory-thumb.no-product-image::before {
-    content: "🛍️";
-    font-size: 22px;
-    line-height: 1;
-}
-
-/* Larger placeholders stay centered and clean */
-.selected-product-image.no-product-image,
-.upload-preview.no-product-image,
-.manage-preview.no-product-image {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 94%, white), var(--panel-soft));
-    color: var(--muted) !important;
-}
-
-.selected-product-image.no-product-image .no-image-icon,
-.upload-preview.no-product-image .no-image-icon,
-.manage-preview.no-product-image .no-image-icon {
-    font-size: 34px;
-}
-
-.selected-product-image.no-product-image small,
-.upload-preview.no-product-image small,
-.manage-preview.no-product-image small {
-    color: var(--muted) !important;
-    font-size: 12px;
-    margin: 0;
-}
-
-/* Avoid weird extra spacing around markdown-inserted image blocks */
-.stMarkdown div.cart-thumb,
-.stMarkdown div.inventory-thumb,
-.stMarkdown div.selected-product-image,
-.stMarkdown div.upload-preview,
-.stMarkdown div.manage-preview {
-    margin: 0 !important;
-}
-
-/* Cart rows: stronger alignment */
-[class*="st-key-cart_item_"] [data-testid="column"] {
-    display: flex;
-    align-items: center;
-}
-
-[class*="st-key-cart_item_"] [data-testid="column"]:first-child {
-    align-items: flex-start;
-}
-
-/* Search suggestions buttons more consistent */
-[class*="st-key-suggestion_view_"] button,
-[class*="st-key-suggestion_add_"] button {
-    min-height: 34px !important;
-}
-
-/* =========================================================
-   Premium visual polish v3 — match the clean reference more closely
-   ========================================================= */
-
-:root {
-    --btn-shadow: 0 10px 18px rgba(15, 23, 42, .12), 0 2px 5px rgba(15, 23, 42, .06);
-    --btn-shadow-hover: 0 14px 24px rgba(15, 23, 42, .16), 0 3px 8px rgba(15, 23, 42, .09);
-}
-
-html[data-theme="light"] {
-    --page: #f4f5f7;
-    --panel: #ffffff;
-    --panel-soft: #fafafa;
-    --line: #dfe3e8;
-    --table-head: #f6f6f7;
-    --text: #0f172a;
-    --muted: #667085;
-    --navy: #13254b;
-    --navy-2: #1b2f5a;
-    --green: #1a9c5a;
-    --green-2: #23b26b;
-    --blue: #2f6fe4;
-    --blue-2: #3d84ff;
-}
-
-/* Crisper clean layout */
-.stApp {
-    background: var(--page) !important;
-}
-
-.st-key-top_header,
-.st-key-pos_left_panel,
-.st-key-pos_right_panel,
-.st-key-bottom_navigation,
-.st-key-more_strip,
-.st-key-empty_cart,
-.st-key-search_help,
-.st-key-selected_card,
-.st-key-suggestion_card,
-.st-key-manual_item,
-.st-key-add_item_form,
-.st-key-manage_form,
-.st-key-inventory_summary,
-.st-key-history_filters,
-.st-key-history_summary,
-.st-key-settings_page,
-.st-key-inventory_item_card {
-    box-shadow: 0 10px 22px rgba(17, 24, 39, .05), 0 1px 3px rgba(17, 24, 39, .04) !important;
-}
-
-/* Reference-style white panels in light mode */
-html[data-theme="light"] .st-key-pos_left_panel,
-html[data-theme="light"] .st-key-pos_right_panel,
-html[data-theme="light"] .st-key-more_strip,
-html[data-theme="light"] .st-key-bottom_navigation,
-html[data-theme="light"] .st-key-top_header {
-    background: #fff !important;
-    border-color: #e5e7eb !important;
-}
-
-/* Stronger section title look */
-.section-title {
-    font-size: 24px !important;
-    font-weight: 900 !important;
-    letter-spacing: -.02em;
-}
-
-/* Make every button more premium / 3D */
-.stButton > button,
-.stDownloadButton > button {
-    border-radius: 14px !important;
-    border: 1px solid var(--line) !important;
-    box-shadow: var(--btn-shadow) !important;
-    transition: transform .14s ease, box-shadow .14s ease, background .14s ease, border-color .14s ease;
-    font-weight: 800 !important;
-}
-
-.stButton > button:hover,
-.stDownloadButton > button:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--btn-shadow-hover) !important;
-}
-
-.stButton > button:active,
-.stDownloadButton > button:active {
-    transform: translateY(0px) scale(.99);
-}
-
-/* Search suggestion buttons */
-[class*="st-key-suggestion_view_"] button,
-[class*="st-key-suggestion_add_"] button {
-    border-radius: 12px !important;
-    min-height: 40px !important;
-}
-
-[class*="st-key-suggestion_view_"] button:not(:disabled) {
-    background: linear-gradient(180deg, #ffffff, #f7f8fb) !important;
-    color: var(--text) !important;
-}
-
-[class*="st-key-suggestion_add_"] button:not(:disabled) {
-    background: linear-gradient(180deg, var(--navy-2), var(--navy)) !important;
-    color: #fff !important;
-    border-color: color-mix(in srgb, var(--navy) 78%, black) !important;
-}
-
-/* Keypad = chunky 3D keys */
+/* ---------- keypad ---------- */
 [class*="st-key-keypad_"] button {
-    min-height: 54px !important;
-    font-size: 28px !important;
-    font-weight: 900 !important;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 94%, white), color-mix(in srgb, var(--panel-soft) 88%, var(--line))) !important;
+  min-height: 53px !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  border-radius: 12px !important;
+}
+.st-key-keypad_3_0 button { color: var(--red) !important; }
+
+/* ---------- expander ---------- */
+[data-testid="stExpander"] {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-[class*="st-key-keypad_10"] button {
-    color: #d14343 !important;
+/* ---------- tax ---------- */
+[class*="st-key-tax_"] button { min-height: 47px !important; }
+.st-key-use_product_tax button { min-height: 34px !important; box-shadow:none !important; border:0 !important; background:transparent !important; }
+
+/* ---------- settings strip ---------- */
+.st-key-settings_strip {
+  margin-top: 12px;
+  padding: 12px 14px !important;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  box-shadow: var(--soft-shadow);
+}
+.settings-label { font-size:18px; font-weight:900; }
+.setting-cell { text-align:center; border-left:1px solid var(--line); min-height:45px; }
+.setting-cell span, .setting-cell b { display:block; }
+.setting-cell span { color:var(--muted) !important; font-size:11px; }
+.setting-cell b { margin-top:4px; font-size:16px; }
+
+/* ---------- cart ---------- */
+.cart-head {
+  display:grid;
+  grid-template-columns: 4fr 1.25fr 1.2fr 1.45fr .45fr;
+  align-items:center;
+  padding:11px 13px;
+  background:var(--panel-2);
+  border-radius:9px;
+  font-size:12px;
+  font-weight:900;
+  margin-bottom:4px;
 }
 
-/* 3D tax buttons */
-[class*="st-key-tax_"] button,
-.st-key-use_product_tax button {
-    min-height: 44px !important;
-    border-radius: 12px !important;
+[class*="st-key-cart_row_"] {
+  padding: 9px 0 !important;
+  border-bottom: 1px solid var(--line-soft);
 }
 
-[class*="st-key-tax_"] button[kind="primary"],
-[class*="st-key-tax_"] button[data-testid="baseButton-primary"],
-.st-key-use_product_tax button:not(:disabled) {
-    background: linear-gradient(180deg, var(--navy-2), var(--navy)) !important;
-    color: #fff !important;
-    border-color: color-mix(in srgb, var(--navy) 82%, black) !important;
+.cart-thumb, .inventory-thumb {
+  width: 58px;
+  height: 58px;
+  min-width:58px;
+  min-height:58px;
+  object-fit:cover;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--panel-2);
+  overflow:hidden;
+  margin:0 !important;
 }
+.cart-thumb .placeholder-icon, .inventory-thumb .placeholder-icon { width:27px; height:27px; }
 
-/* Settings strip instead of More */
-.more-title {
-    font-size: 21px !important;
-    font-weight: 900 !important;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--text) !important;
-}
+.cart-name { min-height:58px; display:flex; flex-direction:column; justify-content:center; }
+.cart-name b { font-size:14px; }
+.cart-name small { margin-top:3px; color:var(--muted) !important; }
+.cart-qty, .cart-money { min-height:58px; display:flex; align-items:center; justify-content:center; font-weight:850; }
 
-.more-cell {
-    border-left: 1px solid var(--line) !important;
-}
-
-.more-cell span {
-    font-size: 12px !important;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-}
-
-.more-cell b {
-    font-size: 18px !important;
-    font-weight: 900 !important;
-}
-
-/* Payment buttons exactly more colorful */
-div[class*="st-key-cash_button"] div.stButton > button {
-    background: linear-gradient(180deg, var(--green-2), var(--green)) !important;
-    box-shadow: 0 12px 24px rgba(26, 156, 90, .22), inset 0 1px 0 rgba(255,255,255,.16) !important;
-}
-
-div[class*="st-key-card_button"] div.stButton > button {
-    background: linear-gradient(180deg, var(--blue-2), var(--blue)) !important;
-    box-shadow: 0 12px 24px rgba(47, 111, 228, .22), inset 0 1px 0 rgba(255,255,255,.16) !important;
-}
-
-/* Complete / print buttons */
-div[class*="st-key-complete_sale"] button:not(:disabled) {
-    background: linear-gradient(180deg, var(--navy-2), var(--navy)) !important;
-    color: #fff !important;
-    border-color: color-mix(in srgb, var(--navy) 82%, black) !important;
-}
-
-div[class*="st-key-print_receipt"] button:not(:disabled) {
-    background: linear-gradient(180deg, #ffffff, #f8fafc) !important;
-    color: var(--text) !important;
-    border: 1px solid color-mix(in srgb, var(--text) 15%, var(--line)) !important;
-}
-
-/* Cart qty buttons */
 [class*="st-key-cart_minus_"] button,
 [class*="st-key-cart_plus_"] button,
-[class*="st-key-remove_cart_"] button {
-    min-height: 38px !important;
-    min-width: 38px !important;
-    border-radius: 12px !important;
-    box-shadow: none !important;
+[class*="st-key-cart_remove_"] button {
+  min-height:38px !important;
+  min-width:38px !important;
+  padding:0 !important;
+  border-radius:10px !important;
+  box-shadow:none !important;
 }
 
-/* Light mode search input and cash box cleaner */
-html[data-theme="light"] input,
-html[data-theme="light"] textarea,
-html[data-theme="light"] [data-baseweb="select"] > div,
-html[data-theme="light"] .stNumberInput > div > div > input {
-    background: #fff !important;
+.empty-cart {
+  min-height: 95px;
+  padding: 28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px dashed var(--line);
+  border-radius:11px;
+  background:var(--panel-2);
+  color:var(--muted) !important;
 }
 
-/* Bottom navigation more balanced, no ugly More feeling */
-.st-key-bottom_navigation button {
-    min-height: 50px !important;
-    border-radius: 13px !important;
-    font-size: 13px !important;
-    font-weight: 800 !important;
+.totals { padding-top:10px; }
+.totals > div { display:flex; justify-content:space-between; padding:5px 0; font-size:14px; }
+.totals hr { border:0; border-top:1px solid var(--line); margin:12px 0; }
+.totals .grand { font-size:24px; font-weight:900; }
+
+/* ---------- payment ---------- */
+.st-key-cash_btn button,
+.st-key-card_btn button {
+  min-height:54px !important;
+  color:#fff !important;
+  font-size:16px !important;
+  border:0 !important;
+}
+.st-key-cash_btn button, .st-key-cash_btn button[kind="primary"] {
+  background:linear-gradient(180deg, var(--green-hi), var(--green)) !important;
+  box-shadow:0 10px 20px color-mix(in srgb, var(--green) 28%, transparent) !important;
+}
+.st-key-card_btn button, .st-key-card_btn button[kind="primary"] {
+  background:linear-gradient(180deg, var(--blue-hi), var(--blue)) !important;
+  box-shadow:0 10px 20px color-mix(in srgb, var(--blue) 28%, transparent) !important;
+}
+.st-key-cash_btn button *, .st-key-card_btn button * { color:#fff !important; }
+
+.change-card {
+  margin:10px 0 12px;
+  padding:12px 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-radius:10px;
+  background:var(--success-bg);
+  color:var(--success-text) !important;
+}
+.change-card span, .change-card b { color:var(--success-text) !important; }
+.change-card span { font-weight:800; }
+.change-card b { font-size:21px; }
+
+.st-key-complete_sale button:not(:disabled) {
+  min-height:54px !important;
+  background:linear-gradient(180deg, var(--navy-hi), var(--navy)) !important;
+  color:#fff !important;
+  border-color:var(--navy) !important;
+}
+.st-key-complete_sale button:not(:disabled) * { color:#fff !important; }
+.st-key-print_receipt button { min-height:54px !important; }
+
+/* ---------- other pages ---------- */
+[data-testid="stMetric"] {
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px 13px;
+  box-shadow:var(--soft-shadow);
+}
+[data-testid="stMetric"] label, [data-testid="stMetricValue"] { color:var(--text) !important; }
+
+.st-key-form_card {
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:20px !important;
+  box-shadow:var(--shadow);
 }
 
-.st-key-bottom_navigation button[kind="primary"],
-.st-key-bottom_navigation button[data-testid="baseButton-primary"] {
-    background: linear-gradient(180deg, var(--navy-2), var(--navy)) !important;
-    color: #fff !important;
-    border-color: color-mix(in srgb, var(--navy) 82%, black) !important;
+[class*="st-key-inventory_"] {
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:10px 12px !important;
+  margin-bottom:8px;
+  box-shadow:var(--soft-shadow);
 }
-
-/* Dark mode still clean */
-html[data-theme="dark"] .st-key-pos_left_panel,
-html[data-theme="dark"] .st-key-pos_right_panel,
-html[data-theme="dark"] .st-key-more_strip,
-html[data-theme="dark"] .st-key-bottom_navigation,
-html[data-theme="dark"] .st-key-top_header {
-    box-shadow: 0 14px 28px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.18) !important;
+.inventory-name { display:flex; flex-direction:column; gap:4px; }
+.inventory-name b { font-size:15px; }
+.inventory-name span { color:var(--muted) !important; font-size:11px; }
+[class*="st-key-inv_add_"] button:not(:disabled) {
+  background:linear-gradient(180deg, var(--navy-hi), var(--navy)) !important;
+  color:#fff !important;
+  border-color:var(--navy) !important;
 }
+[class*="st-key-inv_add_"] button:not(:disabled) * { color:#fff !important; }
 
-/* Make product image blocks match card proportions */
-.selected-product-image,
-.upload-preview,
-.manage-preview {
-    border-radius: 16px !important;
-    overflow: hidden;
+[data-testid="stDataFrame"] { border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+
+/* ---------- bottom navigation ---------- */
+.st-key-bottom_nav {
+  position:fixed;
+  z-index:999;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:12px;
+  width:min(96%, 1450px);
+  padding:9px 10px !important;
+  background:color-mix(in srgb, var(--panel) 94%, transparent);
+  border:1px solid var(--line);
+  border-radius:15px;
+  box-shadow:0 16px 35px rgba(15,23,42,.18);
+  backdrop-filter:blur(14px);
 }
+.st-key-bottom_nav button { min-height:45px !important; font-size:12px !important; }
 
-.cart-thumb,
-.inventory-thumb {
-    border-radius: 12px !important;
-    overflow: hidden;
+/* ---------- file uploader ---------- */
+[data-testid="stFileUploaderDropzone"] {
+  background:var(--panel-2) !important;
+  color:var(--text) !important;
+  border-color:var(--line) !important;
+  border-radius:12px !important;
 }
+[data-testid="stFileUploaderDropzone"] * { color:var(--text) !important; }
 
-/* Clean label for toggle */
-.theme-toggle-label {
-    margin-bottom: 6px;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    color: var(--muted);
-}
-
-/* Hide any remaining stray markdown from summary label areas */
-.st-key-more_strip p {
-    margin-bottom: 0 !important;
+/* ---------- responsive ---------- */
+@media (max-width: 1000px) {
+  .block-container { padding-left:.65rem !important; padding-right:.65rem !important; }
+  .brand { font-size:23px; }
+  .clock { font-size:10px; padding:8px 6px; }
+  .st-key-pos_left, .st-key-pos_right { min-height:unset; }
+  .st-key-bottom_nav { position:static; transform:none; width:100%; margin-top:16px; }
 }

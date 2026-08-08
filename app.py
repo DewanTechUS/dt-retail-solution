@@ -1,3 +1,4 @@
+import html
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -25,7 +26,7 @@ from receipt import build_receipt_html
 
 
 # ============================================================
-# APP SHELL
+# PAGE / THEME
 # ============================================================
 
 st.set_page_config(
@@ -35,97 +36,11 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-
-def theme_overrides(theme):
-    if theme == "DARK":
-        return r"""
-        :root {
-            --bg: #0f141c;
-            --panel: #171e28;
-            --panel-soft: #1d2632;
-            --text: #f4f7fb;
-            --muted: #aeb8c6;
-            --line: #354152;
-            --input-bg: #111821;
-            --input-border: #465469;
-            --placeholder: #8390a2;
-            --soft-surface: #202a37;
-            --table-head: #202a37;
-            --hover: #263241;
-            --disabled-bg: #2b3442;
-            --disabled-text: #9ba7b6;
-            --soft-green: #173528;
-            --green-text: #6fe0a6;
-            --shadow: 0 8px 28px rgba(0,0,0,.30);
-        }
-
-        .stApp, .stApp > div, [data-testid="stAppViewContainer"] { background: var(--bg) !important; color: var(--text) !important; }
-        .st-key-top_header, .st-key-pos_left_panel, .st-key-pos_right_panel,
-        .st-key-selected_product_card, .st-key-more_strip, .st-key-form_card,
-        .st-key-bottom_navigation, .st-key-suggestion_card,
-        [class*="st-key-inventory_row_"], [data-testid="stMetric"], [data-testid="stExpander"] {
-            background: var(--panel) !important; color: var(--text) !important; border-color: var(--line) !important;
-        }
-        .dt-clock, .search-hint-card, .empty-cart, .cart-table-head, .suggestion-copy {
-            background: var(--panel-soft) !important; color: var(--text) !important; border-color: var(--line) !important;
-        }
-        .selected-product-image, .upload-preview, .manage-preview, .cart-thumb, .inventory-thumb {
-            background: var(--panel-soft) !important; border-color: var(--line) !important;
-        }
-        [data-testid="stTextInput"] input, [data-testid="stNumberInput"] input,
-        [data-baseweb="select"] > div, [data-baseweb="input"] > div, textarea {
-            background: var(--input-bg) !important; color: var(--text) !important; border-color: var(--input-border) !important;
-        }
-        [data-testid="stTextInput"] input::placeholder, textarea::placeholder { color: var(--placeholder) !important; opacity: 1 !important; }
-        [data-testid="stNumberInput"] button, [data-baseweb="select"] svg { color: var(--text) !important; }
-        [data-baseweb="popover"], [data-baseweb="menu"], [role="listbox"], [role="option"] {
-            background: var(--panel) !important; color: var(--text) !important;
-        }
-        [role="option"]:hover { background: var(--hover) !important; }
-        [data-testid="stDataFrame"] { background: var(--panel) !important; color: var(--text) !important; border-color: var(--line) !important; }
-        .product-detail span, .more-cell span, .cart-product small, .stCaption, [data-testid="stCaptionContainer"] { color: var(--muted) !important; }
-        .st-key-change_due_box { background: var(--soft-green) !important; }
-        .change-due { color: var(--green-text) !important; }
-        hr, .totals-list hr { border-color: var(--line) !important; }
-        """
-
-    return r"""
-    :root {
-        --bg: #f4f6f8;
-        --panel: #ffffff;
-        --panel-soft: #fafbfc;
-        --text: #121a2a;
-        --muted: #657080;
-        --line: #dfe3e8;
-        --input-bg: #ffffff;
-        --input-border: #cfd6de;
-        --placeholder: #7c8795;
-        --soft-surface: #f7f8fa;
-        --table-head: #f5f5f5;
-        --hover: #f3f5f7;
-        --disabled-bg: #e4e8ed;
-        --disabled-text: #697483;
-        --soft-green: #edf8f1;
-        --green-text: #176f43;
-        --shadow: 0 6px 22px rgba(19,30,48,.08);
-    }
-    """
-
-
-def load_css(theme, filename="styles.css"):
-    css_path = Path(__file__).with_name(filename)
-    css = css_path.read_text(encoding="utf-8")
-    st.markdown(f"<style>{css}\n{theme_overrides(theme)}</style>", unsafe_allow_html=True)
-
-
-# ============================================================
-# SESSION STATE
-# ============================================================
-
 DEFAULT_STATE = {
     "page": "POS",
     "cart": [],
     "pos_qty": "1",
+    "selected_sku": None,
     "payment_method": "CASH",
     "tax_override": "PRODUCT DEFAULT",
     "custom_tax_override": 0.0,
@@ -134,7 +49,6 @@ DEFAULT_STATE = {
     "show_receipt": False,
     "dark_mode": False,
     "reset_pos_qty_pending": False,
-    "selected_sku": None,
 }
 
 for key, value in DEFAULT_STATE.items():
@@ -142,7 +56,52 @@ for key, value in DEFAULT_STATE.items():
         st.session_state[key] = value
 
 
-load_css("DARK" if st.session_state.dark_mode else "LIGHT")
+def theme_vars():
+    if st.session_state.dark_mode:
+        return """
+        :root {
+          --bg:#0d131c; --panel:#151e2a; --panel-2:#1b2635; --input:#0f1722;
+          --text:#f7f9fc; --muted:#9eacbd; --line:#334154; --line-soft:#263448;
+          --navy:#17346e; --navy-hi:#2451a4; --green:#159957; --green-hi:#25b96e;
+          --blue:#2568d8; --blue-hi:#3b82f6; --red:#d44c4c;
+          --success-bg:#143a29; --success-text:#65e4a1;
+          --shadow:0 12px 32px rgba(0,0,0,.28);
+          --soft-shadow:0 4px 14px rgba(0,0,0,.20);
+        }
+        """
+
+    return """
+    :root {
+      --bg:#f2f4f7; --panel:#ffffff; --panel-2:#f8fafc; --input:#ffffff;
+      --text:#111827; --muted:#667085; --line:#d8dee7; --line-soft:#e8ecf1;
+      --navy:#13284e; --navy-hi:#1e3f79; --green:#18965a; --green-hi:#23b66c;
+      --blue:#2868d7; --blue-hi:#3b82f6; --red:#d94747;
+      --success-bg:#eaf8f0; --success-text:#137446;
+      --shadow:0 12px 30px rgba(15,23,42,.08);
+      --soft-shadow:0 4px 14px rgba(15,23,42,.06);
+    }
+    """
+
+
+def load_css():
+    css = Path(__file__).with_name("styles.css").read_text(encoding="utf-8")
+    st.markdown(f"<style>{theme_vars()}\n{css}</style>", unsafe_allow_html=True)
+
+
+load_css()
+
+
+# ============================================================
+# HELPERS
+# ============================================================
+
+
+def money(value):
+    return f"${float(value):,.2f}"
+
+
+def esc(value):
+    return html.escape(str(value or ""))
 
 
 def goto(page_name):
@@ -151,21 +110,12 @@ def goto(page_name):
 
 def keypad_press(value):
     current = str(st.session_state.get("pos_qty", "1"))
-
     if value == "C":
         st.session_state.pos_qty = "1"
     elif value == "⌫":
-        trimmed = current[:-1]
-        st.session_state.pos_qty = trimmed if trimmed else "1"
+        st.session_state.pos_qty = current[:-1] or "1"
     else:
-        if current == "1":
-            st.session_state.pos_qty = value
-        else:
-            st.session_state.pos_qty = current + value
-
-
-def money(value):
-    return f"${float(value):,.2f}"
+        st.session_state.pos_qty = value if current == "1" else current + value
 
 
 def add_product_to_cart(product, quantity=1):
@@ -191,7 +141,6 @@ def add_product_to_cart(product, quantity=1):
     else:
         if quantity > stock:
             return False, "Not enough stock."
-
         st.session_state.cart.append(
             {
                 "sku": product["sku"],
@@ -206,59 +155,88 @@ def add_product_to_cart(product, quantity=1):
                 "manual": False,
             }
         )
-
     return True, f'{product["product"]} added to cart.'
 
 
-def render_bottom_navigation():
+def render_header():
+    with st.container(key="app_header"):
+        title_col, time_col, theme_col = st.columns([6.6, 2.45, 1.2], vertical_alignment="center")
+        title_col.markdown('<div class="brand">DT Retail POS</div>', unsafe_allow_html=True)
+        time_col.markdown(
+            f'<div class="clock">◷&nbsp;&nbsp;{datetime.now().strftime("%b %d, %Y&nbsp;&nbsp;%I:%M %p")}</div>',
+            unsafe_allow_html=True,
+        )
+        with theme_col:
+            st.toggle("Dark mode", key="dark_mode", help="Switch light / dark mode")
+
+
+def render_bottom_nav():
     pages = [
         ("POS", "POS"),
         ("Inventory", "Inventory"),
         ("Add Item", "Add Item"),
         ("Manage", "Manage Item"),
         ("History", "Sales History"),
-        ("Settings", "More"),
+        ("Settings", "Settings"),
     ]
-
-    with st.container(key="bottom_navigation", border=True):
+    with st.container(key="bottom_nav"):
         cols = st.columns(6, gap="small")
-        for idx, (label, page_name) in enumerate(pages):
-            if cols[idx].button(
+        for col, (label, page) in zip(cols, pages):
+            if col.button(
                 label,
-                key=f"footer_nav_{page_name}",
+                key=f"nav_{page}",
                 use_container_width=True,
-                type="primary" if st.session_state.page == page_name else "secondary",
+                type="primary" if st.session_state.page == page else "secondary",
             ):
-                goto(page_name)
+                goto(page)
                 st.rerun()
 
 
-# ============================================================
-# HEADER — no hamburger; date/time + theme switch on right
-# ============================================================
+def render_settings_strip(low_tax, high_tax, card_fee):
+    with st.container(key="settings_strip"):
+        s1, s2, s3, s4 = st.columns([1.35, 1, 1, 1], vertical_alignment="center")
+        s1.markdown('<div class="settings-label">⚙&nbsp;&nbsp;Settings</div>', unsafe_allow_html=True)
+        s2.markdown(f'<div class="setting-cell"><span>Low Tax</span><b>{low_tax:.2f}%</b></div>', unsafe_allow_html=True)
+        s3.markdown(f'<div class="setting-cell"><span>High Tax</span><b>{high_tax:.2f}%</b></div>', unsafe_allow_html=True)
+        s4.markdown(f'<div class="setting-cell"><span>Card Fee</span><b>{card_fee:.2f}%</b></div>', unsafe_allow_html=True)
 
-with st.container(key="top_header"):
-    title_col, clock_col, theme_col = st.columns([6.8, 2.4, 1.4], vertical_alignment="center")
 
-    with title_col:
-        st.markdown('<div class="dt-brand">DT Retail POS</div>', unsafe_allow_html=True)
-
-    with clock_col:
-        st.markdown(
-            f'<div class="dt-clock">◷&nbsp;&nbsp;{datetime.now().strftime("%b %d, %Y&nbsp;&nbsp;&nbsp;%I:%M %p")}</div>',
+def render_cart_item(index, item):
+    with st.container(key=f"cart_row_{index}"):
+        img, name, minus, qty, plus, price, total, remove = st.columns(
+            [0.78, 2.65, 0.52, 0.52, 0.52, 0.92, 1.05, 0.52],
+            vertical_alignment="center",
+            gap="small",
+        )
+        img.markdown(image_markup(item.get("image_data"), item["product"], "cart-thumb", "thumb"), unsafe_allow_html=True)
+        name.markdown(
+            f'<div class="cart-name"><b>{esc(item["product"])}</b><small>SKU: {esc(item["sku"])}</small></div>',
             unsafe_allow_html=True,
         )
+        if minus.button("−", key=f"cart_minus_{index}", use_container_width=True):
+            item["quantity"] -= 1
+            if item["quantity"] <= 0:
+                st.session_state.cart.pop(index)
+            st.rerun()
+        qty.markdown(f'<div class="cart-qty">{int(item["quantity"])}</div>', unsafe_allow_html=True)
+        if plus.button("+", key=f"cart_plus_{index}", use_container_width=True):
+            if item.get("manual") or item["quantity"] < item["stock"]:
+                item["quantity"] += 1
+                st.rerun()
+            else:
+                st.toast("No more stock available.")
+        price.markdown(f'<div class="cart-money">{money(item["price"])}</div>', unsafe_allow_html=True)
+        total.markdown(f'<div class="cart-money">{money(float(item["price"]) * int(item["quantity"]))}</div>', unsafe_allow_html=True)
+        if remove.button("✕", key=f"cart_remove_{index}", use_container_width=True):
+            st.session_state.cart.pop(index)
+            st.rerun()
 
-    with theme_col:
-        st.markdown('<div class="theme-toggle-label">Dark</div>', unsafe_allow_html=True)
-        st.toggle(
-            "Dark mode",
-            key="dark_mode",
-            label_visibility="collapsed",
-            help="Switch between light and dark mode",
-        )
 
+# ============================================================
+# HEADER + DATA
+# ============================================================
 
+render_header()
 settings = get_settings()
 low_tax = settings.get("LOW_TAX", 0.0)
 high_tax = settings.get("HIGH_TAX", 0.0)
@@ -271,13 +249,10 @@ summary = get_dashboard_summary()
 # ============================================================
 
 if st.session_state.page == "POS":
-    left, right = st.columns([1, 1.05], gap="medium")
+    left, right = st.columns([1, 1.08], gap="medium")
 
-    # --------------------------------------------------------
-    # LEFT PANEL
-    # --------------------------------------------------------
     with left:
-        with st.container(key="pos_left_panel", border=True):
+        with st.container(key="pos_left"):
             st.markdown('<h2 class="section-title">Search / Scan Item</h2>', unsafe_allow_html=True)
 
             search_text = st.text_input(
@@ -291,92 +266,59 @@ if st.session_state.page == "POS":
             selected_product = None
 
             if matches:
-                match_skus = [row["sku"] for row in matches]
-                if st.session_state.selected_sku not in match_skus:
+                skus = [row["sku"] for row in matches]
+                if st.session_state.selected_sku not in skus:
                     st.session_state.selected_sku = matches[0]["sku"]
 
-                st.markdown('<div class="suggestion-title">Inventory suggestions</div>', unsafe_allow_html=True)
-
-                for idx, row in enumerate(matches[:5]):
-                    with st.container(key=f"suggestion_card_{idx}"):
-                        s1, s2, s3 = st.columns([5.2, 1.1, 1.2], vertical_alignment="center", gap="small")
-                        s1.markdown(
-                            f"""
-                            <div class="suggestion-copy">
-                                <b>{row['product']}</b>
-                                <span>{row['sku']} · {row['category']} · {money(row['price'])} · Stock {int(row['quantity'])}</span>
-                            </div>
-                            """,
+                st.markdown('<div class="suggestions-title">Inventory suggestions</div>', unsafe_allow_html=True)
+                for idx, row in enumerate(matches[:4]):
+                    with st.container(key=f"suggestion_{idx}"):
+                        c1, c2, c3 = st.columns([5.2, 1.1, 1.25], vertical_alignment="center", gap="small")
+                        c1.markdown(
+                            f'<div class="suggestion-copy"><b>{esc(row["product"])}</b>'
+                            f'<span>{esc(row["sku"])} · {esc(row["category"])} · {money(row["price"])} · Stock {int(row["quantity"])}</span></div>',
                             unsafe_allow_html=True,
                         )
-
-                        if s2.button("View", key=f"suggest_view_{row['sku']}", use_container_width=True):
+                        if c2.button("View", key=f"view_{row['sku']}", use_container_width=True):
                             st.session_state.selected_sku = row["sku"]
                             st.rerun()
-
-                        if s3.button(
-                            "+ Add",
-                            key=f"suggest_add_{row['sku']}",
-                            use_container_width=True,
-                            disabled=int(row["quantity"]) <= 0,
-                        ):
-                            ok, message = add_product_to_cart(row, 1)
+                        if c3.button("+ Add", key=f"quick_add_{row['sku']}", use_container_width=True, disabled=int(row["quantity"]) <= 0):
+                            ok, msg = add_product_to_cart(row, 1)
+                            st.toast(msg) if ok else st.error(msg)
                             if ok:
                                 st.session_state.selected_sku = row["sku"]
-                                st.toast(message)
                                 st.rerun()
-                            else:
-                                st.error(message)
 
                 selected_product = next(
                     (row for row in matches if row["sku"] == st.session_state.selected_sku),
                     matches[0],
                 )
 
-                with st.container(key="selected_product_card", border=True):
-                    img_col, details_col, qty_col = st.columns([1.25, 1.95, 1.45], vertical_alignment="center")
-
-                    with img_col:
-                        st.markdown(
-                            image_markup(
-                                selected_product.get("image_data"),
-                                selected_product["product"],
-                                "selected-product-image",
-                                "detail",
-                            ),
-                            unsafe_allow_html=True,
-                        )
-
-                    with details_col:
-                        st.markdown(
-                            f"""
-                            <div class="product-info">
-                                <div class="product-name">{selected_product['product']}</div>
-                                <div class="product-detail"><span>SKU</span><b>{selected_product['sku']}</b></div>
-                                <div class="product-detail"><span>Barcode</span><b>{selected_product['barcode'] or '—'}</b></div>
-                                <div class="product-detail"><span>Price</span><b class="product-price">{money(selected_product['price'])}</b></div>
-                                <div class="product-detail"><span>Stock</span><b class="stock-value">{int(selected_product['quantity'])}</b></div>
-                            </div>
-                            """,
-                            unsafe_allow_html=True,
-                        )
-
+                with st.container(key="product_card"):
+                    img_col, detail_col, qty_col = st.columns([1.2, 2.0, 1.45], vertical_alignment="center", gap="medium")
+                    img_col.markdown(
+                        image_markup(selected_product.get("image_data"), selected_product["product"], "selected-product-image", "detail"),
+                        unsafe_allow_html=True,
+                    )
+                    detail_col.markdown(
+                        f"""
+                        <div class="product-copy">
+                          <div class="product-name">{esc(selected_product['product'])}</div>
+                          <div class="product-line"><span>SKU</span><b>{esc(selected_product['sku'])}</b></div>
+                          <div class="product-line"><span>Barcode</span><b>{esc(selected_product['barcode'] or '—')}</b></div>
+                          <div class="product-line"><span>Price</span><b class="product-price">{money(selected_product['price'])}</b></div>
+                          <div class="product-line"><span>Stock</span><b class="stock">{int(selected_product['quantity'])}</b></div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
                     with qty_col:
                         st.markdown('<div class="quantity-label">Quantity</div>', unsafe_allow_html=True)
-
-                        if st.session_state.get("reset_pos_qty_pending", False):
+                        if st.session_state.reset_pos_qty_pending:
                             st.session_state.pos_qty = "1"
                             st.session_state.reset_pos_qty_pending = False
-
-                        st.text_input(
-                            "Quantity",
-                            key="pos_qty",
-                            label_visibility="collapsed",
-                        )
-
+                        st.text_input("Quantity", key="pos_qty", label_visibility="collapsed")
                         requested_qty = int(st.session_state.pos_qty) if str(st.session_state.pos_qty).isdigit() else 1
-                        requested_qty = max(requested_qty, 1)
-
                         if st.button(
                             "🛒  Add to Cart",
                             key="add_to_cart",
@@ -384,67 +326,46 @@ if st.session_state.page == "POS":
                             type="primary",
                             disabled=int(selected_product["quantity"]) <= 0,
                         ):
-                            ok, message = add_product_to_cart(selected_product, requested_qty)
+                            ok, msg = add_product_to_cart(selected_product, max(requested_qty, 1))
                             if ok:
                                 st.session_state.reset_pos_qty_pending = True
-                                st.toast(message)
+                                st.toast(msg)
                                 st.rerun()
                             else:
-                                st.error(message)
-
+                                st.error(msg)
             elif search_text.strip():
                 st.markdown(
-                    """
-                    <div class="search-hint-card no-match-card">
-                        <div class="scan-icon">⌕</div>
-                        <div><b>No inventory match.</b><br><span>Try another spelling, SKU, barcode, or add the product from Add Item.</span></div>
-                    </div>
-                    """,
+                    '<div class="search-state"><b>No matching inventory item.</b><span>Try a product name, SKU, barcode, or category.</span></div>',
                     unsafe_allow_html=True,
                 )
             else:
                 st.markdown(
-                    """
-                    <div class="search-hint-card">
-                        <div class="scan-icon">▥</div>
-                        <div><b>Scan a barcode</b> or type a SKU / product name to begin.</div>
-                    </div>
-                    """,
+                    '<div class="search-state"><div class="scan-glyph">▥</div><b>Scan a barcode or type a SKU / product name.</b></div>',
                     unsafe_allow_html=True,
                 )
 
-            # Keypad
-            keypad = [
-                ["7", "8", "9"],
-                ["4", "5", "6"],
-                ["1", "2", "3"],
-                ["C", "0", "⌫"],
-            ]
-
-            for row_index, row in enumerate(keypad):
+            keypad = [["7", "8", "9"], ["4", "5", "6"], ["1", "2", "3"], ["C", "0", "⌫"]]
+            for r, row in enumerate(keypad):
                 cols = st.columns(3, gap="small")
-                for col_index, label in enumerate(row):
-                    cols[col_index].button(
+                for c, label in enumerate(row):
+                    cols[c].button(
                         label,
-                        key=f"keypad_{row_index}_{col_index}_{label}",
+                        key=f"keypad_{r}_{c}",
                         use_container_width=True,
                         on_click=keypad_press,
                         args=(label,),
                     )
 
-            # Manual price item
             with st.expander("Manual Price Item"):
                 manual_name = st.text_input("Description", placeholder="Miscellaneous Item", key="manual_name")
                 manual_price = st.number_input("Manual Price", min_value=0.01, step=0.01, format="%.2f", key="manual_price")
                 manual_quantity = st.number_input("Quantity", min_value=1, step=1, key="manual_quantity")
                 manual_fee = st.number_input("Item Fee", min_value=0.0, step=0.01, format="%.2f", key="manual_fee")
                 manual_tax = st.selectbox("Tax", ["NONE", "LOW", "HIGH", "CUSTOM"], key="manual_tax")
-
                 manual_custom_tax = 0.0
                 if manual_tax == "CUSTOM":
                     manual_custom_tax = st.number_input("Custom Tax %", min_value=0.0, step=0.1, key="manual_custom_tax")
-
-                if st.button("Add Manual Item", use_container_width=True, key="add_manual_item"):
+                if st.button("Add Manual Item", key="add_manual", use_container_width=True):
                     if not manual_name.strip():
                         st.error("Enter a description.")
                     else:
@@ -464,23 +385,20 @@ if st.session_state.page == "POS":
                         )
                         st.rerun()
 
-            # Quick tax
-            st.markdown('<h3 class="quick-tax-heading">Quick Tax</h3>', unsafe_allow_html=True)
+            st.markdown('<h3 class="subheading">Quick Tax</h3>', unsafe_allow_html=True)
             tax_cols = st.columns(4, gap="small")
             tax_choices = [
-                ("No Tax", "NO TAX", "tax_no"),
-                ("Low Tax", "LOW TAX", "tax_low"),
-                ("High Tax", "HIGH TAX", "tax_high"),
-                ("Custom Tax", "CUSTOM TAX", "tax_custom"),
+                ("No Tax", "NO TAX"),
+                ("Low Tax", "LOW TAX"),
+                ("High Tax", "HIGH TAX"),
+                ("Custom Tax", "CUSTOM TAX"),
             ]
-
-            for idx, (label, value, button_key) in enumerate(tax_choices):
-                active = st.session_state.tax_override == value
-                if tax_cols[idx].button(
+            for col, (label, value) in zip(tax_cols, tax_choices):
+                if col.button(
                     label,
-                    key=button_key,
+                    key=f"tax_{value}",
                     use_container_width=True,
-                    type="primary" if active else "secondary",
+                    type="primary" if st.session_state.tax_override == value else "secondary",
                 ):
                     st.session_state.tax_override = value
                     st.rerun()
@@ -492,76 +410,26 @@ if st.session_state.page == "POS":
                     value=float(st.session_state.custom_tax_override),
                     step=0.1,
                     format="%.2f",
-                    key="pos_custom_tax",
+                    key="custom_tax_override_input",
                 )
 
             if st.button("Use Product Tax", key="use_product_tax"):
                 st.session_state.tax_override = "PRODUCT DEFAULT"
                 st.rerun()
 
-            with st.container(key="more_strip", border=True):
-                m1, m2, m3, m4 = st.columns([1.45, 1, 1, 1])
-                m1.markdown("<div class='more-title'>⚙&nbsp;&nbsp;Settings</div>", unsafe_allow_html=True)
-                m2.markdown(f"<div class='more-cell'><span>Low Tax</span><b>{low_tax:.2f}%</b></div>", unsafe_allow_html=True)
-                m3.markdown(f"<div class='more-cell'><span>High Tax</span><b>{high_tax:.2f}%</b></div>", unsafe_allow_html=True)
-                m4.markdown(f"<div class='more-cell'><span>Card Fee</span><b>{card_fee:.2f}%</b></div>", unsafe_allow_html=True)
+            render_settings_strip(low_tax, high_tax, card_fee)
 
-    # --------------------------------------------------------
-    # RIGHT PANEL
-    # --------------------------------------------------------
     with right:
-        with st.container(key="pos_right_panel", border=True):
+        with st.container(key="pos_right"):
             st.markdown('<h2 class="section-title">Cart</h2>', unsafe_allow_html=True)
 
             if st.session_state.cart:
                 st.markdown(
-                    """
-                    <div class="cart-table-head">
-                        <span>Item</span><span>Qty</span><span>Price</span><span>Line Total</span><span></span>
-                    </div>
-                    """,
+                    '<div class="cart-head"><span>Item</span><span>Qty</span><span>Price</span><span>Line Total</span><span></span></div>',
                     unsafe_allow_html=True,
                 )
-
                 for index, item in enumerate(st.session_state.cart):
-                    with st.container(key=f"cart_item_{index}"):
-                        c_img, c_name, c_minus, c_qty, c_plus, c_price, c_total, c_delete = st.columns(
-                            [0.8, 2.8, 0.55, 0.6, 0.55, 1.0, 1.05, 0.55],
-                            vertical_alignment="center",
-                            gap="small",
-                        )
-
-                        c_img.markdown(
-                            image_markup(item.get("image_data"), item["product"], "cart-thumb", "thumb"),
-                            unsafe_allow_html=True,
-                        )
-                        c_name.markdown(
-                            f'<div class="cart-product"><b>{item["product"]}</b><small>SKU: {item["sku"]}</small></div>',
-                            unsafe_allow_html=True,
-                        )
-
-                        if c_minus.button("−", key=f"minus_{index}", use_container_width=True):
-                            item["quantity"] -= 1
-                            if item["quantity"] <= 0:
-                                st.session_state.cart.pop(index)
-                            st.rerun()
-
-                        c_qty.markdown(f'<div class="cart-qty">{item["quantity"]}</div>', unsafe_allow_html=True)
-
-                        if c_plus.button("+", key=f"plus_{index}", use_container_width=True):
-                            if item.get("manual") or item["quantity"] < item["stock"]:
-                                item["quantity"] += 1
-                                st.rerun()
-                            else:
-                                st.warning("No more stock available.")
-
-                        c_price.markdown(f'<div class="cart-money">{money(item["price"])}</div>', unsafe_allow_html=True)
-                        line_base = float(item["price"]) * int(item["quantity"])
-                        c_total.markdown(f'<div class="cart-money">{money(line_base)}</div>', unsafe_allow_html=True)
-
-                        if c_delete.button("✕", key=f"remove_{index}", use_container_width=True):
-                            st.session_state.cart.pop(index)
-                            st.rerun()
+                    render_cart_item(index, item)
             else:
                 st.markdown('<div class="empty-cart">Your cart is empty.</div>', unsafe_allow_html=True)
 
@@ -574,29 +442,26 @@ if st.session_state.page == "POS":
                 settings,
             )
 
-            with st.container(key="totals_box", border=True):
-                st.markdown(
-                    f"""
-                    <div class="totals-list">
-                        <div><span>Subtotal</span><b>{money(totals['subtotal'])}</b></div>
-                        <div><span>Product Fees</span><b>{money(totals['fees'])}</b></div>
-                        <div><span>Tax</span><b>{money(totals['tax'])}</b></div>
-                        <div><span>Card Fee</span><b>{money(totals['card_fee'])}</b></div>
-                        <hr>
-                        <div class="grand-total"><span>Total</span><b>{money(totals['total'])}</b></div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
+            st.markdown(
+                f"""
+                <div class="totals">
+                  <div><span>Subtotal</span><b>{money(totals['subtotal'])}</b></div>
+                  <div><span>Product Fees</span><b>{money(totals['fees'])}</b></div>
+                  <div><span>Tax</span><b>{money(totals['tax'])}</b></div>
+                  <div><span>Card Fee</span><b>{money(totals['card_fee'])}</b></div>
+                  <hr>
+                  <div class="grand"><span>Total</span><b>{money(totals['total'])}</b></div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
-            st.markdown('<h3 class="payment-heading">Payment</h3>', unsafe_allow_html=True)
+            st.markdown('<h3 class="subheading">Payment</h3>', unsafe_allow_html=True)
             pay1, pay2 = st.columns(2, gap="medium")
-
-            if pay1.button("▣  Cash", key="cash_button", use_container_width=True):
+            if pay1.button("▣  Cash", key="cash_btn", use_container_width=True, type="primary" if st.session_state.payment_method == "CASH" else "secondary"):
                 st.session_state.payment_method = "CASH"
                 st.rerun()
-
-            if pay2.button("▤  Card", key="card_button", use_container_width=True):
+            if pay2.button("▤  Card", key="card_btn", use_container_width=True, type="primary" if st.session_state.payment_method == "CARD" else "secondary"):
                 st.session_state.payment_method = "CARD"
                 st.rerun()
 
@@ -604,25 +469,14 @@ if st.session_state.page == "POS":
             change_due = 0.0
 
             if st.session_state.payment_method == "CASH":
-                cash_received = st.number_input(
-                    "Cash Received",
-                    min_value=0.0,
-                    step=1.0,
-                    format="%.2f",
-                    key="cash_received",
+                cash_received = st.number_input("Cash Received", min_value=0.0, step=1.0, format="%.2f", key="cash_received")
+                change_due = max(cash_received - totals["total"], 0.0)
+                st.markdown(
+                    f'<div class="change-card"><span>Change Due</span><b>{money(change_due)}</b></div>',
+                    unsafe_allow_html=True,
                 )
-                change_due = cash_received - totals["total"]
-
-                with st.container(key="change_due_box", border=True):
-                    st.markdown(
-                        f'<div class="change-due"><span>Change Due</span><b>{money(max(change_due, 0))}</b></div>',
-                        unsafe_allow_html=True,
-                    )
             else:
-                st.checkbox(
-                    f"Apply Card Fee ({card_fee:.2f}%)",
-                    key="apply_card_fee",
-                )
+                st.checkbox(f"Apply Card Fee ({card_fee:.2f}%)", key="apply_card_fee")
                 totals = calculate_cart_totals(
                     st.session_state.cart,
                     st.session_state.payment_method,
@@ -631,20 +485,13 @@ if st.session_state.page == "POS":
                     st.session_state.apply_card_fee,
                     settings,
                 )
-                with st.container(key="change_due_box", border=True):
-                    st.markdown(
-                        f'<div class="change-due"><span>Card Total</span><b>{money(totals["total"])}</b></div>',
-                        unsafe_allow_html=True,
-                    )
+                st.markdown(
+                    f'<div class="change-card"><span>Card Total</span><b>{money(totals["total"])}</b></div>',
+                    unsafe_allow_html=True,
+                )
 
-            action1, action2 = st.columns(2, gap="medium")
-
-            if action1.button(
-                "✓  Complete Sale",
-                key="complete_sale_button",
-                use_container_width=True,
-                disabled=not st.session_state.cart,
-            ):
+            a1, a2 = st.columns(2, gap="medium")
+            if a1.button("✓  Complete Sale", key="complete_sale", use_container_width=True, type="primary", disabled=not st.session_state.cart):
                 totals = calculate_cart_totals(
                     st.session_state.cart,
                     st.session_state.payment_method,
@@ -653,17 +500,15 @@ if st.session_state.page == "POS":
                     st.session_state.apply_card_fee,
                     settings,
                 )
-
                 if st.session_state.payment_method == "CASH" and cash_received < totals["total"]:
                     st.error("Cash received is less than the total.")
                 else:
-                    stock_ok, problem_product = validate_cart_stock(st.session_state.cart)
+                    stock_ok, problem = validate_cart_stock(st.session_state.cart)
                     if not stock_ok:
-                        st.error(f"Not enough stock for {problem_product}. Refresh the cart.")
+                        st.error(f"Not enough stock for {problem}.")
                     else:
                         receipt_id = "DT-" + datetime.now().strftime("%Y%m%d-") + uuid.uuid4().hex[:6].upper()
                         complete_sale(st.session_state.cart, receipt_id)
-
                         st.session_state.last_receipt = {
                             "receipt_id": receipt_id,
                             "date": datetime.now().strftime("%m/%d/%Y %I:%M %p"),
@@ -671,37 +516,28 @@ if st.session_state.page == "POS":
                             "totals": totals,
                             "payment_method": st.session_state.payment_method,
                             "cash_received": cash_received,
-                            "change_due": max(change_due, 0.0),
+                            "change_due": change_due,
                         }
                         st.session_state.cart = []
                         st.session_state.show_receipt = False
                         st.toast(f"Sale complete · {receipt_id}")
                         st.rerun()
 
-            if action2.button(
-                "▣  Print Receipt",
-                key="print_receipt_button",
-                use_container_width=True,
-                disabled=st.session_state.last_receipt is None,
-            ):
+            if a2.button("▣  Print Receipt", key="print_receipt", use_container_width=True, disabled=st.session_state.last_receipt is None):
                 st.session_state.show_receipt = not st.session_state.show_receipt
 
             if st.session_state.show_receipt and st.session_state.last_receipt:
                 with st.expander("Receipt Preview", expanded=True):
-                    components.html(
-                        build_receipt_html(st.session_state.last_receipt),
-                        height=540,
-                        scrolling=True,
-                    )
+                    components.html(build_receipt_html(st.session_state.last_receipt), height=540, scrolling=True)
 
 
 # ============================================================
-# INVENTORY PAGE
+# INVENTORY
 # ============================================================
 
 elif st.session_state.page == "Inventory":
     st.markdown('<h1 class="page-title">Inventory</h1>', unsafe_allow_html=True)
-    st.caption("Search inventory and send any in-stock item directly to the POS cart.")
+    st.caption("Search inventory and add any in-stock item directly to the POS cart.")
 
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Products", summary["products"])
@@ -709,61 +545,45 @@ elif st.session_state.page == "Inventory":
     m3.metric("Inventory Value", money(summary["inventory_value"]))
     m4.metric("Sales Revenue", money(summary["revenue"]))
 
-    inventory_search = st.text_input(
-        "Search Inventory",
-        placeholder="Search product, SKU, barcode, or category",
-        key="inventory_search",
-    )
-
+    inventory_search = st.text_input("Search Inventory", placeholder="Search product, SKU, barcode, or category", key="inventory_search")
     inventory = search_products(inventory_search, limit=30) if inventory_search.strip() else list_inventory()
 
     if not inventory:
         st.info("No inventory matches found.")
 
     for item in inventory:
-        with st.container(key=f"inventory_row_{item['sku']}", border=True):
-            i1, i2, i3, i4, i5, i6 = st.columns(
-                [0.8, 2.5, 1.0, 1.0, 1.1, 1.2],
-                vertical_alignment="center",
-                gap="small",
-            )
+        with st.container(key=f"inventory_{item['sku']}"):
+            i1, i2, i3, i4, i5, i6 = st.columns([0.8, 2.5, 1, 1, 1.15, 1.35], vertical_alignment="center", gap="small")
             i1.markdown(image_markup(item.get("image_data"), item["product"], "inventory-thumb", "thumb"), unsafe_allow_html=True)
             i2.markdown(
-                f'<div class="inventory-name"><b>{item["product"]}</b><span>SKU: {item["sku"]} · {item["barcode"] or "No barcode"}</span></div>',
+                f'<div class="inventory-name"><b>{esc(item["product"])}</b><span>SKU: {esc(item["sku"])} · {esc(item["barcode"] or "No barcode")}</span></div>',
                 unsafe_allow_html=True,
             )
             i3.metric("Stock", int(item["quantity"]))
             i4.metric("Price", money(item["price"]))
             i5.metric("Value", money(float(item["quantity"]) * float(item["price"])))
-
-            if i6.button(
-                "+ Add to POS",
-                key=f"inventory_add_{item['sku']}",
-                use_container_width=True,
-                disabled=int(item["quantity"]) <= 0,
-            ):
-                ok, message = add_product_to_cart(item, 1)
+            if i6.button("+ Add to POS", key=f"inv_add_{item['sku']}", use_container_width=True, disabled=int(item["quantity"]) <= 0):
+                ok, msg = add_product_to_cart(item, 1)
                 if ok:
                     st.session_state.selected_sku = item["sku"]
                     goto("POS")
-                    st.toast(message)
+                    st.toast(msg)
                     st.rerun()
                 else:
-                    st.error(message)
+                    st.error(msg)
 
 
 # ============================================================
-# ADD ITEM PAGE — includes product picture upload
+# ADD ITEM
 # ============================================================
 
 elif st.session_state.page == "Add Item":
     st.markdown('<h1 class="page-title">Add Item</h1>', unsafe_allow_html=True)
-    st.caption("Create a product, assign SKU/barcode, pricing, tax, stock, and an optional product picture.")
+    st.caption("Create an inventory product with SKU, barcode, tax, fee, stock, and an optional picture.")
 
-    with st.container(key="form_card", border=True):
-        left_form, right_form = st.columns([1.45, 1])
-
-        with left_form:
+    with st.container(key="form_card"):
+        form, photo = st.columns([1.5, 1], gap="large")
+        with form:
             sku = st.text_input("SKU", placeholder="DT-1005")
             barcode = st.text_input("Barcode", placeholder="100000000005")
             product = st.text_input("Product Name", placeholder="Coca-Cola")
@@ -775,56 +595,30 @@ elif st.session_state.page == "Add Item":
             custom_tax_rate = 0.0
             if tax_type == "CUSTOM":
                 custom_tax_rate = st.number_input("Custom Tax %", min_value=0.0, step=0.1, format="%.2f")
-
-        with right_form:
+        with photo:
             st.markdown("### Product Picture")
-            uploaded_image = st.file_uploader(
-                "Upload product picture",
-                type=["png", "jpg", "jpeg"],
-                help="PNG/JPG. The image is compressed before saving in Databricks.",
-            )
+            uploaded = st.file_uploader("Upload product picture", type=["png", "jpg", "jpeg"])
+            preview = prepare_image_data(uploaded) if uploaded else None
+            st.markdown(image_markup(preview, product or "Product", "upload-preview", "detail"), unsafe_allow_html=True)
 
-            preview_data = None
-            if uploaded_image:
-                preview_data = prepare_image_data(uploaded_image)
-                st.markdown(image_markup(preview_data, product or "Product", "upload-preview", "detail"), unsafe_allow_html=True)
-            else:
-                st.markdown(image_markup(None, "Product", "upload-preview", "detail"), unsafe_allow_html=True)
-
-        if st.button("Add Product", key="add_product_submit", type="primary", use_container_width=True):
+        if st.button("Add Product", key="add_product", type="primary", use_container_width=True):
             sku = sku.strip().upper()
             product = product.strip()
             category = category.strip()
             barcode = barcode.strip()
-
             if not sku or not product or not category:
                 st.error("SKU, product name, and category are required.")
             else:
-                ok, message = add_inventory_item(
-                    sku,
-                    barcode,
-                    product,
-                    category,
-                    quantity,
-                    price,
-                    item_fee,
-                    tax_type,
-                    custom_tax_rate,
-                    preview_data,
-                )
-                if ok:
-                    st.success("Product added successfully. It is now available in POS search and Inventory.")
-                else:
-                    st.error(message)
+                ok, msg = add_inventory_item(sku, barcode, product, category, quantity, price, item_fee, tax_type, custom_tax_rate, preview)
+                st.success("Product added successfully.") if ok else st.error(msg)
 
 
 # ============================================================
-# MANAGE ITEM PAGE
+# MANAGE ITEM
 # ============================================================
 
 elif st.session_state.page == "Manage Item":
     st.markdown('<h1 class="page-title">Manage Item</h1>', unsafe_allow_html=True)
-
     inventory = list_inventory()
     if not inventory:
         st.info("No inventory items found.")
@@ -833,97 +627,74 @@ elif st.session_state.page == "Manage Item":
         selected_label = st.selectbox("Select Item", list(options.keys()))
         item = options[selected_label]
 
-        with st.container(key="form_card", border=True):
-            image_col, edit_col = st.columns([1, 2])
-
-            with image_col:
+        with st.container(key="form_card"):
+            photo, edit = st.columns([1, 2], gap="large")
+            with photo:
                 st.markdown("### Product Picture")
                 st.markdown(image_markup(item.get("image_data"), item["product"], "manage-preview", "detail"), unsafe_allow_html=True)
-                new_image_file = st.file_uploader(
-                    "Change product picture",
-                    type=["png", "jpg", "jpeg"],
-                    key=f"manage_image_{item['sku']}",
-                )
-                remove_image = st.checkbox("Remove current picture", key=f"remove_image_{item['sku']}")
-
-            with edit_col:
+                new_image_file = st.file_uploader("Change product picture", type=["png", "jpg", "jpeg"], key=f"img_{item['sku']}")
+                remove_image = st.checkbox("Remove current picture", key=f"rm_img_{item['sku']}")
+            with edit:
                 new_barcode = st.text_input("Barcode", value=item["barcode"] or "")
                 new_quantity = st.number_input("Stock Quantity", min_value=0, value=int(item["quantity"]), step=1)
                 new_price = st.number_input("Price", min_value=0.01, value=float(item["price"]), step=0.01, format="%.2f")
                 new_fee = st.number_input("Item Fee", min_value=0.0, value=float(item["item_fee"] or 0), step=0.01, format="%.2f")
-
                 tax_options = ["NONE", "LOW", "HIGH", "CUSTOM"]
                 current_tax = item["tax_type"] if item["tax_type"] in tax_options else "NONE"
                 new_tax_type = st.selectbox("Tax Type", tax_options, index=tax_options.index(current_tax))
-
                 new_custom_tax = float(item["custom_tax_rate"] or 0)
                 if new_tax_type == "CUSTOM":
                     new_custom_tax = st.number_input("Custom Tax %", min_value=0.0, value=new_custom_tax, step=0.1, format="%.2f")
 
-            if st.button("Save Changes", key="save_item_changes", type="primary", use_container_width=True):
+            if st.button("Save Changes", key="save_changes", type="primary", use_container_width=True):
                 if new_image_file:
                     new_image_data = prepare_image_data(new_image_file)
-                    keep_existing_image = False
+                    keep_existing = False
                 elif remove_image:
                     new_image_data = None
-                    keep_existing_image = False
+                    keep_existing = False
                 else:
                     new_image_data = None
-                    keep_existing_image = True
-
-                update_inventory_item(
-                    item["sku"],
-                    new_barcode.strip(),
-                    new_quantity,
-                    new_price,
-                    new_fee,
-                    new_tax_type,
-                    new_custom_tax,
-                    new_image_data,
-                    keep_existing_image,
-                )
+                    keep_existing = True
+                update_inventory_item(item["sku"], new_barcode.strip(), new_quantity, new_price, new_fee, new_tax_type, new_custom_tax, new_image_data, keep_existing)
                 st.success("Item updated successfully.")
                 st.rerun()
 
             st.divider()
-            confirm_delete = st.checkbox(f'I confirm I want to delete {item["product"]}')
-            if st.button("Delete Item", key="delete_item_button", use_container_width=True):
-                if not confirm_delete:
-                    st.warning("Confirm deletion first.")
-                else:
+            confirm = st.checkbox(f'I confirm I want to delete {item["product"]}')
+            if st.button("Delete Item", key="delete_item", use_container_width=True):
+                if confirm:
                     delete_inventory_item(item["sku"])
                     st.success("Item deleted.")
                     st.rerun()
+                else:
+                    st.warning("Confirm deletion first.")
 
 
 # ============================================================
-# SALES HISTORY PAGE
+# HISTORY
 # ============================================================
 
 elif st.session_state.page == "Sales History":
     st.markdown('<h1 class="page-title">Sales History</h1>', unsafe_allow_html=True)
     sales = list_sales()
-    if sales:
-        st.dataframe(sales, use_container_width=True, hide_index=True)
-    else:
-        st.info("No sales have been recorded yet.")
+    st.dataframe(sales, use_container_width=True, hide_index=True) if sales else st.info("No sales have been recorded yet.")
 
 
 # ============================================================
-# MORE PAGE — replaces Settings and contains settings + add history
+# SETTINGS
 # ============================================================
 
-elif st.session_state.page == "More":
+elif st.session_state.page == "Settings":
     st.markdown('<h1 class="page-title">Settings</h1>', unsafe_allow_html=True)
-    st.caption("POS configuration and recently added inventory.")
+    st.caption("Configure taxes and card fees, and review recently added inventory.")
 
-    with st.container(key="form_card", border=True):
+    with st.container(key="form_card"):
         st.markdown("### POS Settings")
         c1, c2, c3 = st.columns(3)
         new_low_tax = c1.number_input("Low Tax %", min_value=0.0, value=float(low_tax), step=0.1, format="%.2f")
         new_high_tax = c2.number_input("High Tax %", min_value=0.0, value=float(high_tax), step=0.1, format="%.2f")
         new_card_fee = c3.number_input("Card Fee %", min_value=0.0, value=float(card_fee), step=0.1, format="%.2f")
-
         if st.button("Save Settings", key="save_settings", type="primary", use_container_width=True):
             update_settings(new_low_tax, new_high_tax, new_card_fee)
             st.success("Settings saved.")
@@ -931,20 +702,12 @@ elif st.session_state.page == "More":
 
     st.markdown("### Recently Added Inventory")
     recent = list_recent_additions(25)
-
     if recent is None:
-        st.info(
-            "Recently-added history is ready in the project, but your inventory table needs the one-time added_at upgrade. "
-            "Run pos_inventory_history_upgrade.sql once in Databricks SQL."
-        )
-    elif not recent:
-        st.info("No recently added products yet.")
-    else:
+        st.info("Run pos_inventory_history_upgrade.sql once to enable added-date history.")
+    elif recent:
         st.dataframe(recent, use_container_width=True, hide_index=True)
+    else:
+        st.info("No recently added products yet.")
 
 
-# ============================================================
-# BOTTOM NAVIGATION — replaces the hamburger menu
-# ============================================================
-
-render_bottom_navigation()
+render_bottom_nav()
