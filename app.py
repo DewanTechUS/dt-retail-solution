@@ -62,6 +62,12 @@ DEFAULT_STATE = {
     "editing_cart_index": None,
     "cash_received": 0.0,
     "reset_cash_pending": False,
+    # Final checkout state
+    "receipt_ready": False,
+    "last_change_due": 0.0,
+    "last_cash_received": 0.0,
+    "last_sale_total": 0.0,
+    "last_payment_method": None,
 }
 
 for key, value in DEFAULT_STATE.items():
@@ -197,6 +203,15 @@ def set_cash_received(amount):
     st.session_state.cash_received = max(float(amount), 0.0)
 
 
+def mark_transaction_active():
+    """Start/continue an active cart and disable an older checkout receipt."""
+    st.session_state.receipt_ready = False
+    st.session_state.show_receipt = False
+    # Defer cash widget reset until the next rerun. This avoids modifying
+    # a Streamlit widget key after its number_input has already rendered.
+    st.session_state.reset_cash_pending = True
+
+
 def quick_numeric_value():
     try:
         return float(st.session_state.quick_value or 0)
@@ -328,6 +343,8 @@ def add_product_to_cart(product, quantity=1):
     if stock <= 0:
         return False, "This item is out of stock."
 
+    mark_transaction_active()
+
     existing = next(
         (
             item
@@ -373,6 +390,7 @@ def add_quick_item(tax_type=None, custom_rate=0.0):
         st.session_state.quick_message = "Enter a price greater than $0.00."
         return False
 
+    mark_transaction_active()
     st.session_state.cart.append(
         {
             "sku": f"MANUAL-{uuid.uuid4().hex[:6].upper()}",
@@ -430,6 +448,7 @@ def finish_custom_tax_item():
         st.session_state.quick_message = "Tax rate cannot be negative."
         return False
 
+    mark_transaction_active()
     st.session_state.cart.append(
         {
             "sku": f"MANUAL-{uuid.uuid4().hex[:6].upper()}",
@@ -488,6 +507,57 @@ def exact_scan_submit():
         st.session_state.selected_sku = exact["sku"]
         if ok:
             st.session_state.pos_search = ""
+
+
+def finalize_pos_sale(payment_method, tendered, settings):
+    """Finalize the active transaction and preserve a clean post-sale status."""
+    if not st.session_state.cart:
+        return False, "Add at least one item before taking payment."
+
+    payment_method = (payment_method or "CASH").upper()
+    apply_card_fee = payment_method == "CARD" and bool(st.session_state.apply_card_fee)
+    totals = calculate_cart_totals(
+        st.session_state.cart,
+        payment_method,
+        "PRODUCT DEFAULT",
+        0.0,
+        apply_card_fee,
+        settings,
+    )
+
+    tendered = float(tendered or 0.0)
+    if payment_method == "CASH" and tendered + 1e-9 < float(totals["total"]):
+        return False, "Cash received is less than the amount due."
+
+    stock_ok, problem = validate_cart_stock(st.session_state.cart)
+    if not stock_ok:
+        return False, f"Not enough stock for {problem}."
+
+    receipt_id = "DT-" + local_now().strftime("%Y%m%d-") + uuid.uuid4().hex[:6].upper()
+    items_snapshot = [dict(item) for item in st.session_state.cart]
+    change_due = max(tendered - float(totals["total"]), 0.0) if payment_method == "CASH" else 0.0
+
+    complete_sale(st.session_state.cart, receipt_id)
+
+    st.session_state.last_receipt = {
+        "receipt_id": receipt_id,
+        "date": local_now().strftime("%m/%d/%Y %I:%M %p"),
+        "items": items_snapshot,
+        "totals": totals,
+        "payment_method": payment_method,
+        "cash_received": tendered if payment_method == "CASH" else 0.0,
+        "change_due": change_due,
+    }
+    st.session_state.last_change_due = float(change_due)
+    st.session_state.last_cash_received = float(tendered if payment_method == "CASH" else 0.0)
+    st.session_state.last_sale_total = float(totals["total"])
+    st.session_state.last_payment_method = payment_method
+    st.session_state.receipt_ready = True
+    st.session_state.show_receipt = False
+    st.session_state.cart = []
+    st.session_state.reset_cash_pending = True
+    st.session_state.payment_method = "CASH"
+    return True, receipt_id
 
 
 # ============================================================
@@ -648,6 +718,50 @@ def render_cart_item(index, item, settings):
             st.rerun()
 
 
+def render_sale_item(index, item, settings):
+    """Compact sale row for the final POS checkout."""
+    with st.container(key=f"sale_row_{index}"):
+        img_col, info_col, total_col, remove_col = st.columns(
+            [0.72, 2.75, 0.86, 0.38],
+            vertical_alignment="center",
+            gap="small",
+        )
+
+        if item.get("manual"):
+            img_col.markdown(render_manual_icon(), unsafe_allow_html=True)
+            subtitle = "Manual Entry"
+        else:
+            img_col.markdown(
+                image_markup(item.get("image_data"), item["product"], "sale-thumb", "thumb"),
+                unsafe_allow_html=True,
+            )
+            subtitle = f'SKU: {esc(item["sku"])}'
+
+        badge_label, badge_rate, badge_class = tax_badge(item, settings)
+        badge_text = "No Tax" if badge_label == "No Tax" else f"{badge_label} {badge_rate:.2f}%"
+
+        info_col.markdown(
+            f'''<div class="sale-item-copy">
+                  <b>{esc(item["product"])}</b>
+                  <small>{subtitle}</small>
+                  <span>Qty {int(item["quantity"])} &nbsp;&times;&nbsp; {money(float(item["price"]))}</span>
+                  <em class="tax-badge {badge_class}">{esc(badge_text)}</em>
+                </div>''',
+            unsafe_allow_html=True,
+        )
+
+        total_col.markdown(
+            f'<div class="sale-line-total">{money(float(item["price"]) * int(item["quantity"]))}</div>',
+            unsafe_allow_html=True,
+        )
+
+        if remove_col.button("×", key=f"sale_remove_{index}", use_container_width=True, help="Remove item"):
+            st.session_state.cart.pop(index)
+            st.session_state.receipt_ready = False
+            st.session_state.show_receipt = False
+            st.rerun()
+
+
 def render_cart_editor_page(settings):
     st.markdown(
         '<div class="page-heading"><span>Edit Cart</span><small>Modify a cart item without changing the main POS layout.</small></div>',
@@ -740,332 +854,256 @@ summary = get_dashboard_summary()
 # ============================================================
 
 if st.session_state.page == "POS":
-    # Calculate checkout values before rendering so the same values are used
-    # on both the left payment controls and right totals panel.
-    totals = calculate_cart_totals(
-        st.session_state.cart,
-        st.session_state.payment_method,
-        "PRODUCT DEFAULT",
-        0.0,
-        st.session_state.apply_card_fee,
-        settings,
+    cash_totals = calculate_cart_totals(
+        st.session_state.cart, "CASH", "PRODUCT DEFAULT", 0.0, False, settings
     )
-    cash_received = float(st.session_state.get("cash_received", 0.0) or 0.0)
-    change_due = max(cash_received - float(totals["total"]), 0.0)
+    card_totals = calculate_cart_totals(
+        st.session_state.cart, "CARD", "PRODUCT DEFAULT", 0.0,
+        bool(st.session_state.apply_card_fee), settings
+    )
 
-    left, right = st.columns([0.92, 1.08], gap="medium")
+    sale_complete = bool(
+        st.session_state.receipt_ready
+        and st.session_state.last_receipt
+        and not st.session_state.cart
+    )
+    print_ready = sale_complete
 
-    # --------------------------------------------------------
-    # LEFT: QUICK ADD + PAYMENT
-    # --------------------------------------------------------
-    with left:
+    sale_col, payment_col, quick_col = st.columns([0.88, 1.34, 0.92], gap="medium")
+
+    # LEFT — SALE ITEMS
+    with sale_col:
+        with st.container(key="sale_panel"):
+            title_col, edit_col = st.columns([2.5, 1], vertical_alignment="center", gap="small")
+            title_col.markdown(
+                f'<div class="final-panel-title">SALE ITEMS ({sum(int(i["quantity"]) for i in st.session_state.cart)})</div>',
+                unsafe_allow_html=True,
+            )
+            if edit_col.button("Edit Cart", key="final_edit_cart", use_container_width=True, disabled=not st.session_state.cart):
+                goto("Cart Editor")
+                st.rerun()
+
+            if st.session_state.cart:
+                with st.container(height=410, border=False, key="sale_items_scroll"):
+                    for index, item in enumerate(st.session_state.cart):
+                        render_sale_item(index, item, settings)
+            else:
+                message = "Sale completed — receipt ready." if sale_complete else "Your cart is empty."
+                sub = "Print the receipt or start the next sale." if sale_complete else "Scan inventory or use Quick Add."
+                st.markdown(
+                    f'<div class="final-empty-sale"><b>{message}</b><small>{sub}</small></div>',
+                    unsafe_allow_html=True,
+                )
+
+            fee_line = f'<div><span>Product Fees</span><b>{money(cash_totals["fees"])}</b></div>' if cash_totals["fees"] else ""
+            st.markdown(
+                f'''<div class="sale-summary-lines">
+                    <div><span>Subtotal</span><b>{money(cash_totals["subtotal"])}</b></div>
+                    {fee_line}
+                    <div><span>Tax</span><b>{money(cash_totals["tax"])}</b></div>
+                    <hr>
+                    <div class="sale-grand-total"><span>TOTAL</span><b>{money(cash_totals["total"])}</b></div>
+                </div>''',
+                unsafe_allow_html=True,
+            )
+
+    # CENTER — PAYMENT
+    with payment_col:
+        with st.container(key="payment_panel"):
+            st.markdown('<div class="final-panel-title payment-heading">PAYMENT</div>', unsafe_allow_html=True)
+
+            cash_btn_col, card_btn_col, receipt_btn_col = st.columns(3, gap="small")
+            if cash_btn_col.button(
+                f"CASH {money(cash_totals['total'])}", key="cash_btn", use_container_width=True,
+                disabled=not st.session_state.cart
+            ):
+                st.session_state.payment_method = "CASH"
+                st.rerun()
+
+            if card_btn_col.button(
+                f"CARD {money(card_totals['total'])}", key="card_btn", use_container_width=True,
+                disabled=not st.session_state.cart
+            ):
+                ok, message = finalize_pos_sale("CARD", 0.0, settings)
+                if ok:
+                    st.toast(f"Card sale complete · {message}")
+                    st.rerun()
+                st.error(message)
+
+            if receipt_btn_col.button(
+                "PRINT RECEIPT", key="print_receipt", use_container_width=True,
+                disabled=not print_ready
+            ):
+                st.session_state.show_receipt = not st.session_state.show_receipt
+                st.rerun()
+
+            st.markdown('<div class="cash-label final-cash-label">CASH RECEIVED</div>', unsafe_allow_html=True)
+
+            if st.session_state.cart:
+                cash_presets = [
+                    ("Exact", float(cash_totals["total"])),
+                    ("$20", 20.0), ("$50", 50.0), ("$100", 100.0), ("$200", 200.0),
+                ]
+                preset_cols = st.columns(5, gap="small")
+                for col, (label, amount) in zip(preset_cols, cash_presets):
+                    clicked = col.button(label, key=f"cash_preset_{label.replace('$', '').lower()}", use_container_width=True)
+                    if clicked:
+                        st.session_state.payment_method = "CASH"
+                        if amount + 1e-9 >= float(cash_totals["total"]):
+                            ok, message = finalize_pos_sale("CASH", amount, settings)
+                            if ok:
+                                st.toast(f"Cash sale complete · {message}")
+                                st.rerun()
+                            st.error(message)
+                        else:
+                            st.session_state.cash_received = amount
+                            st.rerun()
+
+                st.number_input(
+                    "Cash Received Amount", min_value=0.0, step=1.0, format="%.2f",
+                    key="cash_received", label_visibility="collapsed",
+                    help="Type an amount and press Enter. The sale completes automatically when enough cash is received.",
+                )
+                current_cash = float(st.session_state.get("cash_received", 0.0) or 0.0)
+                current_change = max(current_cash - float(cash_totals["total"]), 0.0)
+
+                if current_cash > 0 and current_cash + 1e-9 >= float(cash_totals["total"]):
+                    ok, message = finalize_pos_sale("CASH", current_cash, settings)
+                    if ok:
+                        st.toast(f"Cash sale complete · {message}")
+                        st.rerun()
+                    st.error(message)
+
+                st.markdown(
+                    f'<div class="final-change-card"><span>CHANGE DUE</span><b>{money(current_change)}</b></div>',
+                    unsafe_allow_html=True,
+                )
+                st.markdown(
+                    '<div class="payment-helper">Cash shortcuts complete the sale automatically when the tender is enough.</div>',
+                    unsafe_allow_html=True,
+                )
+            elif sale_complete:
+                if st.session_state.last_payment_method == "CASH":
+                    st.markdown(
+                        f'<div class="cash-received-display"><span>Cash Received</span><b>{money(st.session_state.last_cash_received)}</b></div>',
+                        unsafe_allow_html=True,
+                    )
+                    st.markdown(
+                        f'<div class="final-change-card completed"><span>CHANGE DUE</span><b>{money(st.session_state.last_change_due)}</b></div>',
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    st.markdown(
+                        f'<div class="cash-received-display card-approved"><span>Card Approved</span><b>{money(st.session_state.last_sale_total)}</b></div>',
+                        unsafe_allow_html=True,
+                    )
+                    st.markdown('<div class="final-change-card completed"><span>PAYMENT COMPLETE</span><b>✓</b></div>', unsafe_allow_html=True)
+                st.markdown('<div class="payment-helper success">Sale completed. Receipt is ready to print.</div>', unsafe_allow_html=True)
+            else:
+                st.markdown('<div class="cash-received-display muted"><span>Cash Received</span><b>$0.00</b></div>', unsafe_allow_html=True)
+                st.markdown('<div class="final-change-card"><span>CHANGE DUE</span><b>$0.00</b></div>', unsafe_allow_html=True)
+                st.markdown('<div class="payment-helper">Add an item to begin a sale.</div>', unsafe_allow_html=True)
+
+            if card_fee > 0:
+                st.markdown(
+                    f'<div class="card-fee-note">Configured card fee: {card_fee:.2f}% · Card total {money(card_totals["total"])}</div>',
+                    unsafe_allow_html=True,
+                )
+
+    # RIGHT — TAX + KEYPAD + ADD ITEM
+    with quick_col:
         with st.container(key="quick_panel"):
             st.markdown(
-                f'<div class="quick-title-row"><div class="panel-title"><span class="bolt">ϟ</span> QUICK ADD ITEM</div><span class="top-qty-chip">Qty {int(st.session_state.quick_qty)}</span></div>',
+                f'<div class="quick-title-row"><div class="final-panel-title">QUICK ADD ITEM</div><span class="top-qty-chip">Qty {int(st.session_state.quick_qty)}</span></div>',
                 unsafe_allow_html=True,
             )
 
             mode_label = "CUSTOM TAX %" if st.session_state.quick_mode == "CUSTOM_TAX" else "PRICE"
-
             with st.container(key="quick_entry_display"):
-                st.markdown(
-                    f'<div class="quick-display-label">{mode_label}</div>',
-                    unsafe_allow_html=True,
-                )
+                st.markdown(f'<div class="quick-display-label">{mode_label}</div>', unsafe_allow_html=True)
                 st.text_input(
-                    "Quick Entry",
-                    key="quick_input_widget",
-                    label_visibility="collapsed",
+                    "Quick Entry", key="quick_input_widget", label_visibility="collapsed",
                     placeholder="$0.00" if st.session_state.quick_mode == "PRICE" else "0.00",
                     on_change=normalize_quick_keyboard_input,
                 )
 
             with st.container(key="scan_bar"):
-                st.markdown('<span class="scan-icon">▥</span>', unsafe_allow_html=True)
                 search_text = st.text_input(
-                    "Scan / Search",
-                    placeholder="Scan a barcode or type a SKU / product name",
-                    label_visibility="collapsed",
-                    key="pos_search",
-                    on_change=exact_scan_submit,
+                    "Scan / Search", placeholder="Scan barcode / SKU / product",
+                    label_visibility="collapsed", key="pos_search", on_change=exact_scan_submit,
                 )
 
-            matches = search_products(search_text, limit=6) if search_text.strip() else []
+            matches = search_products(search_text, limit=4) if search_text.strip() else []
             if matches:
-                st.markdown('<div class="suggestions-title">Inventory Suggestions</div>', unsafe_allow_html=True)
-                suggestion_cols = st.columns(min(3, len(matches)), gap="small")
-                for idx, row in enumerate(matches[:3]):
-                    with suggestion_cols[idx]:
-                        with st.container(key=f"suggestion_card_{idx}"):
-                            p1, p2 = st.columns([0.72, 1.55], gap="small", vertical_alignment="center")
-                            p1.markdown(image_markup(row.get("image_data"), row["product"], "suggestion-thumb", "thumb"), unsafe_allow_html=True)
-                            p2.markdown(
-                                f'<div class="suggestion-card-copy"><b>{esc(row["product"])}</b><small>{esc(row["sku"])}</small><span>{money(row["price"])} · Stock {int(row["quantity"])}</span></div>',
-                                unsafe_allow_html=True,
-                            )
-                            if st.button(
-                                "+ Add",
-                                key=f"sadd_{row['sku']}",
-                                use_container_width=True,
-                                disabled=int(row["quantity"]) <= 0,
-                            ):
-                                ok, msg = add_product_to_cart(row, 1)
-                                if ok:
-                                    st.session_state.pos_search = ""
-                                    st.rerun()
-                                st.error(msg)
+                match = matches[0]
+                with st.container(key="quick_match"):
+                    qm1, qm2 = st.columns([2.3, 1], gap="small", vertical_alignment="center")
+                    qm1.markdown(
+                        f'<div class="quick-match-copy"><b>{esc(match["product"])}</b><small>{esc(match["sku"])} · {money(match["price"])} · Stock {int(match["quantity"])}</small></div>',
+                        unsafe_allow_html=True,
+                    )
+                    if qm2.button("+ Add", key="quick_match_add", use_container_width=True, disabled=int(match["quantity"]) <= 0):
+                        ok, message = add_product_to_cart(match, 1)
+                        if ok:
+                            st.session_state.pos_search = ""
+                            st.rerun()
+                        st.error(message)
 
-            st.markdown('<div class="control-label">CHOOSE TAX</div>', unsafe_allow_html=True)
-            tax_cols = st.columns(4, gap="small")
+            st.markdown('<div class="control-label">TAX OPTION</div>', unsafe_allow_html=True)
             tax_defs = [
                 ("NONE", "No Tax", "0%"),
                 ("LOW", "Low Tax", f"{low_tax:.2f}%"),
                 ("HIGH", "High Tax", f"{high_tax:.2f}%"),
                 ("CUSTOM", "Custom Tax", "Custom"),
             ]
-
-            for col, (tax_value, label, rate_text) in zip(tax_cols, tax_defs):
-                active = st.session_state.quick_tax == tax_value
-                with col:
-                    if st.button(
-                        f"{label}\n{rate_text}",
-                        key=f"quick_tax_{tax_value}",
-                        use_container_width=True,
-                        type="primary" if active else "secondary",
-                    ):
-                        if tax_value == "CUSTOM":
-                            start_custom_tax_entry()
-                            st.rerun()
-                        st.session_state.quick_tax = tax_value
-                        if st.session_state.quick_mode == "PRICE" and quick_numeric_value() > 0:
-                            if add_quick_item(tax_value):
+            for row_defs in (tax_defs[:2], tax_defs[2:]):
+                tax_cols = st.columns(2, gap="small")
+                for col, (tax_value, label, rate_text) in zip(tax_cols, row_defs):
+                    active = st.session_state.quick_tax == tax_value
+                    with col:
+                        if st.button(
+                            f"{label}\n{rate_text}", key=f"quick_tax_{tax_value}",
+                            use_container_width=True, type="primary" if active else "secondary",
+                        ):
+                            if tax_value == "CUSTOM":
+                                start_custom_tax_entry()
                                 st.rerun()
-                        st.rerun()
+                            st.session_state.quick_tax = tax_value
+                            st.rerun()
 
             keypad_rows = [
                 ["7", "8", "9", "⌫"],
                 ["4", "5", "6", "+Q"],
                 ["1", "2", "3", "−Q"],
-                ["0", ".", "C", "ADD"],
+                ["0", ".", "C", "00"],
             ]
             for r, row in enumerate(keypad_rows):
-                cols = st.columns(4, gap="small")
+                cols = st.columns([1, 1, 1, 0.78], gap="small")
                 for c, key in enumerate(row):
                     if key == "+Q":
-                        cols[c].button(
-                            f"+ Qty {int(st.session_state.quick_qty)}",
-                            key=f"keypad_{r}_{c}",
-                            use_container_width=True,
-                            on_click=quick_qty_adjust,
-                            args=(1,),
-                        )
+                        cols[c].button("+ Qty", key=f"keypad_{r}_{c}", use_container_width=True, on_click=quick_qty_adjust, args=(1,))
                     elif key == "−Q":
-                        cols[c].button(
-                            "− Qty",
-                            key=f"keypad_{r}_{c}",
-                            use_container_width=True,
-                            on_click=quick_qty_adjust,
-                            args=(-1,),
-                        )
-                    elif key == "ADD":
-                        add_label = "APPLY & ADD" if st.session_state.quick_mode == "CUSTOM_TAX" else "🛒  ADD ITEM"
-                        if cols[c].button(add_label, key=f"keypad_{r}_{c}", use_container_width=True, type="primary"):
-                            if st.session_state.quick_mode == "CUSTOM_TAX":
-                                if finish_custom_tax_item():
-                                    st.rerun()
-                            else:
-                                if add_quick_item(st.session_state.quick_tax):
-                                    st.rerun()
+                        cols[c].button("− Qty", key=f"keypad_{r}_{c}", use_container_width=True, on_click=quick_qty_adjust, args=(-1,))
+                    elif key == "00":
+                        cols[c].button("00", key=f"keypad_{r}_{c}", use_container_width=True, on_click=quick_keypad_press, args=("0",))
                     else:
-                        cols[c].button(
-                            key,
-                            key=f"keypad_{r}_{c}",
-                            use_container_width=True,
-                            on_click=quick_keypad_press,
-                            args=(key,),
-                        )
+                        cols[c].button(key, key=f"keypad_{r}_{c}", use_container_width=True, on_click=quick_keypad_press, args=(key,))
+
+            add_label = "APPLY & ADD" if st.session_state.quick_mode == "CUSTOM_TAX" else "ADD ITEM"
+            if st.button(add_label, key="final_add_item", use_container_width=True, type="primary"):
+                if st.session_state.quick_mode == "CUSTOM_TAX":
+                    if finish_custom_tax_item(): st.rerun()
+                else:
+                    if add_quick_item(st.session_state.quick_tax): st.rerun()
 
             if st.session_state.quick_mode == "CUSTOM_TAX":
-                if st.button("← Cancel custom tax", key="cancel_custom_tax", use_container_width=True):
-                    cancel_custom_tax()
-                    st.rerun()
+                if st.button("Cancel custom tax", key="cancel_custom_tax", use_container_width=True):
+                    cancel_custom_tax(); st.rerun()
 
-            # PAYMENT MOVED UNDER THE KEYPAD TO MATCH THE APPROVED DESIGN.
-            st.markdown('<div class="section-divider-title"><span>PAYMENT</span></div>', unsafe_allow_html=True)
-            pay_cash, pay_card = st.columns(2, gap="small")
-
-            if pay_cash.button(
-                f"▣  CASH {money(totals['total'])}",
-                key="cash_btn",
-                use_container_width=True,
-                type="primary" if st.session_state.payment_method == "CASH" else "secondary",
-            ):
-                st.session_state.payment_method = "CASH"
-                st.rerun()
-
-            if pay_card.button(
-                f"▤  CARD {money(totals['total'])}",
-                key="card_btn",
-                use_container_width=True,
-                type="primary" if st.session_state.payment_method == "CARD" else "secondary",
-            ):
-                st.session_state.payment_method = "CARD"
-                st.rerun()
-
-            if st.session_state.payment_method == "CASH":
-                st.markdown('<div class="cash-label">CASH RECEIVED</div>', unsafe_allow_html=True)
-                cash_presets = [
-                    ("Exact", float(totals["total"])),
-                    ("$20", 20.0),
-                    ("$50", 50.0),
-                    ("$100", 100.0),
-                    ("$200", 200.0),
-                ]
-                preset_cols = st.columns(5, gap="small")
-                for col, (label, amount) in zip(preset_cols, cash_presets):
-                    col.button(
-                        label,
-                        key=f"cash_preset_{label.replace('$', '').lower()}",
-                        use_container_width=True,
-                        on_click=set_cash_received,
-                        args=(amount,),
-                    )
-
-                st.number_input(
-                    "Cash Received Amount",
-                    min_value=0.0,
-                    step=1.0,
-                    format="%.2f",
-                    key="cash_received",
-                    label_visibility="collapsed",
-                    help="Type an amount and press Enter, or use a quick-cash button.",
-                )
-                cash_received = float(st.session_state.get("cash_received", 0.0) or 0.0)
-                change_due = max(cash_received - float(totals["total"]), 0.0)
-                st.markdown(
-                    f'<div class="change-card"><span>CHANGE DUE</span><b>{money(change_due)}</b></div>',
-                    unsafe_allow_html=True,
-                )
-            else:
-                st.checkbox(f"Apply Card Fee ({card_fee:.2f}%)", key="apply_card_fee")
-                totals = calculate_cart_totals(
-                    st.session_state.cart,
-                    "CARD",
-                    "PRODUCT DEFAULT",
-                    0.0,
-                    st.session_state.apply_card_fee,
-                    settings,
-                )
-                st.markdown(
-                    f'<div class="change-card"><span>CARD TOTAL</span><b>{money(totals["total"])}</b></div>',
-                    unsafe_allow_html=True,
-                )
-
-            action1, action2 = st.columns(2, gap="small")
-            can_complete = bool(st.session_state.cart)
-            if st.session_state.payment_method == "CASH" and can_complete:
-                can_complete = cash_received >= totals["total"]
-
-            if action1.button(
-                "✓  COMPLETE SALE",
-                key="complete_sale",
-                use_container_width=True,
-                type="primary",
-                disabled=not can_complete,
-            ):
-                stock_ok, problem = validate_cart_stock(st.session_state.cart)
-                if not stock_ok:
-                    st.error(f"Not enough stock for {problem}.")
-                else:
-                    receipt_id = "DT-" + local_now().strftime("%Y%m%d-") + uuid.uuid4().hex[:6].upper()
-                    complete_sale(st.session_state.cart, receipt_id)
-                    st.session_state.last_receipt = {
-                        "receipt_id": receipt_id,
-                        "date": local_now().strftime("%m/%d/%Y %I:%M %p"),
-                        "items": [dict(item) for item in st.session_state.cart],
-                        "totals": totals,
-                        "payment_method": st.session_state.payment_method,
-                        "cash_received": float(cash_received),
-                        "change_due": float(change_due),
-                    }
-                    st.session_state.cart = []
-                    st.session_state.show_receipt = True
-                    st.session_state.reset_cash_pending = True
-                    st.toast(f"Sale complete · {receipt_id}")
-                    st.rerun()
-
-            if action2.button(
-                "▤  PRINT RECEIPT",
-                key="print_receipt",
-                use_container_width=True,
-                disabled=st.session_state.last_receipt is None,
-            ):
-                st.session_state.show_receipt = not st.session_state.show_receipt
-                st.rerun()
-
-    # --------------------------------------------------------
-    # RIGHT: CART + TOTALS ONLY
-    # --------------------------------------------------------
-    with right:
-        with st.container(key="cart_panel"):
-            cart_title, cart_clear = st.columns([4, 1], vertical_alignment="center")
-            cart_title.markdown(
-                f'<div class="panel-title"><span class="cart-title-icon">🛒</span> CART ({sum(int(i["quantity"]) for i in st.session_state.cart)} ITEMS)</div>',
-                unsafe_allow_html=True,
-            )
-            if cart_clear.button(
-                "🗑  Clear Cart",
-                key="clear_cart",
-                use_container_width=True,
-                disabled=not st.session_state.cart,
-            ):
-                st.session_state.cart = []
-                st.rerun()
-
-            st.markdown(
-                '<div class="cart-table-head"><span>ITEM</span><span>QTY</span><span>PRICE</span><span>TOTAL</span><span></span></div>',
-                unsafe_allow_html=True,
-            )
-
-            if st.session_state.cart:
-                with st.container(height=360, border=False, key="cart_items_scroll"):
-                    for index, item in enumerate(st.session_state.cart):
-                        render_cart_item(index, item, settings)
-            else:
-                st.markdown(
-                    '<div class="empty-cart"><span class="empty-cart-icon">🛒</span><b>Your cart is empty</b><small>Scan inventory or use Quick Add.</small></div>',
-                    unsafe_allow_html=True,
-                )
-
-            # Recalculate in case card fee selection changed above.
-            totals = calculate_cart_totals(
-                st.session_state.cart,
-                st.session_state.payment_method,
-                "PRODUCT DEFAULT",
-                0.0,
-                st.session_state.apply_card_fee,
-                settings,
-            )
-
-            st.markdown(
-                f'''<div class="totals-card">
-                    <div><span>Subtotal</span><b>{money(totals['subtotal'])}</b></div>
-                    <div><span>Product Fees</span><b>{money(totals['fees'])}</b></div>
-                    <div class="tax-total"><span>Tax</span><b>{money(totals['tax'])}</b></div>
-                    <div><span>Card Fee{f' ({card_fee:.2f}%)' if st.session_state.payment_method == 'CARD' and st.session_state.apply_card_fee else ''}</span><b>{money(totals['card_fee'])}</b></div>
-                    <hr>
-                    <div class="grand-total"><span>TOTAL</span><b>{money(totals['total'])}</b></div>
-                </div>''',
-                unsafe_allow_html=True,
-            )
-
-    # Receipt preview appears below the fixed two-panel terminal so it never
-    # changes the main POS proportions.
     if st.session_state.show_receipt and st.session_state.last_receipt:
         with st.container(key="receipt_preview_card"):
             st.markdown('<div class="page-heading"><span>Receipt Preview</span></div>', unsafe_allow_html=True)
             components.html(build_receipt_html(st.session_state.last_receipt), height=560, scrolling=True)
-
 
 elif st.session_state.page == "Cart Editor":
     render_cart_editor_page(settings)
