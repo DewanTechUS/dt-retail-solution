@@ -64,7 +64,7 @@ This analytics layer complements the POS application by showing how the same ret
 
 ## Terminal Quick Add
 
-The POS includes a fast manual-entry terminal on the right side of the checkout screen. Enter a price with the keypad, choose No Tax, Low Tax, High Tax, or Custom Tax, and press **Add Item**. The same area also supports barcode/SKU/product search.
+The POS includes a fast manual-entry terminal: type a price on the large keypad, then tap No Tax, Low Tax, or High Tax to add the item to the cart immediately. Custom tax uses the same keypad and cart entries can be edited or removed before checkout.
 
 ## Key Features
 
@@ -79,10 +79,7 @@ The POS includes a fast manual-entry terminal on the right side of the checkout 
 - Remove items from the cart
 - Manual-price item support
 - Cash and card checkout
-- Cash shortcuts that automatically complete the sale when enough cash is received
 - Automatic change calculation
-- Card checkout completes from the Card button
-- Receipt button stays disabled until payment is completed
 - Printable receipt generation
 
 ### Inventory Management
@@ -232,27 +229,20 @@ Choose Quantity
 Apply Tax / Product Fees
         |
         v
-Choose Payment
+Choose Cash or Card
         |
-        +----------------------+
-        |                      |
-        v                      v
-Cash shortcut / amount      Card button
-        |                      |
-        +----------+-----------+
-                   |
-                   v
-       Sale completes automatically
-                   |
-        +----------+-----------+
-        |                      |
-        v                      v
+        v
+Complete Sale
+        |
+        +--------------------+
+        |                    |
+        v                    v
 Update Inventory       Save Sales History
-        |                      |
-        +----------+-----------+
-                   |
-                   v
-          Enable Print Receipt
+        |                    |
+        +---------+----------+
+                  |
+                  v
+            Generate Receipt
 ```
 
 ---
